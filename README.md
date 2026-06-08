@@ -76,6 +76,34 @@ storefront order endpoint / webhooks later you'll also need the server-only
 | `npm run start` | Run the production build |
 | `npm run lint` | ESLint |
 | `npm run typecheck` | `tsc --noEmit` |
+| `npm test` | Unit tests (Vitest) |
+| `npm run test:db` | Database security/logic tests (needs a local Supabase) |
+| `npm run test:e2e` | End-to-end tests (Playwright) |
+
+## Testing
+
+Three layers, all wired into CI (`.github/workflows/ci.yml`, runs on every push/PR):
+
+- **Unit (Vitest)** — pure logic (cart/pricing, themes, order-status flow, slug rules,
+  i18n). Runs anywhere: `npm test`.
+- **Database (SQL assertions)** — the security spine: RLS tenant isolation, every RPC's
+  ownership checks, stock-on-confirm/restore, customer auto-build, storefront price
+  re-derivation, honeypot + rate-limits. Each test runs in a transaction and rolls back, so
+  it never leaves data. Needs a **local** Supabase (Docker):
+  ```bash
+  supabase start
+  npm run test:db          # psql runs supabase/tests/platform.test.sql
+  ```
+- **E2E (Playwright)** — buyer checkout + seller signup→onboard→product journeys against the
+  built app + local Supabase:
+  ```bash
+  supabase start
+  # point NEXT_PUBLIC_SUPABASE_URL / _ANON_KEY at the local stack (supabase status)
+  npm run build && npm run test:e2e
+  ```
+
+The DB and E2E layers require Docker (local stack) and run against a throwaway database —
+**never** production. See [`supabase/README.md`](supabase/README.md) for the DB-test details.
 
 ## Design
 

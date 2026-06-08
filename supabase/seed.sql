@@ -1,48 +1,34 @@
--- Mahalli — development seed (OPTIONAL, run manually)
+-- Mahalli — local/CI seed (runs on `supabase db reset`, LOCAL only).
 --
--- Real tenants are provisioned through the app: a seller signs up, then
--- create_shop() makes their `sellers` + owner `profiles` rows atomically.
--- Because every shop is tied to a real auth.users row (and a real password we
--- never store in SQL), we do NOT seed sellers/users here.
---
--- What this script DOES: populate a demo product catalogue for a shop that
--- already exists, identified by its slug. Useful for poking at the dashboard
--- and (later) the storefront with realistic data.
---
--- Usage: create a shop in the app, note its slug, then run this with that slug.
--- Safe to re-run: it clears and re-inserts this shop's demo products.
+-- Creates a deterministic demo shop "demo-shop" with products so the storefront
+-- E2E test (e2e/storefront.spec.ts) has something to load. NEVER runs against
+-- production (prod is migrated via the MCP, not seeded).
 
 do $$
 declare
-  v_shop_slug text := 'layla-boutique';  -- <-- change to your shop's slug
-  v_seller    uuid;
-  v_p1 uuid; v_p2 uuid; v_p3 uuid;
+  v_user uuid := '00000000-0000-0000-0000-0000000000de';
+  v_shop uuid := '00000000-0000-0000-0000-00000000beef';
+  v_p1 uuid;
 begin
-  select id into v_seller from public.sellers where slug = v_shop_slug;
-  if v_seller is null then
-    raise notice 'No shop with slug "%". Create it in the app first.', v_shop_slug;
-    return;
-  end if;
+  insert into auth.users (instance_id, id, aud, role, email, created_at, updated_at)
+  values ('00000000-0000-0000-0000-000000000000', v_user, 'authenticated','authenticated','demo@mahalli.local', now(), now())
+  on conflict (id) do nothing;
 
-  delete from public.products where seller_id = v_seller;
+  insert into public.sellers (id, name, slug, owner_user_id, city, lang, theme, delivery_areas)
+  values (v_shop, 'Demo Bakery', 'demo-shop', v_user, 'Tripoli', 'en', 'cream',
+          '[{"area":"Tripoli","fee":10}]'::jsonb)
+  on conflict (id) do nothing;
+
+  insert into public.profiles (user_id, seller_id, role)
+  values (v_user, v_shop, 'owner') on conflict do nothing;
 
   insert into public.products (seller_id, name, description, price, category, stock, active)
-  values (v_seller, 'عباية كلاسيك', 'عباية سوداء بقصّة كلاسيكية', 220, 'عبايات', 12, true)
+  values (v_shop, 'Chocolate Cake', 'Rich Belgian chocolate', 95, 'Cakes', 8, true)
   returning id into v_p1;
+  insert into public.product_variants (product_id, label, price_override, stock) values
+    (v_p1, 'Small', null, 5), (v_p1, 'Large', 140, 4);
 
-  insert into public.products (seller_id, name, description, price, category, stock, active)
-  values (v_seller, 'فستان سهرة', 'فستان طويل لمناسبات', 480, 'فساتين', 4, true)
-  returning id into v_p2;
-
-  insert into public.products (seller_id, name, description, price, category, stock, active)
-  values (v_seller, 'عطر وردي', 'عطر نسائي بنفحة وردية', 95, 'عطور', 2, true)
-  returning id into v_p3;
-
-  -- a couple of variants on the abaya
-  insert into public.product_variants (product_id, label, sku, stock) values
-    (v_p1, 'أسود / S', 'AB-BLK-S', 4),
-    (v_p1, 'أسود / M', 'AB-BLK-M', 5),
-    (v_p1, 'أسود / L', 'AB-BLK-L', 3);
-
-  raise notice 'Seeded 3 products for shop "%".', v_shop_slug;
+  insert into public.products (seller_id, name, price, category, stock, active) values
+    (v_shop, 'Vanilla Cupcakes', 40, 'Cupcakes', 20, true),
+    (v_shop, 'Berry Cheesecake', 75, 'Cheesecake', 6, true);
 end $$;

@@ -7,18 +7,7 @@ import { createShop, type OnboardingState } from "@/app/onboarding/actions";
 import { createClient } from "@/lib/supabase/client";
 import { useI18n } from "@/i18n/provider";
 import { locales } from "@/i18n/config";
-
-const slugRe = /^[a-z0-9](?:[a-z0-9-]{1,38}[a-z0-9])$/;
-
-function slugify(input: string): string {
-  return input
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, "")
-    .trim()
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .slice(0, 40);
-}
+import { slugRe, slugify } from "@/lib/slug";
 
 type SlugState = "idle" | "checking" | "available" | "taken" | "invalid";
 

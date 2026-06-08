@@ -3,12 +3,11 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { slugRe } from "@/lib/slug";
 
 export type OnboardingState = {
   errorKey?: "slugTaken" | "slugInvalid" | "generic";
 };
-
-const slugRe = /^[a-z0-9](?:[a-z0-9-]{1,38}[a-z0-9])$/;
 
 const shopSchema = z.object({
   name: z.string().trim().min(1).max(120),
