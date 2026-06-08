@@ -1,16 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronLeft, Minus, Plus, Trash2 } from "lucide-react";
+import Image from "next/image";
+import { ChevronLeft, MapPin, Minus, Package, Plus, Trash2 } from "lucide-react";
 import { submitOrder } from "@/app/[slug]/actions";
 import type { StorefrontShop } from "@/types/storefront";
 import { useI18n } from "@/i18n/provider";
 import { formatPrice } from "@/lib/utils";
-import {
-  cartSubtotal,
-  unitPrice,
-  type CartLine,
-} from "@/components/storefront/cart";
+import { cartSubtotal, unitPrice, type CartLine } from "@/components/storefront/cart";
 
 export function CheckoutView({
   slug,
@@ -35,7 +32,7 @@ export function CheckoutView({
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [area, setArea] = useState("");
-  const [hp, setHp] = useState(""); // honeypot
+  const [hp, setHp] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [errorKey, setErrorKey] = useState<string | null>(null);
 
@@ -78,141 +75,165 @@ export function CheckoutView({
             : null;
 
   return (
-    <div className="mx-auto max-w-md px-4 pb-28 pt-4">
-      <div className="mb-4 flex items-center gap-2">
-        <button
-          onClick={onBack}
-          aria-label={t.backToShop}
-          className="flex size-8 items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100"
-        >
+    <div className="anim-in" style={{ paddingBottom: 40 }}>
+      <div className="topbar">
+        <button onClick={onBack} aria-label={t.backToShop} className="iconbtn">
           <ChevronLeft className="size-5 flip-x" />
         </button>
-        <h1 className="text-lg font-bold text-zinc-900">{t.cart}</h1>
+        <span className="topbar-title" style={{ flex: 1 }}>
+          {t.cart}
+        </span>
+        <span className="muted" style={{ fontSize: 13, fontWeight: 600 }}>
+          {lines.length}
+        </span>
       </div>
 
-      <ul className="space-y-2">
-        {lines.map((l) => {
-          const price = unitPrice(l.product, l.variant);
-          return (
-            <li
+      <div style={{ padding: "14px 18px" }} className="sf-stack">
+        {/* cart rows */}
+        <div className="sf-stack" style={{ gap: 12 }}>
+          {lines.map((l) => (
+            <div
               key={l.key}
-              className="flex items-center gap-3 rounded-2xl border border-zinc-200 bg-white p-2.5"
+              className="card"
+              style={{ padding: 11, display: "flex", gap: 12, alignItems: "center" }}
             >
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-zinc-900">
-                  {l.product.name}
-                  {l.variant && (
-                    <span className="text-zinc-500"> · {l.variant.label}</span>
-                  )}
-                </p>
-                <p className="text-sm text-zinc-500">{formatPrice(price, locale)}</p>
+              <div
+                className="relative overflow-hidden"
+                style={{ width: 70, height: 86, borderRadius: 16, background: "var(--surface-2)", flex: "none" }}
+              >
+                {l.product.image_url ? (
+                  <Image src={l.product.image_url} alt="" fill sizes="70px" className="object-cover" />
+                ) : (
+                  <span className="flex size-full items-center justify-center" style={{ color: "var(--z400)" }}>
+                    <Package className="size-5" />
+                  </span>
+                )}
               </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => onSetQty(l.key, l.qty - 1)}
-                  aria-label="-"
-                  className="flex size-7 items-center justify-center rounded-full border border-zinc-200"
-                >
-                  <Minus className="size-3.5" />
-                </button>
-                <span className="w-5 text-center text-sm font-semibold">{l.qty}</span>
-                <button
-                  onClick={() => onSetQty(l.key, l.qty + 1)}
-                  aria-label="+"
-                  className="flex size-7 items-center justify-center rounded-full border border-zinc-200"
-                >
-                  <Plus className="size-3.5" />
-                </button>
-                <button
-                  onClick={() => onRemove(l.key)}
-                  aria-label={t.remove}
-                  className="flex size-7 items-center justify-center rounded-full text-red-500"
-                >
-                  <Trash2 className="size-3.5" />
-                </button>
+              <div className="sf-stack" style={{ flex: 1, gap: 5, minWidth: 0 }}>
+                <div className="sf-row sf-between" style={{ gap: 8 }}>
+                  <span style={{ fontWeight: 700, fontSize: 14.5, lineHeight: 1.3 }}>
+                    {l.product.name}
+                    {l.variant && <span className="muted"> · {l.variant.label}</span>}
+                  </span>
+                  <button
+                    onClick={() => onRemove(l.key)}
+                    aria-label={t.remove}
+                    style={{ background: "none", border: "none", color: "var(--z400)", cursor: "pointer", padding: 2 }}
+                  >
+                    <Trash2 className="size-4" />
+                  </button>
+                </div>
+                <div className="sf-row sf-between" style={{ marginTop: 2 }}>
+                  <span className="price">{formatPrice(unitPrice(l.product, l.variant), locale)}</span>
+                  <div className="stepper">
+                    <button className="step-btn" onClick={() => onSetQty(l.key, l.qty - 1)} aria-label="-">
+                      <Minus className="size-3.5" />
+                    </button>
+                    <span className="step-val" style={{ fontSize: 15 }}>{l.qty}</span>
+                    <button className="step-btn" onClick={() => onSetQty(l.key, l.qty + 1)} aria-label="+">
+                      <Plus className="size-3.5" />
+                    </button>
+                  </div>
+                </div>
               </div>
-            </li>
-          );
-        })}
-      </ul>
+            </div>
+          ))}
+        </div>
 
-      <form onSubmit={onPlace} className="mt-5 space-y-3">
-        <h2 className="text-sm font-semibold text-zinc-900">{t.yourDetails}</h2>
-
-        {/* Honeypot: hidden from humans, tempting to bots. Must stay empty. */}
-        <input
-          type="text"
-          name="company"
-          tabIndex={-1}
-          autoComplete="off"
-          value={hp}
-          onChange={(e) => setHp(e.target.value)}
-          className="hidden"
-          aria-hidden="true"
-        />
-
-        <input
-          required
-          maxLength={120}
-          placeholder={t.namePlaceholder}
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="h-11 w-full rounded-xl border border-zinc-200 px-3.5 text-base"
-        />
-        <input
-          required
-          type="tel"
-          inputMode="tel"
-          dir="ltr"
-          maxLength={40}
-          placeholder={t.phonePlaceholder}
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          className="h-11 w-full rounded-xl border border-zinc-200 px-3.5 text-base"
-        />
-        {shop.delivery_areas.length > 0 && (
-          <select
-            value={area}
-            onChange={(e) => setArea(e.target.value)}
-            className="h-11 w-full rounded-xl border border-zinc-200 bg-white px-3 text-base"
-          >
-            <option value="">{t.selectArea}</option>
-            {shop.delivery_areas.map((a) => (
-              <option key={a.area} value={a.area}>
-                {a.area}
-                {a.fee > 0 ? ` (+${formatPrice(a.fee, locale)})` : ""}
-              </option>
-            ))}
-          </select>
-        )}
-
-        <dl className="space-y-1 rounded-2xl bg-zinc-50 p-3 text-sm">
-          <div className="flex justify-between text-zinc-500">
-            <dt>{t.subtotal}</dt>
-            <dd>{formatPrice(subtotal, locale)}</dd>
+        {/* buyer form */}
+        <form onSubmit={onPlace} className="sf-stack" style={{ gap: 13, marginTop: 22 }}>
+          <div className="sf-row" style={{ gap: 8, fontWeight: 800, fontSize: 15 }}>
+            <MapPin className="size-[18px]" style={{ color: "var(--accent-deep)" }} />
+            {t.yourDetails}
           </div>
-          {fee > 0 && (
-            <div className="flex justify-between text-zinc-500">
-              <dt>{t.deliveryFee}</dt>
-              <dd>{formatPrice(fee, locale)}</dd>
+
+          {/* honeypot */}
+          <input
+            type="text"
+            name="company"
+            tabIndex={-1}
+            autoComplete="off"
+            value={hp}
+            onChange={(e) => setHp(e.target.value)}
+            className="hidden"
+            aria-hidden="true"
+          />
+
+          <div className="field">
+            <label className="label">{t.name}</label>
+            <input
+              className="input"
+              required
+              maxLength={120}
+              placeholder={t.namePlaceholder}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div>
+          <div className="field">
+            <label className="label">{t.phone}</label>
+            <input
+              className="input"
+              required
+              type="tel"
+              inputMode="tel"
+              dir="ltr"
+              maxLength={40}
+              placeholder={t.phonePlaceholder}
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+            />
+          </div>
+          {shop.delivery_areas.length > 0 && (
+            <div className="field">
+              <label className="label">{t.area}</label>
+              <select
+                className="input"
+                value={area}
+                onChange={(e) => setArea(e.target.value)}
+              >
+                <option value="">{t.selectArea}</option>
+                {shop.delivery_areas.map((a) => (
+                  <option key={a.area} value={a.area}>
+                    {a.area}
+                    {a.fee > 0 ? ` (+${formatPrice(a.fee, locale)})` : ""}
+                  </option>
+                ))}
+              </select>
             </div>
           )}
-          <div className="flex justify-between pt-1 text-base font-semibold text-zinc-900">
-            <dt>{t.total}</dt>
-            <dd>{formatPrice(total, locale)}</dd>
+
+          <div className="card" style={{ padding: 16, marginTop: 4 }}>
+            <div className="sf-stack" style={{ gap: 9 }}>
+              <div className="sf-row sf-between">
+                <span className="muted" style={{ fontSize: 14 }}>{t.subtotal}</span>
+                <span className="price">{formatPrice(subtotal, locale)}</span>
+              </div>
+              {fee > 0 && (
+                <div className="sf-row sf-between">
+                  <span className="muted" style={{ fontSize: 14 }}>{t.deliveryFee}</span>
+                  <span className="price">{formatPrice(fee, locale)}</span>
+                </div>
+              )}
+              <div className="divider" />
+              <div className="sf-row sf-between">
+                <span style={{ fontWeight: 800, fontSize: 16 }}>{t.total}</span>
+                <span className="price" style={{ fontSize: 18 }}>{formatPrice(total, locale)}</span>
+              </div>
+            </div>
           </div>
-        </dl>
 
-        {errorMsg && <p className="text-sm text-red-600">{errorMsg}</p>}
+          {errorMsg && <p className="errline" style={{ fontSize: 13 }}>{errorMsg}</p>}
 
-        <button
-          type="submit"
-          disabled={submitting || lines.length === 0}
-          className="h-12 w-full rounded-xl bg-zinc-900 text-base font-semibold text-white disabled:opacity-50"
-        >
-          {submitting ? t.placing : t.placeOrder}
-        </button>
-      </form>
+          <button
+            type="submit"
+            className="btn btn-accent btn-pill"
+            disabled={submitting || lines.length === 0}
+          >
+            {submitting ? t.placing : t.placeOrder}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

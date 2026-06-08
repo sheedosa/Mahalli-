@@ -194,6 +194,10 @@ const ar: Dictionary = {
     errorPhone: "اكتب رقم هاتف صحيح.",
     errorEmpty: "زيد منتج واحد على الأقل.",
     poweredBy: "مدعوم من محلّي",
+    shopNow: "تسوّق الآن",
+    all: "الكل",
+    searchPlaceholder: "دوّر على منتج",
+    noResults: "ما فماش منتجات تطابق البحث.",
   },
   orders: {
     title: "الطلبات",

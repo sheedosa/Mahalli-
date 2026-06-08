@@ -198,6 +198,10 @@ const en = {
     errorPhone: "Enter a valid phone number.",
     errorEmpty: "Add at least one product first.",
     poweredBy: "Powered by Mahalli",
+    shopNow: "Shop now",
+    all: "All",
+    searchPlaceholder: "Search products",
+    noResults: "No products match your search.",
   },
   orders: {
     title: "Orders",

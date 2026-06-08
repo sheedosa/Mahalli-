@@ -314,17 +314,24 @@ the theme's `--btn-shape`.
 
 ---
 
-## 12. Future implementation note (out of scope for this doc)
+## 12. Implementation status
 
-To ship the template system later (mechanical, given §4):
+**Done:** the CSS-variable token + theme system is implemented in
+`src/app/globals.css` with **7 themes** (`theme-cream` default, plus `mono`,
+`pastel`, `noir`, `sage`, `blush`, `ocean`) and a set of storefront component
+classes (`.btn`, `.iconbtn`, `.input`, `.card`, `.pill`, `.chip`, `.stepper`,
+`.switch`, `.bottomnav`, `.fab`, `.pcard`, `.sizechip`, `.sheet`, …). The
+**public storefront** (`src/components/storefront/*`) is skinned with it: glass
+top bar, search, gradient hero, category chips, product cards, add-to-cart
+bottom sheet, floating cart, themed checkout + success. The themes are opt-in
+per subtree (a `theme-*` class on the root), so the seller dashboard / auth keep
+the neutral Tailwind look for now.
 
-1. Add a `theme` value to `sellers` (enum or jsonb of the §4 tokens).
-2. On the storefront root, emit the theme as CSS variables (`--accent`, `--surface`,
-   `--radius`, …) and have components read them (e.g. primary button bg = `var(--accent)`).
-3. Add a **theme picker** in Settings (the radio-card pattern already exists) with live
-   preview; default new shops to **Editorial Cream**.
-4. Optionally add product fields for the commerce micro-details (`compare_at_price` for
-   strikethrough, a `featured`/trending flag).
-
-Until then, the app runs on the **default theme** (neutral zinc + `zinc-900` primary),
-which is "Editorial Cream" without the cream accent — already consistent with this doc.
+**Remaining (mechanical, given §4):**
+1. Per-shop theme — add a `theme` value to `sellers`, apply the matching
+   `theme-*` class on the storefront root (currently hard-coded to `theme-cream`
+   in `StorefrontApp.tsx`), and add a **theme picker** in Settings (radio-card
+   pattern) with live preview.
+2. Re-skin the **seller dashboard** with the same component classes.
+3. Optional commerce micro-details: `compare_at_price` (strikethrough sale),
+   `featured`/trending flag, ratings.
