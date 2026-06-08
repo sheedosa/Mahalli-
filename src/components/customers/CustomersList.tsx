@@ -7,19 +7,11 @@ import { createClient } from "@/lib/supabase/client";
 import { useI18n } from "@/i18n/provider";
 import { formatPrice } from "@/lib/utils";
 import { Input } from "@/components/ui/Input";
-
-export const PAGE_SIZE = 20;
-
-export type CustomerRow = {
-  id: string;
-  name: string | null;
-  phone: string;
-  order_count: number;
-  total_spent: number;
-  last_order_at: string | null;
-};
-
-export const CUSTOMER_SELECT = "id,name,phone,order_count,total_spent,last_order_at";
+import {
+  PAGE_SIZE,
+  CUSTOMER_SELECT,
+  type CustomerRow,
+} from "@/components/customers/query";
 
 export function CustomersList({
   initial,

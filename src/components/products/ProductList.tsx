@@ -7,24 +7,9 @@ import { Package, Pencil, Plus, Search } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useI18n } from "@/i18n/provider";
 import { formatPrice } from "@/lib/utils";
+import { PAGE_SIZE, PRODUCT_SELECT, type ProductRow } from "@/components/products/query";
 
-export const PAGE_SIZE = 12;
 const LOW_STOCK = 3;
-
-export type ProductRow = {
-  id: string;
-  name: string;
-  price: number;
-  image_url: string | null;
-  active: boolean;
-  stock: number;
-  category: string | null;
-  created_at: string;
-  product_variants: { stock: number }[];
-};
-
-export const PRODUCT_SELECT =
-  "id,name,price,image_url,active,stock,category,created_at,product_variants(stock)";
 
 function effectiveStock(p: ProductRow): number {
   return p.product_variants.length > 0

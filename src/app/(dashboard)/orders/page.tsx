@@ -1,10 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
+import { OrdersList } from "@/components/orders/OrdersList";
 import {
-  OrdersList,
   ORDER_SELECT,
   PAGE_SIZE,
   type OrderRow,
-} from "@/components/orders/OrdersList";
+} from "@/components/orders/query";
 
 export default async function OrdersPage() {
   const supabase = await createClient();

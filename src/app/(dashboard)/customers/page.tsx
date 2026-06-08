@@ -1,10 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
+import { CustomersList } from "@/components/customers/CustomersList";
 import {
-  CustomersList,
   CUSTOMER_SELECT,
   PAGE_SIZE,
   type CustomerRow,
-} from "@/components/customers/CustomersList";
+} from "@/components/customers/query";
 
 export default async function CustomersPage() {
   const supabase = await createClient();

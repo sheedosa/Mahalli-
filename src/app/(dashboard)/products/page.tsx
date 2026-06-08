@@ -1,10 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
+import { ProductList } from "@/components/products/ProductList";
 import {
-  ProductList,
   PRODUCT_SELECT,
   PAGE_SIZE,
   type ProductRow,
-} from "@/components/products/ProductList";
+} from "@/components/products/query";
 
 export default async function ProductsPage() {
   const supabase = await createClient();

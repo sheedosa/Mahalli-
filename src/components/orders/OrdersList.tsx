@@ -12,22 +12,11 @@ import {
   statusBadgeClass,
   type OrderStatus,
 } from "@/components/orders/status";
-
-export const PAGE_SIZE = 15;
-
-export type OrderRow = {
-  id: string;
-  status: OrderStatus;
-  channel: "storefront" | "manual";
-  buyer_name: string | null;
-  buyer_phone: string | null;
-  total: number;
-  created_at: string;
-  order_items: { count: number }[];
-};
-
-const SELECT =
-  "id,status,channel,buyer_name,buyer_phone,total,created_at,order_items(count)";
+import {
+  PAGE_SIZE,
+  ORDER_SELECT,
+  type OrderRow,
+} from "@/components/orders/query";
 
 function timeAgo(iso: string, locale: string): string {
   const d = new Date(iso);
@@ -64,7 +53,7 @@ export function OrdersList({
     const supabase = createClient();
     let query = supabase
       .from("orders")
-      .select(SELECT)
+      .select(ORDER_SELECT)
       .order("created_at", { ascending: false })
       .limit(PAGE_SIZE + 1);
     if (status !== "all") query = query.eq("status", status);
@@ -204,5 +193,3 @@ export function OrdersList({
     </div>
   );
 }
-
-export { SELECT as ORDER_SELECT };
