@@ -41,14 +41,22 @@ export async function signIn(
     return { errorKey: issue.path[0] === "email" ? "emailInvalid" : "passwordTooShort" };
   }
 
-  const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword({
-    email: parsed.data.email,
-    password: parsed.data.password,
-  });
-  if (error) return { errorKey: "invalidCredentials" };
+  let failed = false;
+  try {
+    const supabase = await createClient();
+    const { error } = await supabase.auth.signInWithPassword({
+      email: parsed.data.email,
+      password: parsed.data.password,
+    });
+    if (error) return { errorKey: "invalidCredentials" };
+  } catch (e) {
+    // e.g. missing Supabase env vars — surface inline, don't 500.
+    console.error("signIn failed", e);
+    failed = true;
+  }
+  if (failed) return { errorKey: "generic" };
 
-  redirect(safeNext(parsed.data.next));
+  redirect(safeNext(parsed.data.next)); // must be outside try (redirect throws)
 }
 
 export async function signUp(
@@ -64,25 +72,34 @@ export async function signUp(
     return { errorKey: issue.path[0] === "email" ? "emailInvalid" : "passwordTooShort" };
   }
 
-  const supabase = await createClient();
-  const { data, error } = await supabase.auth.signUp({
-    email: parsed.data.email,
-    password: parsed.data.password,
-    options: { emailRedirectTo: `${publicEnv.siteUrl}/auth/callback` },
-  });
+  let hasSession = false;
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase.auth.signUp({
+      email: parsed.data.email,
+      password: parsed.data.password,
+      options: { emailRedirectTo: `${publicEnv.siteUrl}/auth/callback` },
+    });
 
-  if (error) {
-    if (error.code === "user_already_exists" || error.message.includes("already")) {
-      return { errorKey: "emailTaken" };
+    if (error) {
+      if (error.code === "user_already_exists" || error.message.includes("already")) {
+        return { errorKey: "emailTaken" };
+      }
+      return { errorKey: "generic" };
     }
+
+    // If email confirmation is required there is no session yet.
+    if (!data.session) return { infoKey: "checkEmail" };
+    hasSession = true;
+  } catch (e) {
+    // e.g. missing Supabase env vars — surface inline, don't 500.
+    console.error("signUp failed", e);
     return { errorKey: "generic" };
   }
 
-  // If email confirmation is required there is no session yet.
-  if (!data.session) return { infoKey: "checkEmail" };
-
   // New seller with an active session → go set up their shop.
-  redirect("/onboarding");
+  if (hasSession) redirect("/onboarding"); // outside try (redirect throws)
+  return {};
 }
 
 export async function signOut(): Promise<void> {
