@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: #f7f7f8;
+  --color-foreground: #18181b;
+  --font-sans: var(--font-app), ui-sans-serif, system-ui, sans-serif;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  /* avoid janky bounce on cheap Android browsers */
+  overscroll-behavior-y: none;
+}
+
+/* Mirror icons/arrows in RTL without per-component overrides. */
+[dir="rtl"] .flip-x {
+  transform: scaleX(-1);
+}
+
+/* Respect users who prefer reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
