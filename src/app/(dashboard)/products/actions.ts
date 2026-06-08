@@ -99,6 +99,7 @@ export async function saveProduct(
 
   revalidatePath("/products");
   revalidatePath("/dashboard");
+  revalidatePath(`/${ctx.seller.slug}`); // refresh the public storefront
   redirect("/products");
 }
 
@@ -132,5 +133,6 @@ export async function deleteProduct(formData: FormData): Promise<void> {
 
   revalidatePath("/products");
   revalidatePath("/dashboard");
+  revalidatePath(`/${ctx.seller.slug}`);
   redirect("/products");
 }

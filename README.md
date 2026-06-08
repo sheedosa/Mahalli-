@@ -32,6 +32,11 @@ one mobile-first, Arabic-first PWA.
   create/edit/delete with **variants**, **image upload** to Supabase Storage
   (seller-scoped), stock/active badges. Mutations go through an atomic,
   ownership-checked `save_product` RPC.
+- ✅ **Public storefront** (step 5) — `/<slug>`, Arabic/RTL, product grid +
+  add-to-cart sheet (variants/qty) + checkout. Anonymous **order creation** via
+  the `place_order` RPC: server-side validated, prices re-derived from the DB,
+  honeypot + rate-limited — never a raw anon insert. Reserved slugs stop shops
+  shadowing app routes.
 - ✅ **i18n EN/AR + full RTL** — Arabic is the default; one toggle flips all
   copy and direction.
 - ✅ **Security hardening** — nonce-based CSP (`strict-dynamic`), HSTS,
@@ -40,8 +45,6 @@ one mobile-first, Arabic-first PWA.
 
 ## What's next (later build-sequence steps)
 
-5. Public storefront (`/<slug>`, edge-cached) + **server-validated** order
-   creation (service-role endpoint, rate-limited — never raw anon insert).
 6. Order pipeline + auto-built customer book (stock on confirm, restore on cancel).
 7. Overview/analytics.
 8. Phase 2: WhatsApp broadcast → notifications → COD/RTO → payments (DPAY) →
@@ -79,6 +82,7 @@ src/
     auth/callback/     email-confirmation code exchange
     onboarding/        create-shop flow
     (dashboard)/       protected shell: overview, products, orders, customers, settings
+    [slug]/            public storefront + order placement action
     manifest.ts        PWA manifest
     page.tsx           public landing
   components/          UI primitives, dashboard shell, forms, locale switcher
@@ -97,10 +101,11 @@ supabase/
 ## Security model (non-negotiable)
 
 RLS scopes every read/write to the signed-in user's tenant. The browser only
-ever holds the publishable (anon) key. The service-role key lives in server env
-and is guarded by a `server-only` import so it can never reach the client.
-Anonymous traffic has no database policies and no RPC access — public paths are
-added deliberately, one narrowly-scoped endpoint at a time. Full details:
+ever holds the publishable (anon) key. The (future) service-role key lives in
+server env and is guarded by a `server-only` import so it can never reach the
+client. Anonymous traffic has **no database table policies** — buyers reach the
+DB only through two tightly-scoped `SECURITY DEFINER` RPCs (`get_storefront`,
+`place_order`) that validate and rate-limit server-side. Full details:
 [`supabase/README.md`](supabase/README.md).
 
 ## Decisions made during this build

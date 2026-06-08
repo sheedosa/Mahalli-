@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ExternalLink } from "lucide-react";
 import { getI18n } from "@/i18n";
 import { getSellerContext } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
@@ -58,9 +59,19 @@ export default async function OverviewPage() {
 
   return (
     <div className="space-y-5">
-      <div>
-        <p className="text-sm text-zinc-500">{dict.dashboard.greeting}</p>
-        <h1 className="text-xl font-bold text-zinc-900">{ctx.seller.name}</h1>
+      <div className="flex items-end justify-between gap-2">
+        <div>
+          <p className="text-sm text-zinc-500">{dict.dashboard.greeting}</p>
+          <h1 className="text-xl font-bold text-zinc-900">{ctx.seller.name}</h1>
+        </div>
+        <Link
+          href={`/${ctx.seller.slug}`}
+          target="_blank"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-600"
+        >
+          <ExternalLink className="size-3.5" />
+          {dict.nav.viewStorefront}
+        </Link>
       </div>
 
       <div className="grid grid-cols-2 gap-3">

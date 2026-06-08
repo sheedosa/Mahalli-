@@ -15,6 +15,8 @@ and tested before any feature reads or writes real data (spec §6, §10).
 | `0005_product_image_storage.sql` | `product-images` bucket + storage RLS (sellers write only their own folder). |
 | `0006_save_product.sql` | Atomic `save_product()` RPC: upsert product + replace variants, ownership-checked. |
 | `0007_storage_no_listing.sql` | Drops the public listing policy (object URLs still work; no enumeration). |
+| `0008_reserved_slugs.sql` | Reserved-slug guard so a shop can't shadow an app route. |
+| `0009_storefront.sql` | Public `get_storefront()` (read) + `place_order()` (validated, rate-limited write). |
 | `seed.sql` | Optional dev catalogue for an existing shop (run manually). |
 
 Live project: **Mahalli** (`wolrnueoxodvezijyrbf`, eu-central-1). Migrations
@@ -55,7 +57,26 @@ are scoped through their parent via an `EXISTS` join.
   narrowly-scoped paths (a storefront RPC and a service-role server endpoint —
   build steps 5+), never raw anon access.
 - **`service_role`** — trusted server code only (admin client). Bypasses RLS;
-  used for the storefront order endpoint, payment webhooks, background jobs.
+  reserved for future payment webhooks / background jobs.
+
+### The public storefront (anonymous access)
+
+Anonymous buyers never touch tables directly — there are no `anon` RLS
+policies. They reach the database only through two `SECURITY DEFINER` functions
+that `anon` can execute:
+
+- **`get_storefront(slug)`** — returns a shop's public info and its *active*
+  products only (inactive products and other tenants are invisible).
+- **`place_order(slug, name, phone, area, items, hp)`** — creates a `new`
+  storefront order. It **re-derives every price from the DB** (client-supplied
+  prices are ignored), validates each product belongs to the shop and is
+  active, enforces a **honeypot** and **rate limits** (per phone: 1/30s and
+  5/hour; per shop: 60/min), and writes the order + items atomically. Stock is
+  *not* decremented here — that happens on confirm (build step 6).
+
+This is the spec's "server-side validated endpoint, never a raw anon insert"
+(§6) implemented as RPCs instead of a service-role HTTP handler: same security
+properties, no service-role key to hold, and testable under the `anon` role.
 
 ## Provisioning a tenant
 
@@ -83,21 +104,23 @@ Result on the live project: **all assertions passed**, zero rows persisted.
 
 ## Security advisor notes
 
-`get_advisors(security)` reports five `authenticated_security_definer_function_executable`
-warnings (`create_shop`, `is_slug_available`, `save_product`, `user_seller_ids`,
-`user_is_owner`). These are **intentional**:
+`get_advisors(security)` reports only `*_security_definer_function_executable`
+warnings, all **intentional**:
 
-- `create_shop` / `is_slug_available` / `save_product` are deliberate RPC
-  endpoints for signed-in users. Each enforces tenant ownership internally
-  (`save_product` checks `p_seller in (select user_seller_ids())` and updates
+- **anon-executable** (`get_storefront`, `place_order`) — the public storefront
+  endpoints. Both are deliberately exposed to `anon` and strictly scoped (see
+  "The public storefront" above): reads return active products only; writes are
+  validated, price-re-derived and rate-limited.
+- **authenticated-executable** (`create_shop`, `is_slug_available`,
+  `save_product`, `user_seller_ids`, `user_is_owner`) — RPC endpoints for
+  signed-in sellers, plus the RLS helpers the policy engine must evaluate.
+  `save_product` checks `p_seller in (select user_seller_ids())` and updates
   only rows matching `seller_id`, so a product cannot be created in or moved to
-  another tenant — verified by test).
-- `user_seller_ids` / `user_is_owner` must be EXECUTE-able by `authenticated`
-  because the RLS engine evaluates them during policy checks.
+  another tenant (verified by test).
 
-Each returns only the caller's own data (or validates the caller's own input),
-so there is no cross-tenant exposure. The `anon` role cannot execute any of
-them.
+Each function returns only the caller's permitted data (or validates the
+caller's own input), so there is no cross-tenant exposure. No base tables are
+exposed to `anon`; there are no anon RLS policies.
 
 ## Storage
 

@@ -45,5 +45,6 @@ export async function updateShop(
 
   revalidatePath("/settings");
   revalidatePath("/dashboard");
+  revalidatePath(`/${ctx.seller.slug}`); // refresh the public storefront
   return { saved: true };
 }

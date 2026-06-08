@@ -1,16 +1,26 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 
-// Routes that never require a signed-in seller.
-const PUBLIC_PATHS = ["/", "/login", "/signup", "/offline"];
+// The seller app. Everything under these prefixes requires a signed-in seller.
+// Anything else (landing, the public storefront at /<slug>, /offline, /auth)
+// is public — and reserved slugs (migration 0008) keep shops from shadowing
+// these prefixes.
+const PROTECTED_PREFIXES = [
+  "/dashboard",
+  "/products",
+  "/orders",
+  "/customers",
+  "/broadcasts",
+  "/settings",
+  "/onboarding",
+];
 // Auth-only routes a signed-in user should be bounced away from.
 const AUTH_PATHS = ["/login", "/signup"];
 
-function isPublic(pathname: string): boolean {
-  if (PUBLIC_PATHS.includes(pathname)) return true;
-  // Supabase auth callback/confirm endpoints.
-  if (pathname.startsWith("/auth")) return true;
-  return false;
+function isProtected(pathname: string): boolean {
+  return PROTECTED_PREFIXES.some(
+    (p) => pathname === p || pathname.startsWith(`${p}/`),
+  );
 }
 
 /**
@@ -62,13 +72,22 @@ export async function proxy(request: NextRequest) {
   request.headers.set("x-nonce", nonce);
   request.headers.set("Content-Security-Policy", csp);
 
+  const { pathname } = request.nextUrl;
+  const needsSession = isProtected(pathname) || AUTH_PATHS.includes(pathname);
+
+  // Public pages (incl. the storefront) skip the Supabase session round-trip
+  // entirely, keeping them fast and edge-cacheable.
+  if (!needsSession) {
+    const res = NextResponse.next({ request: { headers: request.headers } });
+    applySecurityHeaders(res, csp);
+    return res;
+  }
+
   // Refresh the Supabase session and learn who the user is.
   const { response, user } = await updateSession(request);
 
-  const { pathname } = request.nextUrl;
-
   // Gate protected routes.
-  if (!user && !isPublic(pathname)) {
+  if (!user && isProtected(pathname)) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("next", pathname);

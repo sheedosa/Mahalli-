@@ -503,6 +503,19 @@ export type Database = {
         }
       }
       is_slug_available: { Args: { p_slug: string }; Returns: boolean }
+      get_storefront: { Args: { p_slug: string }; Returns: Json }
+      place_order: {
+        Args: {
+          p_slug: string
+          p_buyer_name: string
+          p_buyer_phone: string
+          p_buyer_area: string | null
+          p_items: Json
+          p_hp?: string
+        }
+        Returns: string
+      }
+      slug_is_reserved: { Args: { p_slug: string }; Returns: boolean }
       save_product: {
         Args: {
           p_id: string | null
