@@ -516,6 +516,25 @@ export type Database = {
         Returns: string
       }
       slug_is_reserved: { Args: { p_slug: string }; Returns: boolean }
+      set_order_status: {
+        Args: {
+          p_order: string
+          p_status: Database["public"]["Enums"]["order_status"]
+        }
+        Returns: undefined
+      }
+      create_manual_order: {
+        Args: {
+          p_seller: string
+          p_buyer_name: string
+          p_buyer_phone: string
+          p_buyer_area: string
+          p_notes: string
+          p_delivery_fee: number
+          p_items: Json
+        }
+        Returns: string
+      }
       save_product: {
         Args: {
           p_id: string | null

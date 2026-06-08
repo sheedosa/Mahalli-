@@ -37,6 +37,11 @@ one mobile-first, Arabic-first PWA.
   the `place_order` RPC: server-side validated, prices re-derived from the DB,
   honeypot + rate-limited — never a raw anon insert. Reserved slugs stop shops
   shadowing app routes.
+- ✅ **Order pipeline + customer book** (step 6) — orders list (status filter,
+  search, pagination), order detail with status flow (New→Confirmed→Ready→Out→
+  Delivered/Cancelled), **stock decremented on confirm, restored on cancel**,
+  editable notes, manual order entry. Customers are **auto-built from orders by
+  phone** (order count, total spent, last order) via DB triggers.
 - ✅ **i18n EN/AR + full RTL** — Arabic is the default; one toggle flips all
   copy and direction.
 - ✅ **Security hardening** — nonce-based CSP (`strict-dynamic`), HSTS,
@@ -45,7 +50,6 @@ one mobile-first, Arabic-first PWA.
 
 ## What's next (later build-sequence steps)
 
-6. Order pipeline + auto-built customer book (stock on confirm, restore on cancel).
 7. Overview/analytics.
 8. Phase 2: WhatsApp broadcast → notifications → COD/RTO → payments (DPAY) →
    discounts → staff/RBAC → delivery note.

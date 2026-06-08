@@ -17,6 +17,8 @@ and tested before any feature reads or writes real data (spec §6, §10).
 | `0007_storage_no_listing.sql` | Drops the public listing policy (object URLs still work; no enumeration). |
 | `0008_reserved_slugs.sql` | Reserved-slug guard so a shop can't shadow an app route. |
 | `0009_storefront.sql` | Public `get_storefront()` (read) + `place_order()` (validated, rate-limited write). |
+| `0010_order_pipeline.sql` | Customer-book triggers, `set_order_status()` (stock), `create_manual_order()`. |
+| `0011_lock_trigger_functions.sql` | Removes trigger functions from the REST RPC surface. |
 | `seed.sql` | Optional dev catalogue for an existing shop (run manually). |
 
 Live project: **Mahalli** (`wolrnueoxodvezijyrbf`, eu-central-1). Migrations
@@ -78,6 +80,24 @@ This is the spec's "server-side validated endpoint, never a raw anon insert"
 (§6) implemented as RPCs instead of a service-role HTTP handler: same security
 properties, no service-role key to hold, and testable under the `anon` role.
 
+## Order pipeline & customer book
+
+The customer book is maintained entirely by triggers on `orders`, so it is
+always correct regardless of how an order arrives (storefront or manual):
+
+- A **BEFORE INSERT** trigger ensures a `customers` row exists for the buyer's
+  phone and links `orders.customer_id`.
+- An **AFTER insert/update/delete** trigger recomputes that customer's
+  aggregates (`order_count` excluding cancelled, `total_spent` over delivered
+  orders, first/last order timestamps, latest name/area).
+
+`set_order_status(order, status)` moves an order and adjusts stock atomically:
+it decrements product/variant stock the first time an order becomes "committed"
+(confirmed/ready/out/delivered) and restores it when the order returns to
+new/cancelled — so confirming holds stock and cancelling gives it back, exactly
+once. `create_manual_order(...)` lets a seller record a DM/WhatsApp order; like
+the storefront path it re-derives prices from the catalogue.
+
 ## Provisioning a tenant
 
 There is **no INSERT policy** on `sellers` or `profiles`. The only way to
@@ -112,11 +132,15 @@ warnings, all **intentional**:
   "The public storefront" above): reads return active products only; writes are
   validated, price-re-derived and rate-limited.
 - **authenticated-executable** (`create_shop`, `is_slug_available`,
-  `save_product`, `user_seller_ids`, `user_is_owner`) — RPC endpoints for
-  signed-in sellers, plus the RLS helpers the policy engine must evaluate.
-  `save_product` checks `p_seller in (select user_seller_ids())` and updates
-  only rows matching `seller_id`, so a product cannot be created in or moved to
-  another tenant (verified by test).
+  `save_product`, `set_order_status`, `create_manual_order`, `user_seller_ids`,
+  `user_is_owner`) — RPC endpoints for signed-in sellers, plus the RLS helpers
+  the policy engine must evaluate. Each ownership-checked mutation verifies the
+  target seller/order belongs to the caller (`… in (select user_seller_ids())`),
+  so it cannot touch another tenant (verified by test).
+
+The customer-book trigger functions (`orders_link_customer`,
+`orders_touch_customer`) and `recompute_customer` have **no** EXECUTE grants —
+they run only as triggers and are not exposed as RPCs.
 
 Each function returns only the caller's permitted data (or validates the
 caller's own input), so there is no cross-tenant exposure. No base tables are
