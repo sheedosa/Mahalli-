@@ -1,32 +1,45 @@
 /**
  * Centralised, validated environment access.
  *
- * Public vars (NEXT_PUBLIC_*) are the only values that ever reach the browser.
- * Server-only secrets (service-role key) are read lazily and must never be
- * imported into a client component — `serverEnv` throws if used in the browser.
+ * Values are read through getters so importing this module never throws — the
+ * check happens only when a value is actually used at runtime. This keeps the
+ * production build (which imports route modules to collect page data) from
+ * failing just because a var isn't present in the build environment.
+ *
+ * Public vars (NEXT_PUBLIC_*) are the only values that ever reach the browser
+ * and are inlined at build time, so they must be set in the build environment
+ * (e.g. Vercel project settings) for the client to work.
  */
 
 function required(name: string, value: string | undefined): string {
   if (!value || value.length === 0) {
     throw new Error(
       `Missing required environment variable: ${name}. ` +
-        `Copy .env.example to .env.local and fill it in.`,
+        `Copy .env.example to .env.local (local) or set it in your host's ` +
+        `project settings (e.g. Vercel).`,
     );
   }
   return value;
 }
 
 export const publicEnv = {
-  supabaseUrl: required(
-    "NEXT_PUBLIC_SUPABASE_URL",
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-  ),
+  get supabaseUrl(): string {
+    return required(
+      "NEXT_PUBLIC_SUPABASE_URL",
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+    );
+  },
   // Supabase publishable key (formerly "anon" key). Safe for the client.
-  supabaseAnonKey: required(
-    "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-  ),
-  siteUrl: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+  get supabaseAnonKey(): string {
+    return required(
+      "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    );
+  },
+  // Public origin of the app (auth redirects, storefront links).
+  get siteUrl(): string {
+    return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  },
 };
 
 /**

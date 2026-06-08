@@ -77,6 +77,19 @@ storefront order endpoint / webhooks later you'll also need the server-only
 | `npm run lint` | ESLint |
 | `npm run typecheck` | `tsc --noEmit` |
 
+## Deploy
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/sheedosa/Mahalli-&env=NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY,NEXT_PUBLIC_SITE_URL)
+
+Vercel is the recommended host (GitHub Pages can't run this — it needs a Node
+server for auth, server actions, the `proxy`, and dynamic routes). Set three
+public env vars and point Supabase Auth at your domain. Full step-by-step with
+the exact values: **[DEPLOY.md](DEPLOY.md)**.
+
+The build does **not** require any env vars to be present (env is read lazily
+at runtime), so a missing var won't fail the build — but `NEXT_PUBLIC_*` must
+be set for the app to actually reach Supabase.
+
 ## Project layout
 
 ```
