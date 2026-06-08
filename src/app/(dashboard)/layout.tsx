@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import { getSellerContext } from "@/lib/auth";
-import { themeClass } from "@/lib/themes";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { BottomNav } from "@/components/dashboard/BottomNav";
 
@@ -13,8 +12,12 @@ export default async function DashboardLayout({
   const ctx = await getSellerContext();
   if (!ctx) redirect("/onboarding");
 
+  // The seller dashboard always uses the light "cream" surface for legibility.
+  // The shop's chosen theme applies to the public storefront (what buyers see),
+  // not the admin — so picking a dark theme (Noir) never makes the dashboard
+  // unreadable.
   return (
-    <div className={`${themeClass(ctx.seller.theme)} sf`}>
+    <div className="theme-cream sf">
       <div className="mx-auto flex min-h-dvh max-w-md flex-col">
         <TopBar shopName={ctx.seller.name} slug={ctx.seller.slug} />
         <main className="flex-1" style={{ padding: "10px 0 110px" }}>
