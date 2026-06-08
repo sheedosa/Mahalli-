@@ -77,6 +77,13 @@ storefront order endpoint / webhooks later you'll also need the server-only
 | `npm run lint` | ESLint |
 | `npm run typecheck` | `tsc --noEmit` |
 
+## Design
+
+The UI follows a documented **2026 commerce design language** (mobile-first, Arabic-first/
+RTL, beginner-friendly) with a per-shop **storefront template** system (Editorial Cream /
+Mono Minimal / Soft Pastel). Tokens, components, theme tokens, and a pre-ship checklist —
+read **[DESIGN.md](DESIGN.md)** before building or changing any UI.
+
 ## Deploy
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/sheedosa/Mahalli-&env=NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY,NEXT_PUBLIC_SITE_URL)
