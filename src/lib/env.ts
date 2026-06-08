@@ -1,59 +1,51 @@
 /**
- * Centralised, validated environment access.
+ * Centralised environment access.
  *
- * Values are read through getters so importing this module never throws — the
- * check happens only when a value is actually used at runtime. This keeps the
- * production build (which imports route modules to collect page data) from
- * failing just because a var isn't present in the build environment.
+ * The public Supabase URL + publishable (anon) key have built-in defaults for
+ * the Mahalli project, so the app works out of the box on any host even with no
+ * env vars configured. These are PUBLIC, client-safe values by design — the
+ * publishable key is meant to ship in the browser bundle, and Row-Level
+ * Security is what actually protects data. Set the NEXT_PUBLIC_* env vars to
+ * point at a different Supabase project; they override the defaults.
  *
- * Public vars (NEXT_PUBLIC_*) are the only values that ever reach the browser
- * and are inlined at build time, so they must be set in the build environment
- * (e.g. Vercel project settings) for the client to work.
+ * Server-only secrets (service-role key) have NO default and are read lazily so
+ * a secret can never be bundled client-side.
  */
 
-function required(name: string, value: string | undefined): string {
-  if (!value || value.length === 0) {
-    throw new Error(
-      `Missing required environment variable: ${name}. ` +
-        `Copy .env.example to .env.local (local) or set it in your host's ` +
-        `project settings (e.g. Vercel).`,
-    );
-  }
-  return value;
-}
+// Mahalli Supabase project (public values — safe to commit).
+const DEFAULT_SUPABASE_URL = "https://wolrnueoxodvezijyrbf.supabase.co";
+const DEFAULT_SUPABASE_ANON_KEY = "sb_publishable_xleM4UKcVyZoYOQyI5iZgg_MSF6z9ZJ";
 
 export const publicEnv = {
   get supabaseUrl(): string {
-    return required(
-      "NEXT_PUBLIC_SUPABASE_URL",
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-    );
+    return process.env.NEXT_PUBLIC_SUPABASE_URL || DEFAULT_SUPABASE_URL;
   },
-  // Supabase publishable key (formerly "anon" key). Safe for the client.
+  // Supabase publishable (anon) key — safe for the client; RLS scopes access.
   get supabaseAnonKey(): string {
-    return required(
-      "NEXT_PUBLIC_SUPABASE_ANON_KEY",
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    );
+    return process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || DEFAULT_SUPABASE_ANON_KEY;
   },
-  // Public origin of the app (auth redirects, storefront links).
+  // Public origin (auth redirects, storefront links). Empty when not configured
+  // — callers that need an absolute URL should check `configuredSiteUrl`.
   get siteUrl(): string {
-    return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+    return process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  },
+  /** The explicitly-configured site URL, or null if unset (don't assume localhost). */
+  get configuredSiteUrl(): string | null {
+    return process.env.NEXT_PUBLIC_SITE_URL || null;
   },
 };
 
-/**
- * Server-only secrets. Accessing this in the browser is a programming error
- * and throws immediately so a secret can never be bundled client-side.
- */
 export const serverEnv = {
   get serviceRoleKey(): string {
     if (typeof window !== "undefined") {
       throw new Error("serverEnv must not be accessed in the browser");
     }
-    return required(
-      "SUPABASE_SERVICE_ROLE_KEY",
-      process.env.SUPABASE_SERVICE_ROLE_KEY,
-    );
+    const v = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!v) {
+      throw new Error(
+        "Missing required environment variable: SUPABASE_SERVICE_ROLE_KEY",
+      );
+    }
+    return v;
   },
 };

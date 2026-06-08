@@ -78,7 +78,11 @@ export async function signUp(
     const { data, error } = await supabase.auth.signUp({
       email: parsed.data.email,
       password: parsed.data.password,
-      options: { emailRedirectTo: `${publicEnv.siteUrl}/auth/callback` },
+      // Only pin a redirect if a real site URL is configured; otherwise
+      // Supabase uses the Site URL from its dashboard.
+      options: publicEnv.configuredSiteUrl
+        ? { emailRedirectTo: `${publicEnv.configuredSiteUrl}/auth/callback` }
+        : undefined,
     });
 
     if (error) {
