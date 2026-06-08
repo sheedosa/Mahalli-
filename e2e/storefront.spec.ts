@@ -10,8 +10,8 @@ test.beforeEach(async ({ context, baseURL }) => {
 test("buyer can browse the storefront and place an order", async ({ page }) => {
   await page.goto("/demo-shop");
 
-  // Shop + a seeded product show.
-  await expect(page.getByText("Demo Bakery")).toBeVisible();
+  // Shop + a seeded product show (shop name appears in the bar + hero, so .first()).
+  await expect(page.getByText("Demo Bakery").first()).toBeVisible();
   await expect(page.getByText("Chocolate Cake")).toBeVisible();
 
   // Open the product → choose a variant → add to cart.

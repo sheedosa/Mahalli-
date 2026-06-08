@@ -106,7 +106,7 @@ begin
 
   set local role authenticated;
   perform set_config('request.jwt.claims', json_build_object('sub',v_u1::text,'role','authenticated')::text, true);
-  v_s1 := (public.create_shop('S1','s1')).id;
+  v_s1 := (public.create_shop('S1','shop-1')).id;
   v_prod := public.save_product(null, v_s1, 'P','d', 100, 'c', null, 10, true,
     '[{"label":"A","price_override":null,"stock":2},{"label":"B","price_override":120,"stock":3}]'::jsonb);
   select count(*) into v_cnt from public.product_variants where product_id=v_prod;
@@ -118,7 +118,7 @@ begin
 
   set local role authenticated;
   perform set_config('request.jwt.claims', json_build_object('sub',v_u2::text,'role','authenticated')::text, true);
-  v_s2 := (public.create_shop('S2','s2')).id;
+  v_s2 := (public.create_shop('S2','shop-2')).id;
   v_blocked := false;
   begin perform public.save_product(v_prod, v_s2, 'H', null, 1, null, null, 0, true, '[]'::jsonb);
   exception when others then v_blocked := true; end;

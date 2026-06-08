@@ -59,9 +59,20 @@ jobs:
       - run: supabase start
       - name: Wire app env to the local Supabase stack
         run: |
-          echo "NEXT_PUBLIC_SUPABASE_URL=$(supabase status -o env | grep '^API_URL' | cut -d'\"' -f2)" >> "$GITHUB_ENV"
-          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$(supabase status -o env | grep '^ANON_KEY' | cut -d'\"' -f2)" >> "$GITHUB_ENV"
-          echo "NEXT_PUBLIC_SITE_URL=http://localhost:3000" >> "$GITHUB_ENV"
+          API_URL=$(supabase status -o json | jq -r '.API_URL')
+          ANON_KEY=$(supabase status -o json | jq -r '.ANON_KEY')
+          echo "Local Supabase API_URL=$API_URL"
+          # Safety: never run E2E (which signs up users + places orders) against
+          # anything but the throwaway local stack.
+          case "$API_URL" in
+            http://127.0.0.1:*|http://localhost:*) : ;;
+            *) echo "::error::Refusing to run E2E against non-local Supabase ($API_URL)"; exit 1 ;;
+          esac
+          {
+            echo "NEXT_PUBLIC_SUPABASE_URL=$API_URL"
+            echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY"
+            echo "NEXT_PUBLIC_SITE_URL=http://localhost:3000"
+          } >> "$GITHUB_ENV"
       - run: npm run build
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e

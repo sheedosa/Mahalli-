@@ -18,8 +18,9 @@ test("seller can sign up, onboard, and add a product", async ({ page }) => {
   await page.getByRole("button", { name: "Create account" }).click();
 
   // ---- onboarding: create the shop ----
+  // (onboarding labels aren't input-associated, so target by placeholder)
   await expect(page).toHaveURL(/\/onboarding/, { timeout: 15_000 });
-  await page.getByLabel("Shop name").fill("QA Shop");
+  await page.getByPlaceholder("e.g. Layla Boutique").fill("QA Shop");
   const slugInput = page.getByPlaceholder("layla-boutique");
   await slugInput.fill(slug);
   // wait for the availability check to settle
