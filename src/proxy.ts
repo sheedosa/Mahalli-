@@ -84,8 +84,23 @@ export async function proxy(request: NextRequest) {
     return res;
   }
 
-  // Refresh the Supabase session and learn who the user is.
-  const { response, user } = await updateSession(request);
+  // Refresh the Supabase session and learn who the user is. If this throws
+  // (e.g. missing Supabase env vars), do NOT 500 the whole request — fall
+  // through as "no session" so the page can render a readable error instead.
+  let response: NextResponse = NextResponse.next({
+    request: { headers: request.headers },
+  });
+  let user: Awaited<ReturnType<typeof updateSession>>["user"] = null;
+  try {
+    const result = await updateSession(request);
+    response = result.response;
+    user = result.user;
+  } catch (err) {
+    console.error("proxy: updateSession failed", err);
+    const res = NextResponse.next({ request: { headers: request.headers } });
+    applySecurityHeaders(res, csp);
+    return res;
+  }
 
   // Gate protected routes.
   if (!user && isProtected(pathname)) {
