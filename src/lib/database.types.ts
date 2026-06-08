@@ -503,6 +503,21 @@ export type Database = {
         }
       }
       is_slug_available: { Args: { p_slug: string }; Returns: boolean }
+      save_product: {
+        Args: {
+          p_id: string | null
+          p_seller: string
+          p_name: string
+          p_description: string | null
+          p_price: number
+          p_category: string | null
+          p_image_url: string | null
+          p_stock: number
+          p_active: boolean
+          p_variants: Json
+        }
+        Returns: string
+      }
       user_is_owner: { Args: { target_seller: string }; Returns: boolean }
       user_seller_ids: { Args: Record<PropertyKey, never>; Returns: string[] }
     }

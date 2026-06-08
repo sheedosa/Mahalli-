@@ -18,6 +18,22 @@ export const Input = forwardRef<
 ));
 Input.displayName = "Input";
 
+export const Textarea = forwardRef<
+  HTMLTextAreaElement,
+  React.TextareaHTMLAttributes<HTMLTextAreaElement>
+>(({ className, ...props }, ref) => (
+  <textarea
+    ref={ref}
+    className={cn(
+      "min-h-20 w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-base text-zinc-900",
+      "placeholder:text-zinc-400 focus:border-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/10",
+      className,
+    )}
+    {...props}
+  />
+));
+Textarea.displayName = "Textarea";
+
 export function Field({
   label,
   htmlFor,

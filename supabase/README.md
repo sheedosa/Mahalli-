@@ -12,6 +12,9 @@ and tested before any feature reads or writes real data (spec §6, §10).
 | `0002_rls_policies.sql` | The security spine: tenant resolver + RLS on every table. |
 | `0003_onboarding_and_helpers.sql` | `create_shop()` RPC, `is_slug_available()`, `updated_at` trigger. |
 | `0004_harden_functions.sql` | Pins function `search_path`; revokes helper EXECUTE from `anon`. |
+| `0005_product_image_storage.sql` | `product-images` bucket + storage RLS (sellers write only their own folder). |
+| `0006_save_product.sql` | Atomic `save_product()` RPC: upsert product + replace variants, ownership-checked. |
+| `0007_storage_no_listing.sql` | Drops the public listing policy (object URLs still work; no enumeration). |
 | `seed.sql` | Optional dev catalogue for an existing shop (run manually). |
 
 Live project: **Mahalli** (`wolrnueoxodvezijyrbf`, eu-central-1). Migrations
@@ -80,15 +83,27 @@ Result on the live project: **all assertions passed**, zero rows persisted.
 
 ## Security advisor notes
 
-`get_advisors(security)` reports four `authenticated_security_definer_function_executable`
-warnings (`create_shop`, `is_slug_available`, `user_seller_ids`, `user_is_owner`).
-These are **intentional**:
+`get_advisors(security)` reports five `authenticated_security_definer_function_executable`
+warnings (`create_shop`, `is_slug_available`, `save_product`, `user_seller_ids`,
+`user_is_owner`). These are **intentional**:
 
-- `create_shop` / `is_slug_available` are deliberate RPC endpoints for signed-in
-  users during onboarding.
+- `create_shop` / `is_slug_available` / `save_product` are deliberate RPC
+  endpoints for signed-in users. Each enforces tenant ownership internally
+  (`save_product` checks `p_seller in (select user_seller_ids())` and updates
+  only rows matching `seller_id`, so a product cannot be created in or moved to
+  another tenant — verified by test).
 - `user_seller_ids` / `user_is_owner` must be EXECUTE-able by `authenticated`
   because the RLS engine evaluates them during policy checks.
 
 Each returns only the caller's own data (or validates the caller's own input),
 so there is no cross-tenant exposure. The `anon` role cannot execute any of
-them (revoked in 0004).
+them.
+
+## Storage
+
+Bucket `product-images` is public (so the storefront/CDN can serve images by
+URL). Writes are restricted by `storage.objects` RLS: a seller may only
+create/replace/delete objects under a top-level folder named after a
+`seller_id` they belong to (key convention `<seller_id>/<uuid>.<ext>`). There is
+no public SELECT/list policy — object content is reachable via its public URL,
+but the bucket's filenames cannot be enumerated.

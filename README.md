@@ -27,7 +27,11 @@ one mobile-first, Arabic-first PWA.
   structure ready to add phone-OTP.
 - ✅ **Seller onboarding** — create shop with live slug-availability check.
 - ✅ **Dashboard shell** — mobile bottom-nav, overview with real per-seller
-  stats, editable **settings**, placeholders for Products/Orders/Customers.
+  stats, editable **settings**.
+- ✅ **Products & inventory** (step 4) — list with search + cursor pagination,
+  create/edit/delete with **variants**, **image upload** to Supabase Storage
+  (seller-scoped), stock/active badges. Mutations go through an atomic,
+  ownership-checked `save_product` RPC.
 - ✅ **i18n EN/AR + full RTL** — Arabic is the default; one toggle flips all
   copy and direction.
 - ✅ **Security hardening** — nonce-based CSP (`strict-dynamic`), HSTS,
@@ -36,7 +40,6 @@ one mobile-first, Arabic-first PWA.
 
 ## What's next (later build-sequence steps)
 
-4. Products & inventory CRUD (port prototype UI).
 5. Public storefront (`/<slug>`, edge-cached) + **server-validated** order
    creation (service-role endpoint, rate-limited — never raw anon insert).
 6. Order pipeline + auto-built customer book (stock on confirm, restore on cancel).
