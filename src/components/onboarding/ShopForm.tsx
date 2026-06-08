@@ -1,17 +1,15 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
+import { useFormStatus } from "react-dom";
 import { Check, Loader2, X } from "lucide-react";
 import { createShop, type OnboardingState } from "@/app/onboarding/actions";
 import { createClient } from "@/lib/supabase/client";
 import { useI18n } from "@/i18n/provider";
-import { Input, Field } from "@/components/ui/Input";
-import { SubmitButton } from "@/components/ui/SubmitButton";
 import { locales } from "@/i18n/config";
 
 const slugRe = /^[a-z0-9](?:[a-z0-9-]{1,38}[a-z0-9])$/;
 
-/** Best-effort slug from a (Latin) shop name; Arabic names are typed manually. */
 function slugify(input: string): string {
   return input
     .toLowerCase()
@@ -24,6 +22,16 @@ function slugify(input: string): string {
 
 type SlugState = "idle" | "checking" | "available" | "taken" | "invalid";
 
+function CreateBtn({ label, pendingLabel, disabled }: { label: string; pendingLabel: string; disabled: boolean }) {
+  const { pending } = useFormStatus();
+  return (
+    <button type="submit" className="btn btn-accent btn-pill" disabled={pending || disabled}>
+      {pending && <Loader2 className="size-5 animate-spin" />}
+      {pending ? pendingLabel : label}
+    </button>
+  );
+}
+
 export function ShopForm() {
   const { dict, locale } = useI18n();
   const t = dict.onboarding;
@@ -33,14 +41,8 @@ export function ShopForm() {
   const [slugTouched, setSlugTouched] = useState(false);
   const [slugState, setSlugState] = useState<SlugState>("idle");
 
-  const [state, formAction] = useActionState<OnboardingState, FormData>(
-    createShop,
-    {},
-  );
+  const [state, formAction] = useActionState<OnboardingState, FormData>(createShop, {});
 
-  // Apply a new slug value and set its immediate (synchronous) state. The
-  // async availability check then runs in the effect below. Updating state in
-  // the event handler — not an effect — avoids cascading re-renders.
   function applySlug(next: string) {
     setSlug(next);
     if (next.length === 0) setSlugState("idle");
@@ -48,15 +50,11 @@ export function ShopForm() {
     else setSlugState("checking");
   }
 
-  // Debounced availability check against the is_slug_available RPC. Only the
-  // async result is written to state, inside the timeout callback.
   useEffect(() => {
     if (slug.length === 0 || !slugRe.test(slug)) return;
     const supabase = createClient();
     const handle = setTimeout(async () => {
-      const { data, error } = await supabase.rpc("is_slug_available", {
-        p_slug: slug,
-      });
+      const { data, error } = await supabase.rpc("is_slug_available", { p_slug: slug });
       setSlugState(error ? "idle" : data ? "available" : "taken");
     }, 400);
     return () => clearTimeout(handle);
@@ -72,20 +70,16 @@ export function ShopForm() {
           : undefined;
 
   const slugHint =
-    slugState === "checking"
-      ? t.slugChecking
-      : slugState === "available"
-        ? t.slugAvailable
-        : t.slugHint;
-
+    slugState === "checking" ? t.slugChecking : slugState === "available" ? t.slugAvailable : t.slugHint;
   const slugError =
     slugState === "taken" ? t.slugTaken : slugState === "invalid" ? t.slugInvalid : serverError;
 
   return (
-    <form action={formAction} className="space-y-4" noValidate>
-      <Field label={t.shopName} htmlFor="name">
-        <Input
-          id="name"
+    <form action={formAction} className="sf-stack" style={{ gap: 16 }} noValidate>
+      <div className="field">
+        <label className="label">{t.shopName}</label>
+        <input
+          className="input"
           name="name"
           required
           maxLength={120}
@@ -97,12 +91,13 @@ export function ShopForm() {
             if (!slugTouched) applySlug(slugify(v));
           }}
         />
-      </Field>
+      </div>
 
-      <Field label={t.slug} htmlFor="slug" hint={slugHint} error={slugError}>
-        <div className="relative">
-          <Input
-            id="slug"
+      <div className="field">
+        <label className="label">{t.slug}</label>
+        <div style={{ position: "relative" }}>
+          <input
+            className={`input${slugState === "taken" || slugState === "invalid" ? " err" : ""}`}
             name="slug"
             required
             dir="ltr"
@@ -114,64 +109,40 @@ export function ShopForm() {
               setSlugTouched(true);
               applySlug(e.target.value.toLowerCase());
             }}
-            className="pe-10"
+            style={{ paddingInlineEnd: 40 }}
           />
-          <span className="pointer-events-none absolute inset-y-0 end-3 flex items-center">
-            {slugState === "checking" && (
-              <Loader2 className="size-4 animate-spin text-zinc-400" />
-            )}
-            {slugState === "available" && (
-              <Check className="size-4 text-emerald-600" />
-            )}
-            {(slugState === "taken" || slugState === "invalid") && (
-              <X className="size-4 text-red-500" />
-            )}
+          <span style={{ position: "absolute", insetInlineEnd: 12, top: "50%", transform: "translateY(-50%)" }}>
+            {slugState === "checking" && <Loader2 className="size-4 animate-spin" style={{ color: "var(--z400)" }} />}
+            {slugState === "available" && <Check className="size-4" style={{ color: "var(--success)" }} />}
+            {(slugState === "taken" || slugState === "invalid") && <X className="size-4" style={{ color: "var(--danger)" }} />}
           </span>
         </div>
-      </Field>
+        {slugError ? <span className="errline">{slugError}</span> : <span className="hint">{slugHint}</span>}
+      </div>
 
-      <Field label={t.city} htmlFor="city" optional={dict.common.optional}>
-        <Input id="city" name="city" maxLength={80} placeholder={t.cityPlaceholder} />
-      </Field>
+      <div className="field">
+        <label className="label">{t.city} <span className="muted">· {dict.common.optional}</span></label>
+        <input className="input" name="city" maxLength={80} placeholder={t.cityPlaceholder} />
+      </div>
 
-      <Field label={t.phone} htmlFor="phone" optional={dict.common.optional}>
-        <Input
-          id="phone"
-          name="phone"
-          type="tel"
-          inputMode="tel"
-          dir="ltr"
-          maxLength={40}
-          placeholder={t.phonePlaceholder}
-        />
-      </Field>
+      <div className="field">
+        <label className="label">{t.phone} <span className="muted">· {dict.common.optional}</span></label>
+        <input className="input" name="phone" type="tel" inputMode="tel" dir="ltr" maxLength={40} placeholder={t.phonePlaceholder} />
+      </div>
 
-      <fieldset className="space-y-1.5">
-        <legend className="text-sm font-medium text-zinc-700">
-          {t.language}
-        </legend>
-        <div className="flex gap-2">
+      <div className="field">
+        <label className="label">{t.language}</label>
+        <div className="sf-row" style={{ gap: 8 }}>
           {locales.map((l) => (
-            <label
-              key={l}
-              className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl border border-zinc-200 px-3 py-2.5 text-sm has-[:checked]:border-zinc-900 has-[:checked]:bg-zinc-900 has-[:checked]:text-white"
-            >
-              <input
-                type="radio"
-                name="lang"
-                value={l}
-                defaultChecked={l === locale}
-                className="sr-only"
-              />
+            <label key={l} className={`chip${l === locale ? " active" : ""}`} style={{ flex: 1, justifyContent: "center", cursor: "pointer" }}>
+              <input type="radio" name="lang" value={l} defaultChecked={l === locale} style={{ display: "none" }} />
               {dict.lang[l]}
             </label>
           ))}
         </div>
-      </fieldset>
+      </div>
 
-      <SubmitButton size="lg" pendingLabel={t.creating} disabled={slugState === "taken"}>
-        {t.createCta}
-      </SubmitButton>
+      <CreateBtn label={t.createCta} pendingLabel={t.creating} disabled={slugState === "taken"} />
     </form>
   );
 }

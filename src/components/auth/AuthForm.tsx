@@ -1,12 +1,12 @@
 "use client";
 
 import { useActionState } from "react";
+import { useFormStatus } from "react-dom";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { Check, Loader2 } from "lucide-react";
 import { signIn, signUp, type AuthState } from "@/app/(auth)/actions";
 import { useI18n } from "@/i18n/provider";
-import { Input, Field } from "@/components/ui/Input";
-import { SubmitButton } from "@/components/ui/SubmitButton";
 
 export function AuthForm({ mode }: { mode: "signin" | "signup" }) {
   const { dict } = useI18n();
@@ -31,33 +31,31 @@ export function AuthForm({ mode }: { mode: "signin" | "signup" }) {
               : undefined;
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-xl font-bold text-zinc-900">
+    <div className="sf-stack" style={{ gap: 22 }}>
+      <h1 style={{ margin: 0, fontSize: 25, fontWeight: 800, letterSpacing: "-.01em" }}>
         {mode === "signin" ? t.signInTitle : t.signUpTitle}
       </h1>
 
       {state.infoKey === "checkEmail" ? (
-        <p className="rounded-xl bg-emerald-50 p-4 text-sm text-emerald-800">
-          {t.checkEmail}
-        </p>
+        <div
+          className="sf-row"
+          style={{ gap: 10, background: "var(--success-soft)", color: "#047857", padding: 16, borderRadius: 16, fontSize: 14, fontWeight: 600 }}
+        >
+          <Check className="size-5" /> {t.checkEmail}
+        </div>
       ) : (
-        <form action={formAction} className="space-y-4" noValidate>
+        <form action={formAction} className="sf-stack" style={{ gap: 16 }} noValidate>
           {next && <input type="hidden" name="next" value={next} />}
 
-          <Field label={t.email} htmlFor="email">
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              inputMode="email"
-              autoComplete="email"
-              required
-              dir="ltr"
-            />
-          </Field>
+          <div className="field">
+            <label className="label" htmlFor="email">{t.email}</label>
+            <input className="input" id="email" name="email" type="email" inputMode="email" autoComplete="email" required dir="ltr" />
+          </div>
 
-          <Field label={t.password} htmlFor="password" error={errorMsg}>
-            <Input
+          <div className="field">
+            <label className="label" htmlFor="password">{t.password}</label>
+            <input
+              className={`input${errorMsg ? " err" : ""}`}
               id="password"
               name="password"
               type="password"
@@ -66,33 +64,42 @@ export function AuthForm({ mode }: { mode: "signin" | "signup" }) {
               minLength={8}
               dir="ltr"
             />
-          </Field>
+            {errorMsg && <span className="errline">{errorMsg}</span>}
+          </div>
 
-          <SubmitButton size="lg">
-            {mode === "signin" ? t.signInCta : t.signUpCta}
-          </SubmitButton>
+          <SubmitBtn label={mode === "signin" ? t.signInCta : t.signUpCta} />
         </form>
       )}
 
-      <p className="text-center text-sm text-zinc-500">
+      <p style={{ textAlign: "center", fontSize: 14, color: "var(--z500)" }}>
         {mode === "signin" ? (
           <>
             {t.noAccount}{" "}
-            <Link href="/signup" className="font-medium text-zinc-900 underline">
+            <Link href="/signup" style={{ fontWeight: 700, color: "var(--accent-deep)" }}>
               {t.goSignUp}
             </Link>
           </>
         ) : (
           <>
             {t.haveAccount}{" "}
-            <Link href="/login" className="font-medium text-zinc-900 underline">
+            <Link href="/login" style={{ fontWeight: 700, color: "var(--accent-deep)" }}>
               {t.goSignIn}
             </Link>
           </>
         )}
       </p>
 
-      <p className="text-center text-xs text-zinc-400">{t.phoneSoon}</p>
+      <p style={{ textAlign: "center", fontSize: 12, color: "var(--z400)" }}>{t.phoneSoon}</p>
     </div>
+  );
+}
+
+function SubmitBtn({ label }: { label: string }) {
+  const { pending } = useFormStatus();
+  return (
+    <button type="submit" className="btn btn-accent btn-pill" disabled={pending}>
+      {pending && <Loader2 className="size-5 animate-spin" />}
+      {label}
+    </button>
   );
 }

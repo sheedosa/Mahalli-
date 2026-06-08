@@ -1,43 +1,41 @@
 import Link from "next/link";
 import { getI18n } from "@/i18n";
 import { LocaleSwitcher } from "@/components/LocaleSwitcher";
-import { Button } from "@/components/ui/Button";
 
 export default async function LandingPage() {
   const { dict } = await getI18n();
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-md flex-col px-5 pb-10 pt-5">
-      <header className="flex items-center justify-between">
-        <span className="text-lg font-bold text-zinc-900">
-          {dict.meta.appName}
-        </span>
-        <LocaleSwitcher />
-      </header>
+    <main className="theme-cream sf">
+      <div className="mx-auto flex min-h-dvh max-w-md flex-col" style={{ padding: "18px 20px 28px" }}>
+        <header className="sf-row sf-between">
+          <span style={{ fontSize: 22, fontWeight: 900 }}>{dict.meta.appName}</span>
+          <LocaleSwitcher />
+        </header>
 
-      <div className="flex flex-1 flex-col justify-center gap-6 py-12">
-        <div className="space-y-3">
-          <h1 className="text-3xl font-bold leading-snug text-zinc-900">
+        {/* hero */}
+        <div
+          style={{ marginTop: 18, borderRadius: 30, background: "var(--hero-grad)", padding: "30px 24px", position: "relative", overflow: "hidden", boxShadow: "var(--shadow-md)" }}
+        >
+          <div style={{ position: "absolute", insetInlineEnd: -30, insetBlockStart: -30, width: 160, height: 160, borderRadius: "50%", background: "rgba(255,255,255,.12)" }} />
+          <div style={{ position: "absolute", insetInlineStart: -40, insetBlockEnd: -50, width: 140, height: 140, borderRadius: "50%", background: "rgba(255,255,255,.08)" }} />
+          <h1 style={{ position: "relative", margin: 0, color: "var(--hero-ink)", fontSize: 30, fontWeight: 800, lineHeight: 1.18, letterSpacing: "-.02em" }}>
             {dict.landing.headline}
           </h1>
-          <p className="text-base text-zinc-500">{dict.landing.sub}</p>
+          <p style={{ position: "relative", margin: "14px 0 0", color: "rgba(255,255,255,.85)", fontSize: 15, lineHeight: 1.65 }}>
+            {dict.landing.sub}
+          </p>
         </div>
 
-        <div className="space-y-3">
-          <Link href="/signup" className="block">
-            <Button size="lg">{dict.landing.getStarted}</Button>
-          </Link>
-          <Link href="/login" className="block">
-            <Button size="lg" variant="secondary">
-              {dict.landing.signIn}
-            </Button>
-          </Link>
+        <div className="flex flex-1 flex-col justify-end" style={{ gap: 12, paddingBottom: 8 }}>
+          <Link href="/signup" className="btn btn-accent btn-pill">{dict.landing.getStarted}</Link>
+          <Link href="/login" className="btn btn-outline btn-pill">{dict.landing.signIn}</Link>
         </div>
+
+        <footer className="muted" style={{ textAlign: "center", fontSize: 12, marginTop: 12 }}>
+          {dict.meta.appName} · {dict.meta.tagline}
+        </footer>
       </div>
-
-      <footer className="text-center text-xs text-zinc-400">
-        {dict.meta.appName} · {dict.meta.tagline}
-      </footer>
     </main>
   );
 }
