@@ -217,7 +217,7 @@ textarea.input { height: auto; min-height: 96px; padding-block: 13px; resize: no
 .step-val { min-width: 22px; text-align: center; font-weight: 800; font-size: 16px; }
 
 /* floating bottom nav */
-.navwrap { position: sticky; bottom: 0; z-index: 40; display: flex; justify-content: center; padding: 0 0 14px; pointer-events: none; margin-top: -60px; }
+.navwrap { position: fixed; inset-inline: 0; bottom: 0; z-index: 40; display: flex; justify-content: center; padding: 0 0 16px; pointer-events: none; }
 .bottomnav { pointer-events: auto; display: flex; align-items: center; gap: 4px; background: var(--nav-bg); border-radius: var(--r-pill); padding: 7px 9px; box-shadow: var(--shadow-lg); }
 .theme-pastel .bottomnav { backdrop-filter: blur(18px) saturate(160%); -webkit-backdrop-filter: blur(18px) saturate(160%); border: 1px solid rgba(124,58,237,.12); }
 .navitem { appearance: none; border: none; background: transparent; cursor: pointer; width: 46px; height: 46px; border-radius: var(--r-pill); display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; color: var(--nav-muted); transition: all .18s ease; position: relative; }
@@ -268,3 +268,18 @@ textarea.input { height: auto; min-height: 96px; padding-block: 13px; resize: no
 .sf-row { display: flex; align-items: center; }
 .sf-between { justify-content: space-between; }
 .sf-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
+
+/* tiles, radio-cards, switch, small button (seller screens) */
+.tile { background: var(--card); border-radius: var(--r-card); box-shadow: var(--shadow-sm); padding: 16px; }
+.radiocard { width: 100%; border: 1.5px solid var(--z200); background: var(--card); border-radius: 16px; padding: 14px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: all .15s ease; font-family: inherit; text-align: start; color: var(--ink); }
+.radiocard.sel { border-color: var(--accent); background: var(--accent-soft); }
+.radiodot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--z300); flex: none; position: relative; }
+.radiocard.sel .radiodot { border-color: var(--accent); }
+.radiocard.sel .radiodot::after { content: ''; position: absolute; inset: 4px; border-radius: 50%; background: var(--accent); }
+.switch { width: 46px; height: 28px; border-radius: 999px; background: var(--z300); position: relative; cursor: pointer; transition: background .2s ease; flex: none; border: none; }
+.switch.on { background: var(--accent); }
+.switch::after { content: ''; position: absolute; top: 3px; inset-inline-start: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: inset-inline-start .2s ease; }
+.switch.on::after { inset-inline-start: 21px; }
+.btn-sm { height: 42px; font-size: 14px; width: auto; padding-inline: 18px; }
+.btn-danger { background: var(--danger); color: #fff; }
+.label2 { font-size: 13.5px; font-weight: 600; color: var(--z700); }

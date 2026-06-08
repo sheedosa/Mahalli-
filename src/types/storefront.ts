@@ -25,6 +25,7 @@ export type StorefrontShop = {
   logo_url: string | null;
   contact_phone: string | null;
   lang: "ar" | "en";
+  theme: string;
   delivery_areas: DeliveryArea[];
 };
 

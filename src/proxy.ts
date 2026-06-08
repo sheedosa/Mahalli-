@@ -13,6 +13,7 @@ const PROTECTED_PREFIXES = [
   "/broadcasts",
   "/settings",
   "/onboarding",
+  "/link",
 ];
 // Auth-only routes a signed-in user should be bounced away from.
 const AUTH_PATHS = ["/login", "/signup"];

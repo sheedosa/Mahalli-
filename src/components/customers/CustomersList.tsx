@@ -78,7 +78,7 @@ export function CustomersList({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 px-4">
       <h1 className="text-xl font-bold text-zinc-900">{t.title}</h1>
 
       <div className="relative">

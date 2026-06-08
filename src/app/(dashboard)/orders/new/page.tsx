@@ -28,7 +28,7 @@ export default async function NewOrderPage() {
   }));
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 px-4">
       <div className="flex items-center gap-2">
         <Link
           href="/orders"

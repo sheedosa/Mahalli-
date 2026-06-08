@@ -34,7 +34,7 @@ export default async function CustomerDetailPage({
   const to = dict.orders;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 px-4">
       <div className="flex items-center gap-2">
         <Link
           href="/customers"

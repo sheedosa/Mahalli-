@@ -445,6 +445,7 @@ export type Database = {
           owner_user_id: string
           plan: Database["public"]["Enums"]["seller_plan"]
           slug: string
+          theme: string
         }
         Insert: {
           city?: string | null
@@ -458,6 +459,7 @@ export type Database = {
           owner_user_id: string
           plan?: Database["public"]["Enums"]["seller_plan"]
           slug: string
+          theme?: string
         }
         Update: {
           city?: string | null
@@ -471,6 +473,7 @@ export type Database = {
           owner_user_id?: string
           plan?: Database["public"]["Enums"]["seller_plan"]
           slug?: string
+          theme?: string
         }
         Relationships: []
       }

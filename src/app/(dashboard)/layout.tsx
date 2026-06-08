@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { getSellerContext } from "@/lib/auth";
+import { themeClass } from "@/lib/themes";
 import { TopBar } from "@/components/dashboard/TopBar";
 import { BottomNav } from "@/components/dashboard/BottomNav";
 
@@ -13,12 +14,14 @@ export default async function DashboardLayout({
   if (!ctx) redirect("/onboarding");
 
   return (
-    <div className="flex min-h-dvh flex-col">
-      <TopBar shopName={ctx.seller.name} />
-      <main className="mx-auto w-full max-w-md flex-1 px-4 py-5">
-        {children}
-      </main>
-      <BottomNav />
+    <div className={`${themeClass(ctx.seller.theme)} sf`}>
+      <div className="mx-auto flex min-h-dvh max-w-md flex-col">
+        <TopBar shopName={ctx.seller.name} slug={ctx.seller.slug} />
+        <main className="flex-1" style={{ padding: "10px 0 110px" }}>
+          {children}
+        </main>
+        <BottomNav />
+      </div>
     </div>
   );
 }

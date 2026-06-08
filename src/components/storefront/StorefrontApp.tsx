@@ -29,12 +29,9 @@ import {
   unitPrice,
   type CartLine,
 } from "@/components/storefront/cart";
+import { themeClass } from "@/lib/themes";
 
 type View = "catalog" | "checkout" | "done";
-
-// Default storefront theme. Per-shop theming (Mono / Pastel / Noir …) is a
-// follow-up — see DESIGN.md §12; the token system already supports it.
-const THEME = "theme-cream";
 
 function totalStock(p: StorefrontProduct): number {
   return p.variants.length > 0
@@ -126,7 +123,7 @@ export function StorefrontApp({
   // ---- success ----
   if (view === "done") {
     return (
-      <main className={`${THEME} sf`}>
+      <main className={`${themeClass(shop.theme)} sf`}>
         <div className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center gap-4 px-6 text-center">
           <div
             className="flex items-center justify-center"
@@ -158,7 +155,7 @@ export function StorefrontApp({
   // ---- checkout ----
   if (view === "checkout") {
     return (
-      <main className={`${THEME} sf`}>
+      <main className={`${themeClass(shop.theme)} sf`}>
         <div className="mx-auto max-w-md">
           <CheckoutView
             slug={slug}
@@ -178,7 +175,7 @@ export function StorefrontApp({
   const count = cartCount(lines);
 
   return (
-    <main className={`${THEME} sf`}>
+    <main className={`${themeClass(shop.theme)} sf`}>
       <div className="anim-in mx-auto max-w-md" style={{ position: "relative", paddingBottom: 120 }}>
         {/* glass top bar */}
         <div className="topbar">

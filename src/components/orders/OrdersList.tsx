@@ -103,7 +103,7 @@ export function OrdersList({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 px-4">
       <div className="flex items-center justify-between gap-2">
         <h1 className="text-xl font-bold text-zinc-900">{t.title}</h1>
         <Link

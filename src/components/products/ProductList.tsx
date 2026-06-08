@@ -3,11 +3,10 @@
 import { useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Package, Plus, Search } from "lucide-react";
+import { Package, Pencil, Plus, Search } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useI18n } from "@/i18n/provider";
 import { formatPrice } from "@/lib/utils";
-import { Input } from "@/components/ui/Input";
 
 export const PAGE_SIZE = 12;
 const LOW_STOCK = 3;
@@ -63,7 +62,6 @@ export function ProductList({
     return { rows: rows.slice(0, PAGE_SIZE), more: rows.length > PAGE_SIZE };
   }
 
-  // Debounced search that resets the list.
   function onSearch(value: string) {
     setQ(value);
     setLoading(true);
@@ -79,107 +77,88 @@ export function ProductList({
   async function loadMore() {
     if (items.length === 0) return;
     setLoading(true);
-    const cursor = items[items.length - 1].created_at;
-    const { rows, more } = await runQuery(q, cursor);
+    const { rows, more } = await runQuery(q, items[items.length - 1].created_at);
     setItems((prev) => [...prev, ...rows]);
     setHasMore(more);
     setLoading(false);
   }
 
+  function stockPill(p: ProductRow) {
+    const s = effectiveStock(p);
+    if (!p.active) return { cls: "pill-neutral", text: t.inactive };
+    if (s <= 0) return { cls: "pill-danger", text: t.outOfStock };
+    if (s <= LOW_STOCK) return { cls: "pill-warning", text: `${t.lowStock} · ${s}` };
+    return { cls: "pill-success", text: `${t.inStock} · ${s}` };
+  }
+
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between gap-2">
-        <h1 className="text-xl font-bold text-zinc-900">{t.title}</h1>
-        <Link
-          href="/products/new"
-          className="inline-flex items-center gap-1.5 rounded-xl bg-zinc-900 px-3.5 py-2 text-sm font-medium text-white"
-        >
-          <Plus className="size-4" /> {t.add}
-        </Link>
+    <div className="anim-in">
+      <div className="topbar" style={{ position: "static", padding: "4px 18px 8px", background: "transparent", backdropFilter: "none", borderBottom: "none" }}>
+        <h1 className="topbar-title" style={{ flex: 1 }}>{t.title}</h1>
+        <span className="muted" style={{ fontSize: 13, fontWeight: 600 }}>{items.length}</span>
       </div>
 
-      <div className="relative">
-        <Search className="pointer-events-none absolute inset-y-0 start-3 my-auto size-4 text-zinc-400" />
-        <Input
-          value={q}
-          onChange={(e) => onSearch(e.target.value)}
-          placeholder={t.searchPlaceholder}
-          className="ps-9"
-          aria-label={t.searchPlaceholder}
-        />
+      <div style={{ padding: "0 18px 8px" }}>
+        <div style={{ position: "relative" }}>
+          <span style={{ position: "absolute", insetInlineStart: 15, top: "50%", transform: "translateY(-50%)", color: "var(--z400)" }}>
+            <Search className="size-[18px]" />
+          </span>
+          <input
+            className="input"
+            style={{ paddingInlineStart: 44, height: 46, borderRadius: 999 }}
+            placeholder={t.searchPlaceholder}
+            value={q}
+            onChange={(e) => onSearch(e.target.value)}
+            aria-label={t.searchPlaceholder}
+          />
+        </div>
       </div>
 
       {items.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-zinc-300 p-8 text-center">
-          <Package className="mx-auto size-8 text-zinc-300" />
-          <p className="mt-2 font-medium text-zinc-900">
-            {q ? t.noResults : t.emptyTitle}
-          </p>
-          {!q && <p className="mt-1 text-sm text-zinc-500">{t.emptyBody}</p>}
+        <div className="empty">
+          <div className="empty-art"><Package className="size-9" /></div>
+          <div className="sf-stack" style={{ gap: 6 }}>
+            <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>
+              {q ? t.noResults : t.emptyTitle}
+            </h3>
+            {!q && <p className="muted" style={{ margin: 0, fontSize: 14, maxWidth: 260, lineHeight: 1.6 }}>{t.emptyBody}</p>}
+          </div>
         </div>
       ) : (
-        <ul className="space-y-2.5">
+        <div className="sf-stack" style={{ gap: 11, padding: "6px 18px" }}>
           {items.map((p) => {
-            const stock = effectiveStock(p);
-            const badge = !p.active
-              ? { text: t.inactive, cls: "bg-zinc-100 text-zinc-500" }
-              : stock <= 0
-                ? { text: t.outOfStock, cls: "bg-red-100 text-red-700" }
-                : stock <= LOW_STOCK
-                  ? { text: t.lowStock, cls: "bg-amber-100 text-amber-700" }
-                  : { text: t.inStock, cls: "bg-emerald-100 text-emerald-700" };
-            const variantCount = p.product_variants.length;
+            const sp = stockPill(p);
             return (
-              <li key={p.id}>
-                <Link
-                  href={`/products/${p.id}`}
-                  className="flex items-center gap-3 rounded-2xl border border-zinc-200 bg-white p-2.5"
-                >
-                  <div className="relative size-14 shrink-0 overflow-hidden rounded-xl bg-zinc-100">
-                    {p.image_url ? (
-                      <Image
-                        src={p.image_url}
-                        alt=""
-                        fill
-                        sizes="56px"
-                        className="object-cover"
-                      />
-                    ) : (
-                      <div className="flex size-full items-center justify-center text-zinc-300">
-                        <Package className="size-5" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-medium text-zinc-900">{p.name}</p>
-                    <p className="text-sm text-zinc-500">
-                      {formatPrice(Number(p.price), locale)}
-                      {variantCount > 0 &&
-                        ` · ${t.variantsCount.replace("{n}", String(variantCount))}`}
-                    </p>
-                  </div>
-                  <span
-                    className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${badge.cls}`}
-                  >
-                    {badge.text}
-                  </span>
+              <div key={p.id} className="card" style={{ padding: 11, display: "flex", gap: 12, alignItems: "center" }}>
+                <div style={{ width: 66, height: 80, borderRadius: 14, overflow: "hidden", flex: "none", background: "var(--surface-2)", position: "relative" }}>
+                  {p.image_url ? (
+                    <Image src={p.image_url} alt="" fill sizes="66px" className="object-cover" />
+                  ) : (
+                    <span className="flex size-full items-center justify-center" style={{ color: "var(--z400)" }}><Package className="size-5" /></span>
+                  )}
+                </div>
+                <div className="sf-stack" style={{ flex: 1, gap: 6, minWidth: 0 }}>
+                  <span style={{ fontWeight: 700, fontSize: 14.5, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</span>
+                  <span className="price">{formatPrice(Number(p.price), locale)}</span>
+                  <span className={`pill ${sp.cls}`} style={{ alignSelf: "flex-start" }}>{sp.text}</span>
+                </div>
+                <Link href={`/products/${p.id}`} aria-label={dict.common.edit} className="iconbtn" style={{ boxShadow: "none", background: "var(--z100)" }}>
+                  <Pencil className="size-[17px]" />
                 </Link>
-              </li>
+              </div>
             );
           })}
-        </ul>
+          {hasMore && (
+            <button type="button" onClick={loadMore} disabled={loading} className="btn btn-outline btn-pill" style={{ marginTop: 4 }}>
+              {loading ? dict.common.loading : t.loadMore}
+            </button>
+          )}
+        </div>
       )}
 
-      {hasMore && items.length > 0 && (
-        <button
-          type="button"
-          onClick={loadMore}
-          disabled={loading}
-          className="w-full rounded-xl border border-zinc-200 py-2.5 text-sm font-medium text-zinc-600 disabled:opacity-50"
-        >
-          {loading ? dict.common.loading : t.loadMore}
-        </button>
-      )}
+      <Link href="/products/new" className="fab">
+        <Plus className="size-5" /> {t.add}
+      </Link>
     </div>
   );
 }

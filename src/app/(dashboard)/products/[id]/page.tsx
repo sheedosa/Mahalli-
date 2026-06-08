@@ -27,7 +27,7 @@ export default async function EditProductPage({
   if (!product) notFound(); // RLS hides other tenants' products → 404
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 px-4">
       <div className="flex items-center gap-2">
         <Link
           href="/products"

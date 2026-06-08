@@ -1,32 +1,52 @@
 "use client";
 
-import { LogOut } from "lucide-react";
+import { ExternalLink, LogOut } from "lucide-react";
 import { signOut } from "@/app/(auth)/actions";
 import { useI18n } from "@/i18n/provider";
 import { LocaleSwitcher } from "@/components/LocaleSwitcher";
 
-export function TopBar({ shopName }: { shopName: string }) {
+export function TopBar({
+  shopName,
+  slug,
+}: {
+  shopName: string;
+  slug: string;
+}) {
   const { dict } = useI18n();
   return (
-    <header className="sticky top-0 z-10 border-b border-zinc-200 bg-white/95 backdrop-blur">
-      <div className="mx-auto flex max-w-md items-center justify-between gap-2 px-4 py-3">
-        <span className="truncate text-base font-bold text-zinc-900">
+    <div className="topbar">
+      <div className="sf-stack" style={{ flex: 1, minWidth: 0 }}>
+        <span style={{ fontSize: 12, color: "var(--z500)", fontWeight: 600 }}>
+          {dict.dashboard.greeting}
+        </span>
+        <span
+          className="topbar-title"
+          style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
+        >
           {shopName}
         </span>
-        <div className="flex items-center gap-1">
-          <LocaleSwitcher />
-          <form action={signOut}>
-            <button
-              type="submit"
-              aria-label={dict.nav.logout}
-              title={dict.nav.logout}
-              className="flex size-9 items-center justify-center rounded-full text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700"
-            >
-              <LogOut className="size-4 flip-x" aria-hidden />
-            </button>
-          </form>
-        </div>
       </div>
-    </header>
+      <a
+        href={`/${slug}`}
+        target="_blank"
+        aria-label={dict.nav.viewStorefront}
+        title={dict.nav.viewStorefront}
+        className="iconbtn"
+      >
+        <ExternalLink className="size-[18px]" />
+      </a>
+      <LocaleSwitcher />
+      <form action={signOut}>
+        <button
+          type="submit"
+          aria-label={dict.nav.logout}
+          title={dict.nav.logout}
+          className="iconbtn"
+          style={{ boxShadow: "none", background: "var(--z100)", color: "var(--z600)" }}
+        >
+          <LogOut className="size-4 flip-x" />
+        </button>
+      </form>
+    </div>
   );
 }

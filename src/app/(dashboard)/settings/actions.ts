@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { getSellerContext } from "@/lib/auth";
+import { THEME_IDS } from "@/lib/themes";
 
 export type SettingsState = { saved?: boolean; error?: boolean };
 
@@ -12,6 +13,7 @@ const schema = z.object({
   city: z.string().trim().max(80).optional(),
   phone: z.string().trim().max(40).optional(),
   lang: z.enum(["ar", "en"]),
+  theme: z.enum(THEME_IDS),
 });
 
 export async function updateShop(
@@ -27,6 +29,7 @@ export async function updateShop(
     city: formData.get("city") || undefined,
     phone: formData.get("phone") || undefined,
     lang: formData.get("lang") || ctx.seller.lang,
+    theme: formData.get("theme") || ctx.seller.theme,
   });
   if (!parsed.success) return { error: true };
 
@@ -38,6 +41,7 @@ export async function updateShop(
       city: parsed.data.city ?? null,
       contact_phone: parsed.data.phone ?? null,
       lang: parsed.data.lang,
+      theme: parsed.data.theme,
     })
     .eq("id", ctx.seller.id); // RLS also enforces this scope
 

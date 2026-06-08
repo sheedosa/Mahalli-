@@ -35,7 +35,7 @@ export default async function OrderDetailPage({
   }).format(new Date(order.created_at));
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 px-4">
       <div className="flex items-center gap-2">
         <Link
           href="/orders"

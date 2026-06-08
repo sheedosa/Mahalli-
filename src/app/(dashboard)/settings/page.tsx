@@ -8,8 +8,10 @@ export default async function SettingsPage() {
   if (!ctx) return null;
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-xl font-bold text-zinc-900">{dict.settings.title}</h1>
+    <div className="anim-in">
+      <div className="topbar" style={{ position: "static", padding: "4px 18px 8px", background: "transparent", backdropFilter: "none", borderBottom: "none" }}>
+        <h1 className="topbar-title">{dict.settings.title}</h1>
+      </div>
       <SettingsForm
         initial={{
           name: ctx.seller.name,
@@ -17,6 +19,7 @@ export default async function SettingsPage() {
           phone: ctx.seller.contact_phone ?? "",
           lang: ctx.seller.lang,
           slug: ctx.seller.slug,
+          theme: ctx.seller.theme,
         }}
       />
     </div>

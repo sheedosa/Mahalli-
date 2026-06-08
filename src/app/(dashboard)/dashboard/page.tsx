@@ -1,18 +1,34 @@
 import Link from "next/link";
-import { ExternalLink } from "lucide-react";
+import {
+  Box,
+  Eye,
+  Package,
+  Plus,
+  TrendingUp,
+  Truck,
+  Wallet,
+} from "lucide-react";
 import { getI18n } from "@/i18n";
 import { getSellerContext } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { formatPrice } from "@/lib/utils";
-import { StatCard, Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
+import type { OrderStatus } from "@/components/orders/status";
 
 const LOW_STOCK_THRESHOLD = 3;
+
+const statusPill: Record<OrderStatus, string> = {
+  new: "pill-accent",
+  confirmed: "pill-accent",
+  ready: "pill-warning",
+  out: "pill-warning",
+  delivered: "pill-success",
+  cancelled: "pill-neutral",
+};
 
 export default async function OverviewPage() {
   const ctx = await getSellerContext();
   const { dict, locale } = await getI18n();
-  if (!ctx) return null; // layout already redirects
+  if (!ctx) return null;
 
   const supabase = await createClient();
   const sellerId = ctx.seller.id;
@@ -20,91 +36,93 @@ export default async function OverviewPage() {
   startOfDay.setHours(0, 0, 0, 0);
   const dayIso = startOfDay.toISOString();
 
-  // All RLS-scoped; seller_id filter also drives the composite indexes.
-  const [todayOrders, deliveredToday, toDeliver, lowStock, products] =
+  const [todayOrders, deliveredToday, toDeliver, lowStock, recent] =
     await Promise.all([
-      supabase
-        .from("orders")
-        .select("id", { count: "exact", head: true })
-        .eq("seller_id", sellerId)
-        .gte("created_at", dayIso),
-      supabase
-        .from("orders")
-        .select("total")
-        .eq("seller_id", sellerId)
-        .eq("status", "delivered")
-        .gte("updated_at", dayIso),
-      supabase
-        .from("orders")
-        .select("id", { count: "exact", head: true })
-        .eq("seller_id", sellerId)
-        .in("status", ["confirmed", "ready", "out"]),
-      supabase
-        .from("products")
-        .select("id", { count: "exact", head: true })
-        .eq("seller_id", sellerId)
-        .eq("active", true)
-        .lte("stock", LOW_STOCK_THRESHOLD),
-      supabase
-        .from("products")
-        .select("id", { count: "exact", head: true })
-        .eq("seller_id", sellerId),
+      supabase.from("orders").select("id", { count: "exact", head: true }).eq("seller_id", sellerId).gte("created_at", dayIso),
+      supabase.from("orders").select("total").eq("seller_id", sellerId).eq("status", "delivered").gte("updated_at", dayIso),
+      supabase.from("orders").select("id", { count: "exact", head: true }).eq("seller_id", sellerId).in("status", ["confirmed", "ready", "out"]),
+      supabase.from("products").select("id", { count: "exact", head: true }).eq("seller_id", sellerId).eq("active", true).lte("stock", LOW_STOCK_THRESHOLD),
+      supabase.from("orders").select("id,status,total,buyer_name,buyer_phone,created_at").eq("seller_id", sellerId).order("created_at", { ascending: false }).limit(5),
     ]);
 
-  const revenue = (deliveredToday.data ?? []).reduce(
-    (sum, o) => sum + Number(o.total),
-    0,
+  const revenue = (deliveredToday.data ?? []).reduce((s, o) => s + Number(o.total), 0);
+  const orders = recent.data ?? [];
+  const td = dict.dashboard;
+
+  const tile = (icon: React.ReactNode, label: string, value: string, tone: string) => (
+    <div className="tile" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      <span style={{ width: 36, height: 36, borderRadius: 11, background: tone, color: "var(--accent-deep)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        {icon}
+      </span>
+      <div className="sf-stack" style={{ gap: 2 }}>
+        <span style={{ fontSize: 21, fontWeight: 800, letterSpacing: "-.01em" }}>{value}</span>
+        <span className="muted" style={{ fontSize: 12.5, fontWeight: 600 }}>{label}</span>
+      </div>
+    </div>
   );
-  const isEmpty = (products.count ?? 0) === 0;
 
   return (
-    <div className="space-y-5">
-      <div className="flex items-end justify-between gap-2">
-        <div>
-          <p className="text-sm text-zinc-500">{dict.dashboard.greeting}</p>
-          <h1 className="text-xl font-bold text-zinc-900">{ctx.seller.name}</h1>
-        </div>
-        <Link
-          href={`/${ctx.seller.slug}`}
-          target="_blank"
-          className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-600"
-        >
-          <ExternalLink className="size-3.5" />
-          {dict.nav.viewStorefront}
+    <div className="anim-in" style={{ padding: "12px 18px 0" }}>
+      <div className="sf-grid2" style={{ gap: 12 }}>
+        {tile(<Wallet className="size-[19px]" />, td.revenue, formatPrice(revenue, locale), "var(--accent-soft)")}
+        {tile(<Box className="size-[19px]" />, td.todayOrders, String(todayOrders.count ?? 0), "var(--success-soft)")}
+        {tile(<Truck className="size-[19px]" />, td.toDeliver, String(toDeliver.count ?? 0), "var(--accent-soft)")}
+        {tile(<TrendingUp className="size-[19px]" />, td.lowStock, String(lowStock.count ?? 0), "var(--warning-soft)")}
+      </div>
+
+      {/* quick actions */}
+      <div className="sf-row" style={{ gap: 12, marginTop: 16 }}>
+        <Link href="/products/new" className="btn btn-accent btn-pill" style={{ flex: 1 }}>
+          <Plus className="size-5" /> {dict.products.add}
+        </Link>
+        <Link href={`/${ctx.seller.slug}`} target="_blank" className="btn btn-outline btn-pill" style={{ flex: 1 }}>
+          <Eye className="size-5" /> {dict.nav.viewStorefront}
         </Link>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <StatCard
-          label={dict.dashboard.todayOrders}
-          value={String(todayOrders.count ?? 0)}
-        />
-        <StatCard
-          label={dict.dashboard.revenue}
-          value={formatPrice(revenue, locale)}
-        />
-        <StatCard
-          label={dict.dashboard.toDeliver}
-          value={String(toDeliver.count ?? 0)}
-        />
-        <StatCard
-          label={dict.dashboard.lowStock}
-          value={String(lowStock.count ?? 0)}
-          accent={(lowStock.count ?? 0) > 0 ? "text-amber-600" : undefined}
-        />
-      </div>
-
-      {isEmpty && (
-        <Card className="space-y-3 text-center">
-          <h2 className="font-semibold text-zinc-900">
-            {dict.dashboard.emptyTitle}
-          </h2>
-          <p className="text-sm text-zinc-500">{dict.dashboard.emptyBody}</p>
-          <Link href="/products" className="block">
-            <Button>{dict.dashboard.addProducts}</Button>
+      {/* recent orders */}
+      <div style={{ marginTop: 24 }}>
+        <div className="sf-row sf-between" style={{ padding: "0 4px", marginBottom: 12 }}>
+          <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>{dict.orders.title}</h2>
+          <Link href="/orders" style={{ color: "var(--accent-deep)", fontWeight: 700, fontSize: 13.5, textDecoration: "none" }}>
+            {dict.products.loadMore}
           </Link>
-        </Card>
-      )}
+        </div>
+
+        {orders.length === 0 ? (
+          <div className="empty">
+            <div className="empty-art"><Package className="size-9" /></div>
+            <div className="sf-stack" style={{ gap: 6 }}>
+              <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>{td.emptyTitle}</h3>
+              <p className="muted" style={{ margin: 0, fontSize: 14, lineHeight: 1.6, maxWidth: 260 }}>{td.emptyBody}</p>
+            </div>
+            <Link href="/products" className="btn btn-primary btn-pill" style={{ width: "auto", paddingInline: 26, marginTop: 4 }}>
+              {td.addProducts}
+            </Link>
+          </div>
+        ) : (
+          <div className="card" style={{ padding: "4px 14px" }}>
+            {orders.map((o, i) => {
+              const s = o.status as OrderStatus;
+              return (
+                <Link key={o.id} href={`/orders/${o.id}`} style={{ display: "block", textDecoration: "none", color: "inherit" }}>
+                  <div className="sf-row" style={{ gap: 12, padding: "13px 2px" }}>
+                    <div style={{ width: 42, height: 42, borderRadius: 12, background: "var(--surface-2)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--z500)", fontWeight: 800, flex: "none" }}>
+                      {(o.buyer_name || o.buyer_phone || "?").slice(0, 1)}
+                    </div>
+                    <div className="sf-stack" style={{ flex: 1, gap: 3, minWidth: 0 }}>
+                      <span style={{ fontWeight: 700, fontSize: 14 }}>{o.buyer_name || o.buyer_phone || dict.orders.buyer}</span>
+                      <span className={`pill ${statusPill[s]}`} style={{ alignSelf: "flex-start" }}>{dict.orders.status[s]}</span>
+                    </div>
+                    <span className="price">{formatPrice(Number(o.total), locale)}</span>
+                  </div>
+                  {i < orders.length - 1 && <div className="divider" style={{ margin: 0 }} />}
+                </Link>
+              );
+            })}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
