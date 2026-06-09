@@ -32,9 +32,14 @@ export function AuthForm({ mode }: { mode: "signin" | "signup" }) {
 
   return (
     <div className="sf-stack" style={{ gap: 22 }}>
-      <h1 style={{ margin: 0, fontSize: 25, fontWeight: 800, letterSpacing: "-.01em" }}>
-        {mode === "signin" ? t.signInTitle : t.signUpTitle}
-      </h1>
+      <div className="sf-stack" style={{ gap: 6 }}>
+        <h1 style={{ margin: 0, fontSize: 25, fontWeight: 800, letterSpacing: "-.01em" }}>
+          {mode === "signin" ? t.signInTitle : t.signUpTitle}
+        </h1>
+        <p className="muted" style={{ margin: 0, fontSize: 14, lineHeight: 1.5 }}>
+          {mode === "signin" ? t.signInSub : t.signUpSub}
+        </p>
+      </div>
 
       {state.infoKey === "checkEmail" ? (
         <div
