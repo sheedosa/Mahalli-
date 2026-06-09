@@ -117,7 +117,7 @@ export function GettingStarted({
           <span className="pill pill-accent">
             {t.progress.replace("{done}", String(doneCount)).replace("{total}", String(steps.length))}
           </span>
-          <button type="button" onClick={dismiss} aria-label={t.dismiss} className="iconbtn" style={{ boxShadow: "none", background: "var(--z100)", width: 30, height: 30 }}>
+          <button type="button" onClick={dismiss} aria-label={t.dismiss} className="iconbtn" style={{ boxShadow: "none", background: "var(--z100)", width: 36, height: 36 }}>
             <X className="size-4" />
           </button>
         </span>
@@ -141,7 +141,7 @@ export function GettingStarted({
               <span className="muted" style={{ fontSize: 12.5, lineHeight: 1.45 }}>{s.body}</span>
             </div>
             {!s.done && s.cta && s.href && (
-              <Link href={s.href} className="btn btn-accent btn-pill" style={{ width: "auto", height: 38, paddingInline: 16, flex: "none", fontSize: 13.5 }}>
+              <Link href={s.href} className="btn btn-accent btn-pill" style={{ width: "auto", height: 40, paddingInline: 16, flex: "none", fontSize: 13.5 }}>
                 {s.cta}
               </Link>
             )}

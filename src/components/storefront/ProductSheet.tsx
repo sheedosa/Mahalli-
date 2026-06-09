@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Minus, Plus, ShoppingBag, X } from "lucide-react";
 import type { StorefrontProduct, StorefrontVariant } from "@/types/storefront";
@@ -27,6 +27,15 @@ export function ProductSheet({
       : null,
   );
   const [qty, setQty] = useState(1);
+
+  // Lock the catalog behind the sheet so it doesn't scroll while the sheet is open.
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, []);
 
   const stock = availableStock(product, variant);
   const price = unitPrice(product, variant);

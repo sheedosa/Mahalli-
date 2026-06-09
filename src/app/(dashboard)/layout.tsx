@@ -20,7 +20,7 @@ export default async function DashboardLayout({
     <div className="theme-mahalli sf">
       <div className="mx-auto flex min-h-dvh max-w-md flex-col">
         <TopBar shopName={ctx.seller.name} slug={ctx.seller.slug} />
-        <main className="flex-1" style={{ padding: "10px 0 110px" }}>
+        <main className="flex-1" style={{ padding: "10px 0 calc(96px + env(safe-area-inset-bottom))" }}>
           {children}
         </main>
         <BottomNav />

@@ -146,10 +146,15 @@ body {
 .theme-pastel.sf { background: linear-gradient(180deg,#fff 0%, #faf7ff 28%, #f3edff 100%); }
 .theme-mahalli.sf { background: linear-gradient(180deg,#fbf7ee 0%, #f7f2e7 30%, #f3ecdc 100%); }
 
-/* glass top bar */
+/* Mobile ergonomics: kill the grey tap-flash and the 300ms double-tap-zoom
+   delay on controls so taps feel native. */
+* { -webkit-tap-highlight-color: transparent; }
+button, a, label, select, summary, [role="button"] { touch-action: manipulation; }
+
+/* glass top bar — pad for the status bar / notch (viewport-fit=cover). */
 .topbar {
   position: sticky; top: 0; z-index: 30;
-  padding: 14px 18px 12px;
+  padding: calc(14px + env(safe-area-inset-top)) 18px 12px;
   display: flex; align-items: center; gap: 12px;
   background: color-mix(in srgb, var(--surface) 72%, transparent);
   backdrop-filter: blur(16px) saturate(160%);
@@ -177,7 +182,7 @@ body {
 /* circular icon buttons */
 .iconbtn {
   appearance: none; border: none; cursor: pointer;
-  width: 38px; height: 38px; flex: none; border-radius: var(--r-pill);
+  width: 40px; height: 40px; flex: none; border-radius: var(--r-pill);
   display: inline-flex; align-items: center; justify-content: center;
   background: var(--card); color: var(--ink); box-shadow: var(--shadow-sm);
   transition: transform .12s ease, background .15s ease;
@@ -191,7 +196,7 @@ body {
 .input {
   width: 100%; height: 50px; border-radius: var(--r-input);
   border: 1.5px solid var(--z200); background: var(--card);
-  padding-inline: 15px; font-family: inherit; font-size: 15px; color: var(--ink);
+  padding-inline: 15px; font-family: inherit; font-size: 16px; color: var(--ink);
   transition: border-color .15s ease, box-shadow .15s ease; outline: none;
 }
 .input::placeholder { color: var(--z400); }
@@ -213,7 +218,7 @@ textarea.input { height: auto; min-height: 96px; padding-block: 13px; resize: no
 .chiprow { display: flex; gap: 9px; overflow-x: auto; padding: 2px 18px; scrollbar-width: none; }
 .chiprow::-webkit-scrollbar { display: none; }
 .chip {
-  flex: none; height: 38px; padding-inline: 16px; border-radius: var(--r-pill);
+  flex: none; height: 40px; padding-inline: 16px; border-radius: var(--r-pill);
   border: 1.5px solid var(--z200); background: var(--card); color: var(--z700);
   font-size: 13.5px; font-weight: 600; cursor: pointer; white-space: nowrap;
   display: inline-flex; align-items: center; gap: 7px; transition: all .15s ease;
@@ -223,7 +228,7 @@ textarea.input { height: auto; min-height: 96px; padding-block: 13px; resize: no
 /* stepper, switch */
 .stepper { display: inline-flex; align-items: center; gap: 14px; }
 .step-btn {
-  width: 34px; height: 34px; border-radius: var(--r-pill); border: 1.5px solid var(--z300);
+  width: 40px; height: 40px; border-radius: var(--r-pill); border: 1.5px solid var(--z300);
   background: var(--card); color: var(--ink); cursor: pointer;
   display: inline-flex; align-items: center; justify-content: center; transition: transform .1s ease;
 }
@@ -232,7 +237,7 @@ textarea.input { height: auto; min-height: 96px; padding-block: 13px; resize: no
 .step-val { min-width: 22px; text-align: center; font-weight: 800; font-size: 16px; }
 
 /* floating bottom nav */
-.navwrap { position: fixed; inset-inline: 0; bottom: 0; z-index: 40; display: flex; justify-content: center; padding: 0 0 16px; pointer-events: none; }
+.navwrap { position: fixed; inset-inline: 0; bottom: 0; z-index: 40; display: flex; justify-content: center; padding: 0 0 calc(16px + env(safe-area-inset-bottom)); pointer-events: none; }
 .bottomnav { pointer-events: auto; display: flex; align-items: center; gap: 4px; background: var(--nav-bg); border-radius: var(--r-pill); padding: 7px 9px; box-shadow: var(--shadow-lg); }
 .theme-pastel .bottomnav { backdrop-filter: blur(18px) saturate(160%); -webkit-backdrop-filter: blur(18px) saturate(160%); border: 1px solid rgba(124,58,237,.12); }
 .navitem { appearance: none; border: none; background: transparent; cursor: pointer; width: 46px; height: 46px; border-radius: var(--r-pill); display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; color: var(--nav-muted); transition: all .18s ease; position: relative; }
@@ -241,7 +246,7 @@ textarea.input { height: auto; min-height: 96px; padding-block: 13px; resize: no
 
 /* floating cart CTA */
 .fab {
-  position: fixed; inset-inline-end: max(18px, calc(50vw - 224px + 18px)); bottom: 84px; z-index: 42;
+  position: fixed; inset-inline-end: max(18px, calc(50vw - 224px + 18px)); bottom: calc(84px + env(safe-area-inset-bottom)); z-index: 42;
   height: 54px; padding-inline: 20px; border-radius: var(--r-pill);
   background: var(--cta); color: var(--cta-ink); border: none; cursor: pointer;
   display: inline-flex; align-items: center; gap: 11px; box-shadow: var(--shadow-lg);

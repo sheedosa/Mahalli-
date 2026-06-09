@@ -75,7 +75,7 @@ export function CheckoutView({
             : null;
 
   return (
-    <div className="anim-in" style={{ paddingBottom: 40 }}>
+    <div className="anim-in" style={{ paddingBottom: "calc(40px + env(safe-area-inset-bottom))" }}>
       <div className="topbar">
         <button onClick={onBack} aria-label={t.backToShop} className="iconbtn">
           <ChevronLeft className="size-5 flip-x" />

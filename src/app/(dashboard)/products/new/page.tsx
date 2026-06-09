@@ -16,7 +16,7 @@ export default async function NewProductPage() {
         <Link
           href="/products"
           aria-label={dict.common.back}
-          className="flex size-8 items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100"
+          className="flex size-10 items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100"
         >
           <ChevronLeft className="size-5 flip-x" />
         </Link>

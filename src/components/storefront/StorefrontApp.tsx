@@ -186,7 +186,8 @@ export function StorefrontApp({
               </span>
             )}
             <span className="topbar-title sf-row" style={{ gap: 6 }}>
-              <Store className="size-[18px]" /> {shop.name}
+              <Store className="size-[18px]" style={{ flex: "none" }} />
+              <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{shop.name}</span>
             </span>
           </div>
           <LocaleSwitcher />
@@ -332,7 +333,7 @@ export function StorefrontApp({
                       </div>
                     </div>
                     <div className="pcard-body">
-                      <span style={{ fontWeight: 700, fontSize: 13.5, lineHeight: 1.35, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      <span style={{ fontWeight: 700, fontSize: 13.5, lineHeight: 1.35, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", minHeight: "2.7em" }}>
                         {p.name}
                       </span>
                       <span className="price">{formatPrice(unitPrice(p, null), locale)}</span>

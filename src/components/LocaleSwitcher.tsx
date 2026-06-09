@@ -39,8 +39,8 @@ export function LocaleSwitcher({ className }: { className?: string }) {
         onClick={() => setLocale("ar")}
         aria-pressed={locale === "ar"}
         className={cn(
-          "rounded-full px-2.5 py-1 transition",
-          locale === "ar" ? "bg-zinc-900 text-white" : "text-zinc-600",
+          "rounded-full px-3 py-2 text-sm leading-none transition",
+          locale === "ar" ? "bg-zinc-900 text-white" : "text-zinc-700",
         )}
       >
         {dict.lang.ar}
@@ -50,8 +50,8 @@ export function LocaleSwitcher({ className }: { className?: string }) {
         onClick={() => setLocale("en")}
         aria-pressed={locale === "en"}
         className={cn(
-          "rounded-full px-2.5 py-1 transition",
-          locale === "en" ? "bg-zinc-900 text-white" : "text-zinc-600",
+          "rounded-full px-3 py-2 text-sm leading-none transition",
+          locale === "en" ? "bg-zinc-900 text-white" : "text-zinc-700",
         )}
       >
         {dict.lang.en}

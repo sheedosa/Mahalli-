@@ -146,18 +146,18 @@ export function ManualOrderForm({ products }: { products: FormProduct[] }) {
                     type="button"
                     onClick={() => setQty(l.key, l.qty - 1)}
                     aria-label="-"
-                    className="flex size-7 items-center justify-center rounded-full border border-zinc-200"
+                    className="flex size-9 items-center justify-center rounded-full border border-zinc-200"
                   >
-                    <Minus className="size-3.5" />
+                    <Minus className="size-4" />
                   </button>
-                  <span className="w-5 text-center text-sm font-semibold">{l.qty}</span>
+                  <span className="w-6 text-center text-base font-semibold">{l.qty}</span>
                   <button
                     type="button"
                     onClick={() => setQty(l.key, l.qty + 1)}
                     aria-label="+"
-                    className="flex size-7 items-center justify-center rounded-full border border-zinc-200"
+                    className="flex size-9 items-center justify-center rounded-full border border-zinc-200"
                   >
-                    <Plus className="size-3.5" />
+                    <Plus className="size-4" />
                   </button>
                   <button
                     type="button"

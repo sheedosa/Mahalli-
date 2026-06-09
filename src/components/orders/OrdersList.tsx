@@ -126,7 +126,7 @@ export function OrdersList({
               refresh(q, s);
             }}
             className={cn(
-              "shrink-0 rounded-full px-3 py-1.5 text-sm",
+              "shrink-0 rounded-full px-3.5 py-2 text-sm",
               filter === s
                 ? "bg-zinc-900 text-white"
                 : "bg-zinc-100 text-zinc-600",
