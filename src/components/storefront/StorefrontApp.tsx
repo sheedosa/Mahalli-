@@ -310,7 +310,7 @@ export function StorefrontApp({
             </button>
             {shop.logo_url && (
               <div style={{ position: "absolute", insetInlineEnd: 16, insetBlockEnd: -20, width: 110, height: 130, borderRadius: 22, overflow: "hidden", boxShadow: "0 10px 30px rgba(0,0,0,.25)" }}>
-                <Image src={shop.logo_url} alt="" fill sizes="110px" className="object-cover" />
+                <Image src={shop.logo_url} alt="" fill sizes="110px" className="object-cover" priority />
               </div>
             )}
           </div>

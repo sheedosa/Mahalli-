@@ -91,7 +91,7 @@ handlers** and Postgres **RPCs**.
 
 ## 5. Database
 
-**Migrations (`supabase/migrations/`, 16 total):**
+**Migrations (`supabase/migrations/`, 17 total):**
 
 | # | File | Purpose |
 |---|---|---|
@@ -111,6 +111,7 @@ handlers** and Postgres **RPCs**.
 | 0014 | `advisor_perf` | RLS init-plan fix, drop dup index, FK covering indexes |
 | 0015 | `async_backbone` | `message_outbox` + `webhook_events` + enqueue/dequeue/complete RPCs (Phase 2 · F1) |
 | 0016 | `notifications` | `message_log` + `sellers.notify_prefs` + `orders_notify` trigger (Phase 2 · P1a) |
+| 0017 | `message_log_outbox_index` | covering index on the `message_log.outbox_id` FK |
 
 **Tables:** `sellers`, `profiles`, `products`, `product_variants`, `customers`, `orders`,
 `order_items`, `broadcasts`, `coupons`, `audit_log`.
@@ -234,6 +235,13 @@ Three layers, all in `.github/workflows/ci.yml` (push + PR), three parallel jobs
 
 ## 12. Recent changes (latest first)
 
+- **Perf · quick wins** — route-level `loading.tsx` skeletons (dashboard,
+  products, orders, customers, storefront) so navigations show layout instantly
+  instead of a blank screen; the service worker now caches `/_next/image`
+  (optimized product photos) stale-while-revalidate for instant repeat visits;
+  `qrcode` is lazy-imported (off the main dashboard bundle) + `priority` on the
+  storefront LCP image; optimistic order-status buttons (instant, auto-revert on
+  error); index on `message_log.outbox_id` (migration 0017).
 - **UI · storefront conversion** — cart + favorites persist across refresh
   (localStorage, rebuilt against the live catalog); "added to cart" toast; a
   trust row under the hero (Order-on-WhatsApp link, cash-on-delivery, delivery

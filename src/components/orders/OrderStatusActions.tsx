@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
+import { useOptimistic, useTransition } from "react";
 import { ArrowRight, RotateCcw, X } from "lucide-react";
 import { updateOrderStatus } from "@/app/(dashboard)/orders/actions";
 import { useI18n } from "@/i18n/provider";
@@ -24,10 +24,15 @@ export function OrderStatusActions({
   const router = useRouter();
   const toast = useToast();
   const [pending, startTransition] = useTransition();
+  // Optimistic: the buttons reflect the new status instantly. On failure the
+  // transition ends without a refresh, so this resets to the real `status` prop
+  // (auto-revert); on success router.refresh() makes them match.
+  const [optimisticStatus, setOptimisticStatus] = useOptimistic(status);
 
   function go(next: OrderStatus, confirmCancel = false) {
     if (confirmCancel && !confirm(t.cancelConfirm)) return;
     startTransition(async () => {
+      setOptimisticStatus(next);
       const res = await updateOrderStatus(orderId, next);
       if (res?.ok === false) {
         toast.error(dict.common.genericError);
@@ -38,10 +43,10 @@ export function OrderStatusActions({
     });
   }
 
-  const fwd = nextStatus(status);
-  const back = prevStatus(status);
+  const fwd = nextStatus(optimisticStatus);
+  const back = prevStatus(optimisticStatus);
 
-  if (status === "cancelled") {
+  if (optimisticStatus === "cancelled") {
     return (
       <button disabled={pending} onClick={() => go("new")} className="btn btn-primary">
         <RotateCcw className="size-4" /> {t.reopen}

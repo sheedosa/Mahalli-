@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import QRCode from "qrcode";
 import {
   Check,
   Copy,
@@ -28,7 +27,10 @@ export function StoreLinkClient({ slug, shopName }: { slug: string; shopName: st
   // store badge doesn't break scanning.
   useEffect(() => {
     let alive = true;
-    QRCode.toDataURL(url, { errorCorrectionLevel: "H", margin: 1, width: 300 })
+    // Lazy-import the QR encoder so it's only fetched on this page, not in the
+    // main dashboard bundle.
+    import("qrcode")
+      .then((m) => m.default.toDataURL(url, { errorCorrectionLevel: "H", margin: 1, width: 300 }))
       .then((d) => alive && setQr(d))
       .catch(() => alive && setQr(null));
     return () => {

@@ -8,7 +8,7 @@
 //    tenant-correct). A future offline mutation queue (IndexedDB) will handle
 //    writes during dropouts; this SW only covers reads/shell.
 
-const VERSION = "mahalli-v1";
+const VERSION = "mahalli-v2";
 const SHELL_CACHE = `${VERSION}-shell`;
 const ASSET_CACHE = `${VERSION}-assets`;
 const OFFLINE_URL = "/offline";
@@ -70,10 +70,15 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Static assets: stale-while-revalidate.
+  // Static assets + optimized images: stale-while-revalidate. `/_next/image`
+  // (the Next image optimizer that serves resized WebP product photos) has no
+  // file extension, so it's matched explicitly — this makes repeat
+  // storefront/dashboard visits load images instantly.
   if (
     url.pathname.startsWith("/_next/static") ||
+    url.pathname.startsWith("/_next/image") ||
     url.pathname.startsWith("/icon") ||
+    url.pathname.startsWith("/brand") ||
     /\.(?:css|js|woff2?|png|jpg|jpeg|svg|webp)$/.test(url.pathname)
   ) {
     event.respondWith(
