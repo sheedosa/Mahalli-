@@ -1,9 +1,10 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ChevronLeft, Phone } from "lucide-react";
+import { ChevronLeft, MessageCircle, Phone } from "lucide-react";
 import { getI18n } from "@/i18n";
 import { createClient } from "@/lib/supabase/server";
 import { formatPrice } from "@/lib/utils";
+import { waMeLink } from "@/lib/messaging/walink";
 import { Card } from "@/components/ui/Card";
 import { statusBadgeClass, type OrderStatus } from "@/components/orders/status";
 import { OrderStatusActions } from "@/components/orders/OrderStatusActions";
@@ -74,6 +75,16 @@ export default async function OrderDetailPage({
         )}
         {order.buyer_area && (
           <p className="text-sm text-zinc-500">{order.buyer_area}</p>
+        )}
+        {order.buyer_phone && (
+          <a
+            href={waMeLink(order.buyer_phone, t.waPrefill.replace("{ref}", `#${ref}`))}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-2 inline-flex h-11 items-center gap-2 rounded-full bg-[#25D366] px-4 text-sm font-semibold text-white"
+          >
+            <MessageCircle className="size-4" /> {t.messageOnWhatsApp}
+          </a>
         )}
       </Card>
 

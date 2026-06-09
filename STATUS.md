@@ -234,6 +234,9 @@ Three layers, all in `.github/workflows/ci.yml` (push + PR), three parallel jobs
 
 ## 12. Recent changes (latest first)
 
+- **Phase 2 · P1b — notification UX** — per-event notification toggles in Settings (write
+  `sellers.notify_prefs`) and a "Message on WhatsApp" action (`wa.me`, prefilled) on the order
+  detail. (Inbound webhook + `seller_connections` + SMS are P1c.)
 - **Phase 2 · P1a — order notifications** — order lifecycle events (placed/confirmed/out/
   delivered) enqueue a `notify` job via the `orders_notify` trigger (gated by
   `sellers.notify_prefs`, deduped per event). The worker's `notify` handler renders a localized

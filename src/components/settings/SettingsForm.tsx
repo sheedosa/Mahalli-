@@ -8,6 +8,13 @@ import { SubmitButton } from "@/components/ui/SubmitButton";
 import { locales } from "@/i18n/config";
 import { THEMES, type ThemeId } from "@/lib/themes";
 
+type NotifyPrefs = {
+  order_placed: boolean;
+  order_confirmed: boolean;
+  order_out: boolean;
+  order_delivered: boolean;
+};
+
 type Props = {
   initial: {
     name: string;
@@ -17,6 +24,7 @@ type Props = {
     slug: string;
     theme: string;
   };
+  notifyPrefs: NotifyPrefs;
 };
 
 /** A tiny live storefront preview rendered in the chosen theme. */
@@ -36,17 +44,28 @@ function MiniPreview({ id }: { id: ThemeId }) {
   );
 }
 
-export function SettingsForm({ initial }: Props) {
+export function SettingsForm({ initial, notifyPrefs }: Props) {
   const { dict, locale } = useI18n();
   const t = dict.settings;
   const [theme, setTheme] = useState<ThemeId>(
     (THEMES.find((x) => x.id === initial.theme)?.id ?? "cream") as ThemeId,
   );
+  const [notify, setNotify] = useState<NotifyPrefs>(notifyPrefs);
   const [state, formAction] = useActionState<SettingsState, FormData>(updateShop, {});
+
+  const notifyItems: { key: keyof NotifyPrefs; label: string }[] = [
+    { key: "order_placed", label: t.notifyPlaced },
+    { key: "order_confirmed", label: t.notifyConfirmed },
+    { key: "order_out", label: t.notifyOut },
+    { key: "order_delivered", label: t.notifyDelivered },
+  ];
 
   return (
     <form action={formAction} className="anim-in" style={{ padding: "8px 18px 0", display: "flex", flexDirection: "column", gap: 16 }}>
       <input type="hidden" name="theme" value={theme} />
+      {(Object.keys(notify) as (keyof NotifyPrefs)[]).map((k) => (
+        <input key={k} type="hidden" name={`notify_${k}`} value={String(notify[k])} />
+      ))}
 
       {/* shop info */}
       <div className="card" style={{ padding: 16, display: "flex", flexDirection: "column", gap: 14 }}>
@@ -83,6 +102,27 @@ export function SettingsForm({ initial }: Props) {
             ))}
           </div>
         </div>
+      </div>
+
+      {/* notifications */}
+      <div className="card" style={{ padding: 16, display: "flex", flexDirection: "column", gap: 12 }}>
+        <div className="sf-stack" style={{ gap: 2 }}>
+          <h2 style={{ margin: 0, fontSize: 14, fontWeight: 800 }}>{t.notifications}</h2>
+          <p className="muted" style={{ margin: 0, fontSize: 12.5, lineHeight: 1.5 }}>{t.notifyHint}</p>
+        </div>
+        {notifyItems.map((item) => (
+          <div key={item.key} className="sf-row sf-between" style={{ gap: 12 }}>
+            <span style={{ fontSize: 14, fontWeight: 600 }}>{item.label}</span>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={notify[item.key]}
+              aria-label={item.label}
+              className={`switch${notify[item.key] ? " on" : ""}`}
+              onClick={() => setNotify((p) => ({ ...p, [item.key]: !p[item.key] }))}
+            />
+          </div>
+        ))}
       </div>
 
       {/* theme picker */}
