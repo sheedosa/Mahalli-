@@ -6,9 +6,10 @@ import { log } from "@/lib/log";
 export const dynamic = "force-dynamic";
 
 /**
- * Outbox worker, invoked by Vercel Cron every minute (Vercel auto-sends
- * `Authorization: Bearer $CRON_SECRET`). Fails closed when the secret is unset so
- * it can never run unauthenticated.
+ * Outbox worker, invoked on the schedule in vercel.json (Vercel auto-sends
+ * `Authorization: Bearer $CRON_SECRET`). The schedule is daily for Hobby-plan
+ * compatibility; bump to a higher frequency on Pro when notifications go live.
+ * Fails closed when the secret is unset so it can never run unauthenticated.
  */
 export async function GET(request: NextRequest) {
   const secret = process.env.CRON_SECRET;
