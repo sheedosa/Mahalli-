@@ -1,15 +1,16 @@
 import Link from "next/link";
 import { getI18n } from "@/i18n";
 import { LocaleSwitcher } from "@/components/LocaleSwitcher";
+import { Wordmark } from "@/components/brand/Wordmark";
 
 export default async function LandingPage() {
   const { dict } = await getI18n();
 
   return (
-    <main className="theme-cream sf">
+    <main className="theme-mahalli sf">
       <div className="mx-auto flex min-h-dvh max-w-md flex-col" style={{ padding: "18px 20px 28px" }}>
         <header className="sf-row sf-between">
-          <span style={{ fontSize: 22, fontWeight: 900 }}>{dict.meta.appName}</span>
+          <Wordmark />
           <LocaleSwitcher />
         </header>
 

@@ -73,6 +73,20 @@ body {
   --nav-bg: #1c1c1f; --nav-active: #2dd4bf; --line: rgba(28,28,31,.08);
   --hero-ink: #fff; --hero-btn-bg: #1c1c1f; --hero-btn-ink: #fff;
 }
+/* Mahalli APP brand surface — used by the seller/admin shells (landing, auth,
+   onboarding, dashboard, 404) only. NOT a storefront theme: it is never added to
+   THEME_IDS, so a seller can't pick it and the public storefront never renders
+   it. Keeps the brand rebrand off the shared .theme-cream storefront theme. */
+.theme-mahalli {
+  --ink: #16291f;
+  --accent: #2f9e5e; --accent-ink: #fff; --accent-soft: #d8f0e1; --accent-deep: #247a48;
+  --surface: #f7f2e7; --surface-2: #ece3d0; --card: #fffdf8;
+  --cta: #16291f; --cta-ink: #fff;
+  --hero-grad: linear-gradient(150deg,#1c5e3a 0%,#2f9e5e 58%,#5fd592 130%);
+  --nav-bg: #16291f; --nav-active: #5fd592; --line: rgba(22,41,31,.09);
+  --hero-ink: #fff; --hero-btn-bg: #fff; --hero-btn-ink: #16291f;
+  --brand-orange: #e8714a; --brand-orange-soft: #fbe2d8;
+}
 .theme-mono {
   --accent: #f97316; --accent-ink: #fff; --accent-soft: #ffedd5; --accent-deep: #ea580c;
   --surface: #fff; --surface-2: #f4f4f5; --card: #fff;
@@ -130,6 +144,7 @@ body {
 /* a storefront screen surface */
 .sf { background: var(--surface); color: var(--ink); min-height: 100dvh; }
 .theme-pastel.sf { background: linear-gradient(180deg,#fff 0%, #faf7ff 28%, #f3edff 100%); }
+.theme-mahalli.sf { background: linear-gradient(180deg,#fbf7ee 0%, #f7f2e7 30%, #f3ecdc 100%); }
 
 /* glass top bar */
 .topbar {

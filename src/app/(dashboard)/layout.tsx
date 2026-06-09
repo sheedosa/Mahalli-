@@ -17,7 +17,7 @@ export default async function DashboardLayout({
   // not the admin — so picking a dark theme (Noir) never makes the dashboard
   // unreadable.
   return (
-    <div className="theme-cream sf">
+    <div className="theme-mahalli sf">
       <div className="mx-auto flex min-h-dvh max-w-md flex-col">
         <TopBar shopName={ctx.seller.name} slug={ctx.seller.slug} />
         <main className="flex-1" style={{ padding: "10px 0 110px" }}>

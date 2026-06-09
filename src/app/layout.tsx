@@ -18,12 +18,31 @@ export const metadata: Metadata = {
   description:
     "Run your Instagram shop — products, orders, customers and a storefront.",
   manifest: "/manifest.webmanifest",
+  icons: {
+    icon: [{ url: "/brand/icon.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/brand/icon.svg" }],
+  },
   appleWebApp: { capable: true, statusBarStyle: "default", title: "Mahalli" },
   formatDetection: { telephone: false },
+  openGraph: {
+    type: "website",
+    siteName: "Mahalli",
+    title: "Mahalli — Seller OS",
+    description:
+      "Run your Instagram shop: products, orders, customers and a storefront.",
+    images: [{ url: "/brand/og.png", width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Mahalli — Seller OS",
+    description:
+      "Run your Instagram shop: products, orders, customers and a storefront.",
+    images: ["/brand/og.png"],
+  },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#18181b",
+  themeColor: "#2f9e5e",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",

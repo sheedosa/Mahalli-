@@ -9,7 +9,7 @@ export default async function NotFound() {
   const { dict } = await getI18n();
   const t = dict.notFound;
   return (
-    <main className="theme-cream sf flex min-h-dvh flex-col items-center justify-center gap-4 p-8 text-center">
+    <main className="theme-mahalli sf flex min-h-dvh flex-col items-center justify-center gap-4 p-8 text-center">
       <div className="empty-art">
         <Compass className="size-9" />
       </div>

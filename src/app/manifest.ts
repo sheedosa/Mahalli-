@@ -10,19 +10,19 @@ export default function manifest(): MetadataRoute.Manifest {
     scope: "/",
     display: "standalone",
     orientation: "portrait",
-    background_color: "#f7f7f8",
-    theme_color: "#18181b",
+    background_color: "#f6f1e6",
+    theme_color: "#2f9e5e",
     dir: "auto",
     lang: "ar",
     icons: [
       {
-        src: "/icon.svg",
+        src: "/brand/icon.svg",
         sizes: "any",
         type: "image/svg+xml",
         purpose: "any",
       },
       {
-        src: "/icon-maskable.svg",
+        src: "/brand/icon-maskable.svg",
         sizes: "any",
         type: "image/svg+xml",
         purpose: "maskable",
