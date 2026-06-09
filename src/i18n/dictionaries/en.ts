@@ -267,6 +267,7 @@ const en = {
     saveNote: "Save note",
     messageOnWhatsApp: "Message on WhatsApp",
     waPrefill: "Hi! About your order {ref}",
+    statusUpdated: "Order updated",
     noteSaved: "Saved",
     placedVia: "Placed via",
     advanceTo: "Mark as {s}",

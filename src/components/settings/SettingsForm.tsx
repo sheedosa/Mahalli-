@@ -1,9 +1,10 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { Check } from "lucide-react";
 import { updateShop, type SettingsState } from "@/app/(dashboard)/settings/actions";
 import { useI18n } from "@/i18n/provider";
+import { useToast } from "@/components/ui/Toast";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { locales } from "@/i18n/config";
 import { THEMES, type ThemeId } from "@/lib/themes";
@@ -52,6 +53,14 @@ export function SettingsForm({ initial, notifyPrefs }: Props) {
   );
   const [notify, setNotify] = useState<NotifyPrefs>(notifyPrefs);
   const [state, formAction] = useActionState<SettingsState, FormData>(updateShop, {});
+  const toast = useToast();
+
+  useEffect(() => {
+    if (state.saved) toast.success(t.saved);
+    else if (state.error) toast.error(dict.common.genericError);
+    // Fires once per submit (state object identity changes each action result).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state]);
 
   const notifyItems: { key: keyof NotifyPrefs; label: string }[] = [
     { key: "order_placed", label: t.notifyPlaced },

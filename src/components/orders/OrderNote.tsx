@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Check } from "lucide-react";
 import { saveOrderNote } from "@/app/(dashboard)/orders/actions";
 import { useI18n } from "@/i18n/provider";
+import { useToast } from "@/components/ui/Toast";
 import { Textarea } from "@/components/ui/Input";
 
 export function OrderNote({
@@ -15,6 +16,7 @@ export function OrderNote({
 }) {
   const { dict } = useI18n();
   const t = dict.orders;
+  const toast = useToast();
   const [notes, setNotes] = useState(initial);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -26,7 +28,10 @@ export function OrderNote({
     setSaving(false);
     if (res.ok) {
       setSaved(true);
+      toast.success(t.noteSaved);
       setTimeout(() => setSaved(false), 2000);
+    } else {
+      toast.error(dict.common.genericError);
     }
   }
 

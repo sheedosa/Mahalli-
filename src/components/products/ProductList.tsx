@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useI18n } from "@/i18n/provider";
 import { formatPrice } from "@/lib/utils";
 import { PAGE_SIZE, PRODUCT_SELECT, type ProductRow } from "@/components/products/query";
+import { ListSkeleton } from "@/components/ui/Skeleton";
 
 const LOW_STOCK = 3;
 
@@ -31,6 +32,7 @@ export function ProductList({
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [q, setQ] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   async function runQuery(search: string, cursor: string | null) {
@@ -42,7 +44,8 @@ export function ProductList({
       .limit(PAGE_SIZE + 1);
     if (search.trim()) query = query.ilike("name", `%${search.trim()}%`);
     if (cursor) query = query.lt("created_at", cursor);
-    const { data } = await query;
+    const { data, error: qErr } = await query;
+    setError(Boolean(qErr));
     const rows = (data ?? []) as ProductRow[];
     return { rows: rows.slice(0, PAGE_SIZE), more: rows.length > PAGE_SIZE };
   }
@@ -100,7 +103,16 @@ export function ProductList({
         </div>
       </div>
 
-      {items.length === 0 ? (
+      {error && items.length === 0 ? (
+        <div className="empty">
+          <p className="muted" style={{ margin: 0, fontSize: 14 }}>{dict.common.genericError}</p>
+          <button type="button" onClick={() => onSearch(q)} className="btn btn-outline" style={{ width: "auto", paddingInline: 22 }}>
+            {dict.common.retry}
+          </button>
+        </div>
+      ) : loading && items.length === 0 ? (
+        <ListSkeleton rows={5} height={88} />
+      ) : items.length === 0 ? (
         <div className="empty">
           <div className="empty-art"><Package className="size-9" /></div>
           <div className="sf-stack" style={{ gap: 6 }}>

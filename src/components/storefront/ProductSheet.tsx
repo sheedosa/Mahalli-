@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Minus, Plus, ShoppingBag, X } from "lucide-react";
 import type { StorefrontProduct, StorefrontVariant } from "@/types/storefront";
@@ -28,14 +28,40 @@ export function ProductSheet({
   );
   const [qty, setQty] = useState(1);
 
-  // Lock the catalog behind the sheet so it doesn't scroll while the sheet is open.
+  const sheetRef = useRef<HTMLDivElement>(null);
+
+  // Lock the catalog behind the sheet so it doesn't scroll while the sheet is
+  // open, and move focus into the dialog for keyboard/screen-reader users.
   useEffect(() => {
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    sheetRef.current?.focus();
     return () => {
       document.body.style.overflow = prev;
     };
   }, []);
+
+  // Escape closes; Tab is trapped within the sheet.
+  function onKeyDown(e: React.KeyboardEvent) {
+    if (e.key === "Escape") {
+      onClose();
+      return;
+    }
+    if (e.key !== "Tab" || !sheetRef.current) return;
+    const focusable = sheetRef.current.querySelectorAll<HTMLElement>(
+      'button:not([disabled]), a[href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+    );
+    if (focusable.length === 0) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  }
 
   const stock = availableStock(product, variant);
   const price = unitPrice(product, variant);
@@ -46,6 +72,7 @@ export function ProductSheet({
       className="fixed inset-0 z-50 flex flex-col justify-end"
       role="dialog"
       aria-modal="true"
+      onKeyDown={onKeyDown}
     >
       <button
         aria-label={dict.common.cancel}
@@ -53,8 +80,10 @@ export function ProductSheet({
         className="absolute inset-0 bg-black/40"
       />
       <div
+        ref={sheetRef}
+        tabIndex={-1}
         className="sheet pop-in relative mx-auto w-full max-w-md"
-        style={{
+        style={{ outline: "none",
           maxHeight: "88dvh",
           overflowY: "auto",
           padding: "20px 18px calc(20px + env(safe-area-inset-bottom))",

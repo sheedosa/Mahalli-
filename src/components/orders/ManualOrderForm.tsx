@@ -7,6 +7,7 @@ import { useI18n } from "@/i18n/provider";
 import { formatPrice } from "@/lib/utils";
 import { Input, Textarea, Field } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
+import { useToast } from "@/components/ui/Toast";
 
 export type FormProduct = {
   id: string;
@@ -30,6 +31,7 @@ function unit(product: FormProduct, variantId: string | null): number {
 export function ManualOrderForm({ products }: { products: FormProduct[] }) {
   const { dict, locale } = useI18n();
   const t = dict.manualOrder;
+  const toast = useToast();
 
   const [lines, setLines] = useState<Line[]>([]);
   const [search, setSearch] = useState("");
@@ -112,6 +114,7 @@ export function ManualOrderForm({ products }: { products: FormProduct[] }) {
     if (res && res.ok === false) {
       setError(true);
       setSubmitting(false);
+      toast.error(t.error);
     }
   }
 

@@ -17,6 +17,7 @@ import {
   ORDER_SELECT,
   type OrderRow,
 } from "@/components/orders/query";
+import { ListSkeleton } from "@/components/ui/Skeleton";
 
 function timeAgo(iso: string, locale: string): string {
   const d = new Date(iso);
@@ -43,6 +44,7 @@ export function OrdersList({
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<OrderStatus | "all">("all");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   async function runQuery(
@@ -62,7 +64,8 @@ export function OrdersList({
       query = query.or(`buyer_name.ilike.%${s}%,buyer_phone.ilike.%${s}%`);
     }
     if (cursor) query = query.lt("created_at", cursor);
-    const { data } = await query;
+    const { data, error: qErr } = await query;
+    setError(Boolean(qErr));
     const rows = (data ?? []) as OrderRow[];
     return { rows: rows.slice(0, PAGE_SIZE), more: rows.length > PAGE_SIZE };
   }
@@ -129,7 +132,16 @@ export function OrdersList({
         ))}
       </div>
 
-      {items.length === 0 ? (
+      {error && items.length === 0 ? (
+        <div className="rounded-2xl border border-dashed p-8 text-center" style={{ borderColor: "var(--z300)" }}>
+          <p className="muted text-sm">{dict.common.genericError}</p>
+          <button type="button" onClick={() => refresh(q, filter)} className="btn btn-outline mt-3" style={{ width: "auto", paddingInline: 22 }}>
+            {dict.common.retry}
+          </button>
+        </div>
+      ) : loading && items.length === 0 ? (
+        <ListSkeleton rows={5} height={64} />
+      ) : items.length === 0 ? (
         <div className="rounded-2xl border border-dashed p-8 text-center" style={{ borderColor: "var(--z300)" }}>
           <ShoppingBag className="mx-auto size-8" style={{ color: "var(--z300)" }} />
           <p className="mt-2 font-medium">

@@ -281,7 +281,30 @@ textarea.input { height: auto; min-height: 96px; padding-block: 13px; resize: no
 /* misc */
 .price { font-weight: 800; font-size: 15px; letter-spacing: -.01em; white-space: nowrap; }
 .price-old { color: var(--z400); text-decoration: line-through; font-weight: 600; font-size: 13px; white-space: nowrap; }
-.muted { color: var(--z500); }
+.muted { color: var(--z600); }  /* AA contrast on light surfaces */
+
+/* loading skeletons */
+.skeleton { position: relative; overflow: hidden; background: var(--surface-2); border-radius: 12px; }
+.skeleton::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--card) 60%, transparent), transparent);
+  transform: translateX(-100%); animation: shimmer 1.4s infinite;
+}
+@keyframes shimmer { 100% { transform: translateX(100%); } }
+
+/* toasts */
+.toastwrap {
+  position: fixed; inset-inline: 0; bottom: calc(96px + env(safe-area-inset-bottom)); z-index: 60;
+  display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 0 16px; pointer-events: none;
+}
+.toast {
+  pointer-events: auto; width: 100%; max-width: 412px;
+  display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+  border-radius: 14px; background: var(--ink); color: var(--surface);
+  box-shadow: var(--shadow-lg); font-size: 14px; font-weight: 600;
+}
+.toast-success { background: #167a4b; color: #fff; }
+.toast-error { background: var(--danger); color: #fff; }
 .divider { height: 1px; background: var(--line); }
 .sheet { background: var(--card); border-start-start-radius: var(--r-sheet); border-start-end-radius: var(--r-sheet); box-shadow: 0 -8px 30px rgba(24,24,27,.14); }
 

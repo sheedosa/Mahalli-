@@ -263,6 +263,7 @@ const ar: Dictionary = {
     saveNote: "احفظ الملاحظة",
     messageOnWhatsApp: "راسل على واتساب",
     waPrefill: "أهلين! بخصوص طلبك {ref}",
+    statusUpdated: "تم تحديث الطلب",
     noteSaved: "تم الحفظ",
     placedVia: "مصدر الطلب",
     advanceTo: "علّمه {s}",

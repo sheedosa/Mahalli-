@@ -12,6 +12,7 @@ import {
   CUSTOMER_SELECT,
   type CustomerRow,
 } from "@/components/customers/query";
+import { ListSkeleton } from "@/components/ui/Skeleton";
 
 export function CustomersList({
   initial,
@@ -28,6 +29,7 @@ export function CustomersList({
   const [q, setQ] = useState("");
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   async function runQuery(search: string, pageIndex: number) {
@@ -41,7 +43,8 @@ export function CustomersList({
       const s = search.trim().replace(/[%,]/g, "");
       query = query.or(`name.ilike.%${s}%,phone.ilike.%${s}%`);
     }
-    const { data } = await query;
+    const { data, error: qErr } = await query;
+    setError(Boolean(qErr));
     const rows = (data ?? []) as CustomerRow[];
     return { rows: rows.slice(0, PAGE_SIZE), more: rows.length > PAGE_SIZE };
   }
@@ -84,7 +87,16 @@ export function CustomersList({
         />
       </div>
 
-      {items.length === 0 ? (
+      {error && items.length === 0 ? (
+        <div className="rounded-2xl border border-dashed p-8 text-center" style={{ borderColor: "var(--z300)" }}>
+          <p className="muted text-sm">{dict.common.genericError}</p>
+          <button type="button" onClick={() => onSearch(q)} className="btn btn-outline mt-3" style={{ width: "auto", paddingInline: 22 }}>
+            {dict.common.retry}
+          </button>
+        </div>
+      ) : loading && items.length === 0 ? (
+        <ListSkeleton rows={5} height={64} />
+      ) : items.length === 0 ? (
         <div className="rounded-2xl border border-dashed p-8 text-center" style={{ borderColor: "var(--z300)" }}>
           <Users className="mx-auto size-8" style={{ color: "var(--z300)" }} />
           <p className="mt-2 font-medium">{q ? t.noResults : t.empty}</p>
