@@ -301,4 +301,64 @@ begin
 end $$;
 rollback;
 
+-- ===========================================================================
+-- Notifications (Phase 2 · P1a): orders_notify enqueues notify jobs (gated by
+-- notify_prefs, deduped per event) + message_log RLS.
+-- ===========================================================================
+begin;
+do $$
+declare
+  v_u1 uuid := '11111111-1111-1111-1111-111111111111';
+  v_u2 uuid := '22222222-2222-2222-2222-222222222222';
+  v_s1 uuid; v_s2 uuid; v_p uuid; v_o uuid; v_o2 uuid; v_cnt int;
+begin
+  insert into auth.users (instance_id, id, aud, role, email, created_at, updated_at)
+  values ('00000000-0000-0000-0000-000000000000', v_u1,'authenticated','authenticated','n1@t.local',now(),now()),
+         ('00000000-0000-0000-0000-000000000000', v_u2,'authenticated','authenticated','n2@t.local',now(),now());
+
+  set local role authenticated;
+  perform set_config('request.jwt.claims', json_build_object('sub',v_u1::text,'role','authenticated')::text, true);
+  v_s1 := (public.create_shop('Notify One','notify-one')).id;
+  insert into public.products (seller_id,name,price,stock) values (v_s1,'Cake',100,5) returning id into v_p;
+  -- manual order fires orders_notify (INSERT -> order_placed)
+  v_o := public.create_manual_order(v_s1,'Sara','0911','Tripoli','',0, jsonb_build_array(jsonb_build_object('product_id',v_p,'qty',1)));
+  reset role;
+
+  select count(*) into v_cnt from public.message_outbox
+   where seller_id=v_s1 and kind='notify' and dedupe_key = 'notify:'||v_o::text||':order_placed';
+  if v_cnt <> 1 then raise exception 'FAIL notify order_placed enqueued=%', v_cnt; end if;
+
+  -- status change to confirmed enqueues order_confirmed
+  set local role authenticated;
+  perform set_config('request.jwt.claims', json_build_object('sub',v_u1::text,'role','authenticated')::text, true);
+  perform public.set_order_status(v_o,'confirmed');
+  -- pref gating: turn order_placed off; a new order must not enqueue order_placed
+  update public.sellers set notify_prefs = jsonb_set(notify_prefs,'{order_placed}','false'::jsonb) where id=v_s1;
+  v_o2 := public.create_manual_order(v_s1,'Ali','0922','Tripoli','',0, jsonb_build_array(jsonb_build_object('product_id',v_p,'qty',1)));
+  reset role;
+
+  select count(*) into v_cnt from public.message_outbox
+   where seller_id=v_s1 and kind='notify' and dedupe_key = 'notify:'||v_o::text||':order_confirmed';
+  if v_cnt <> 1 then raise exception 'FAIL notify order_confirmed enqueued=%', v_cnt; end if;
+  select count(*) into v_cnt from public.message_outbox
+   where seller_id=v_s1 and kind='notify' and dedupe_key = 'notify:'||v_o2::text||':order_placed';
+  if v_cnt <> 0 then raise exception 'FAIL pref off still enqueued=%', v_cnt; end if;
+
+  -- message_log: seed one for s1 (service-role), then RLS blocks cross-tenant read + client insert
+  insert into public.message_log (seller_id, channel, template, body, status)
+    values (v_s1,'wa_link','order_placed','hi','skipped');
+  set local role authenticated;
+  perform set_config('request.jwt.claims', json_build_object('sub',v_u2::text,'role','authenticated')::text, true);
+  v_s2 := (public.create_shop('Notify Two','notify-two')).id;
+  select count(*) into v_cnt from public.message_log;  -- s2 sees none of s1's rows
+  if v_cnt <> 0 then raise exception 'FAIL message_log RLS leak=%', v_cnt; end if;
+  begin
+    insert into public.message_log (seller_id, channel, template, body) values (v_s2,'wa_link','x','y');
+    raise exception 'FAIL message_log allowed client insert';
+  exception when insufficient_privilege then null;
+  end;
+  reset role;
+end $$;
+rollback;
+
 \echo 'platform.test.sql: all sections passed'

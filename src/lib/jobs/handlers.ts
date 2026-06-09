@@ -11,11 +11,15 @@ export type JobContext = {
 };
 
 // Registry keyed by message_outbox.kind. Phase-2 workstreams register their
-// handlers here: 'notify' (P1), 'broadcast' (P2), 'catalog_sync' (P3),
-// 'payment_reconcile' (P4). F1 ships only a 'noop' so the loop is exercisable.
+// handlers here: 'broadcast' (P2), 'catalog_sync' (P3), 'payment_reconcile' (P4).
 export const handlers: Record<string, JobHandler> = {
   noop: async (payload, ctx) => {
     log.info("job.noop", { id: ctx.id, sellerId: ctx.sellerId, payload });
+  },
+  // Lazy import keeps the server-only messaging deps out of unrelated bundles.
+  notify: async (payload, ctx) => {
+    const { notifyHandler } = await import("@/lib/jobs/handlers/notify");
+    return notifyHandler(payload, ctx);
   },
 };
 

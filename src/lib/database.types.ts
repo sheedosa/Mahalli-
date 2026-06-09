@@ -191,6 +191,63 @@ export type Database = {
           },
         ]
       }
+      message_log: {
+        Row: {
+          body: string
+          channel: string
+          created_at: string
+          error: string | null
+          id: string
+          outbox_id: string | null
+          provider_msg_id: string | null
+          seller_id: string
+          status: string
+          template: string
+          to_phone: string | null
+        }
+        Insert: {
+          body: string
+          channel: string
+          created_at?: string
+          error?: string | null
+          id?: string
+          outbox_id?: string | null
+          provider_msg_id?: string | null
+          seller_id: string
+          status?: string
+          template: string
+          to_phone?: string | null
+        }
+        Update: {
+          body?: string
+          channel?: string
+          created_at?: string
+          error?: string | null
+          id?: string
+          outbox_id?: string | null
+          provider_msg_id?: string | null
+          seller_id?: string
+          status?: string
+          template?: string
+          to_phone?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_log_outbox_id_fkey"
+            columns: ["outbox_id"]
+            isOneToOne: false
+            referencedRelation: "message_outbox"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "message_log_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "sellers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       message_outbox: {
         Row: {
           attempts: number
@@ -496,6 +553,7 @@ export type Database = {
           plan: Database["public"]["Enums"]["seller_plan"]
           slug: string
           theme: string
+          notify_prefs: Json
         }
         Insert: {
           city?: string | null
@@ -510,6 +568,7 @@ export type Database = {
           plan?: Database["public"]["Enums"]["seller_plan"]
           slug: string
           theme?: string
+          notify_prefs?: Json
         }
         Update: {
           city?: string | null
@@ -524,6 +583,7 @@ export type Database = {
           plan?: Database["public"]["Enums"]["seller_plan"]
           slug?: string
           theme?: string
+          notify_prefs?: Json
         }
         Relationships: []
       }

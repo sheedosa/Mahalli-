@@ -91,7 +91,7 @@ handlers** and Postgres **RPCs**.
 
 ## 5. Database
 
-**Migrations (`supabase/migrations/`, 15 total):**
+**Migrations (`supabase/migrations/`, 16 total):**
 
 | # | File | Purpose |
 |---|---|---|
@@ -110,6 +110,7 @@ handlers** and Postgres **RPCs**.
 | 0013 | `reserve_link_slug` | reserve `/link` |
 | 0014 | `advisor_perf` | RLS init-plan fix, drop dup index, FK covering indexes |
 | 0015 | `async_backbone` | `message_outbox` + `webhook_events` + enqueue/dequeue/complete RPCs (Phase 2 · F1) |
+| 0016 | `notifications` | `message_log` + `sellers.notify_prefs` + `orders_notify` trigger (Phase 2 · P1a) |
 
 **Tables:** `sellers`, `profiles`, `products`, `product_variants`, `customers`, `orders`,
 `order_items`, `broadcasts`, `coupons`, `audit_log`.
@@ -233,6 +234,12 @@ Three layers, all in `.github/workflows/ci.yml` (push + PR), three parallel jobs
 
 ## 12. Recent changes (latest first)
 
+- **Phase 2 · P1a — order notifications** — order lifecycle events (placed/confirmed/out/
+  delivered) enqueue a `notify` job via the `orders_notify` trigger (gated by
+  `sellers.notify_prefs`, deduped per event). The worker's `notify` handler renders a localized
+  (AR/EN) message and records it in `message_log`; sends go through a provider that uses WhatsApp
+  Cloud when configured and otherwise records `skipped` with a `wa.me` fallback. Inbound webhook +
+  per-event settings UI are P1b.
 - **Phase 2 · F1 — async backbone** — a durable Postgres `message_outbox` job queue
   (`FOR UPDATE SKIP LOCKED`, exponential backoff, dedupe) + idempotent `webhook_events` ledger +
   a `CRON_SECRET`-gated worker route (`/api/jobs/worker`) driven by Vercel Cron. No new DB
