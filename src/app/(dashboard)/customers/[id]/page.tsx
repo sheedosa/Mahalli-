@@ -39,11 +39,12 @@ export default async function CustomerDetailPage({
         <Link
           href="/customers"
           aria-label={dict.common.back}
-          className="flex size-10 items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100"
+          className="flex size-10 items-center justify-center rounded-lg hover:bg-[var(--z100)]"
+          style={{ color: "var(--z500)" }}
         >
           <ChevronLeft className="size-5 flip-x" />
         </Link>
-        <h1 className="text-xl font-bold text-zinc-900">
+        <h1 className="text-xl font-bold">
           {customer.name || tc.unnamed}
         </h1>
       </div>
@@ -52,7 +53,7 @@ export default async function CustomerDetailPage({
         <a
           href={`tel:${customer.phone}`}
           dir="ltr"
-          className="inline-flex items-center gap-1.5 text-sm text-zinc-600"
+          className="muted inline-flex items-center gap-1.5 text-sm"
         >
           <Phone className="size-3.5" /> {customer.phone}
         </a>
@@ -70,25 +71,25 @@ export default async function CustomerDetailPage({
       </div>
 
       <div className="space-y-2">
-        <p className="text-sm font-semibold text-zinc-900">{tc.theirOrders}</p>
+        <p className="text-sm font-semibold">{tc.theirOrders}</p>
         {(orders ?? []).length === 0 ? (
-          <Card className="text-sm text-zinc-500">{to.empty}</Card>
+          <Card className="muted text-sm">{to.empty}</Card>
         ) : (
           <ul className="space-y-2">
             {(orders ?? []).map((o) => (
               <li key={o.id}>
                 <Link
                   href={`/orders/${o.id}`}
-                  className="flex items-center justify-between gap-2 rounded-2xl border border-zinc-200 bg-white p-3"
+                  className="card flex items-center justify-between gap-2 p-3"
                 >
-                  <span className="text-sm text-zinc-600">
+                  <span className="muted text-sm">
                     {new Intl.DateTimeFormat(
                       locale === "ar" ? "ar-LY" : "en-GB",
                       { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" },
                     ).format(new Date(o.created_at))}
                   </span>
                   <span className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-zinc-700">
+                    <span className="text-sm font-medium">
                       {formatPrice(Number(o.total), locale)}
                     </span>
                     <span

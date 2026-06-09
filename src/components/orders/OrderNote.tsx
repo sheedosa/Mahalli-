@@ -32,7 +32,7 @@ export function OrderNote({
 
   return (
     <div className="space-y-2">
-      <p className="text-sm font-semibold text-zinc-900">{t.notes}</p>
+      <p className="text-sm font-semibold">{t.notes}</p>
       <Textarea
         value={notes}
         onChange={(e) => {
@@ -46,12 +46,13 @@ export function OrderNote({
         <button
           onClick={onSave}
           disabled={saving || notes === initial}
-          className="rounded-xl border border-zinc-200 px-4 py-2 text-sm font-medium text-zinc-700 disabled:opacity-50"
+          className="btn btn-outline"
+          style={{ width: "auto", paddingInline: 18, height: 44 }}
         >
           {saving ? dict.common.saving : t.saveNote}
         </button>
         {saved && (
-          <span className="inline-flex items-center gap-1 text-sm text-emerald-600">
+          <span className="inline-flex items-center gap-1 text-sm font-semibold" style={{ color: "var(--success)" }}>
             <Check className="size-4" /> {t.noteSaved}
           </span>
         )}

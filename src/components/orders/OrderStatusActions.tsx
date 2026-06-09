@@ -36,11 +36,7 @@ export function OrderStatusActions({
 
   if (status === "cancelled") {
     return (
-      <button
-        disabled={pending}
-        onClick={() => go("new")}
-        className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-zinc-900 font-semibold text-white disabled:opacity-50"
-      >
+      <button disabled={pending} onClick={() => go("new")} className="btn btn-primary">
         <RotateCcw className="size-4" /> {t.reopen}
       </button>
     );
@@ -49,29 +45,22 @@ export function OrderStatusActions({
   return (
     <div className="space-y-2">
       {fwd && (
-        <button
-          disabled={pending}
-          onClick={() => go(fwd)}
-          className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-zinc-900 font-semibold text-white disabled:opacity-50"
-        >
+        <button disabled={pending} onClick={() => go(fwd)} className="btn btn-primary">
           {t.advanceTo.replace("{s}", t.status[fwd])}
           <ArrowRight className="size-4 flip-x" />
         </button>
       )}
       <div className="flex gap-2">
         {back && (
-          <button
-            disabled={pending}
-            onClick={() => go(back)}
-            className="h-11 flex-1 rounded-xl border border-zinc-200 text-sm font-medium text-zinc-700 disabled:opacity-50"
-          >
+          <button disabled={pending} onClick={() => go(back)} className="btn btn-outline" style={{ flex: 1 }}>
             {t.moveBack}
           </button>
         )}
         <button
           disabled={pending}
           onClick={() => go("cancelled", true)}
-          className="inline-flex h-11 flex-1 items-center justify-center gap-1.5 rounded-xl border border-red-200 text-sm font-medium text-red-600 disabled:opacity-50"
+          className="btn btn-outline-danger"
+          style={{ flex: 1 }}
         >
           <X className="size-4" /> {t.cancelOrder}
         </button>

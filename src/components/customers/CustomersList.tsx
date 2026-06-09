@@ -71,10 +71,10 @@ export function CustomersList({
 
   return (
     <div className="space-y-4 px-4">
-      <h1 className="text-xl font-bold text-zinc-900">{t.title}</h1>
+      <h1 className="text-xl font-bold">{t.title}</h1>
 
       <div className="relative">
-        <Search className="pointer-events-none absolute inset-y-0 start-3 my-auto size-4 text-zinc-400" />
+        <Search className="pointer-events-none absolute inset-y-0 start-3 my-auto size-4" style={{ color: "var(--z400)" }} />
         <Input
           value={q}
           onChange={(e) => onSearch(e.target.value)}
@@ -85,12 +85,10 @@ export function CustomersList({
       </div>
 
       {items.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-zinc-300 p-8 text-center">
-          <Users className="mx-auto size-8 text-zinc-300" />
-          <p className="mt-2 font-medium text-zinc-900">
-            {q ? t.noResults : t.empty}
-          </p>
-          {!q && <p className="mt-1 text-sm text-zinc-500">{t.emptyBody}</p>}
+        <div className="rounded-2xl border border-dashed p-8 text-center" style={{ borderColor: "var(--z300)" }}>
+          <Users className="mx-auto size-8" style={{ color: "var(--z300)" }} />
+          <p className="mt-2 font-medium">{q ? t.noResults : t.empty}</p>
+          {!q && <p className="muted mt-1 text-sm">{t.emptyBody}</p>}
         </div>
       ) : (
         <ul className="space-y-2.5">
@@ -98,21 +96,17 @@ export function CustomersList({
             <li key={c.id}>
               <Link
                 href={`/customers/${c.id}`}
-                className="flex items-center justify-between gap-3 rounded-2xl border border-zinc-200 bg-white p-3.5"
+                className="card flex items-center justify-between gap-3 p-3.5"
               >
                 <div className="min-w-0">
-                  <p className="truncate font-medium text-zinc-900">
-                    {c.name || t.unnamed}
-                  </p>
-                  <p dir="ltr" className="truncate text-sm text-zinc-500">
-                    {c.phone}
-                  </p>
+                  <p className="truncate font-medium">{c.name || t.unnamed}</p>
+                  <p dir="ltr" className="muted truncate text-sm">{c.phone}</p>
                 </div>
                 <div className="shrink-0 text-end">
-                  <p className="text-sm font-medium text-zinc-700">
+                  <p className="text-sm font-medium" style={{ color: "var(--ink)" }}>
                     {formatPrice(Number(c.total_spent), locale)}
                   </p>
-                  <p className="text-xs text-zinc-400">
+                  <p className="muted text-xs">
                     {t.ordersCount.replace("{n}", String(c.order_count))}
                   </p>
                 </div>
@@ -123,12 +117,7 @@ export function CustomersList({
       )}
 
       {hasMore && items.length > 0 && (
-        <button
-          type="button"
-          onClick={loadMore}
-          disabled={loading}
-          className="w-full rounded-xl border border-zinc-200 py-2.5 text-sm font-medium text-zinc-600 disabled:opacity-50"
-        >
+        <button type="button" onClick={loadMore} disabled={loading} className="btn btn-outline">
           {loading ? dict.common.loading : t.loadMore}
         </button>
       )}

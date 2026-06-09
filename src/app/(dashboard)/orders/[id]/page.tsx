@@ -41,11 +41,12 @@ export default async function OrderDetailPage({
         <Link
           href="/orders"
           aria-label={dict.common.back}
-          className="flex size-10 items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100"
+          className="flex size-10 items-center justify-center rounded-lg hover:bg-[var(--z100)]"
+          style={{ color: "var(--z500)" }}
         >
           <ChevronLeft className="size-5 flip-x" />
         </Link>
-        <h1 className="flex-1 text-lg font-bold text-zinc-900">
+        <h1 className="flex-1 text-lg font-bold">
           {t.order} #{ref}
         </h1>
         <span
@@ -55,27 +56,25 @@ export default async function OrderDetailPage({
         </span>
       </div>
 
-      <p className="text-sm text-zinc-500">
+      <p className="muted text-sm">
         {placed} · {t.channel[order.channel]}
       </p>
 
       {/* Buyer */}
       <Card className="space-y-1">
-        <p className="font-medium text-zinc-900">
+        <p className="font-medium">
           {order.buyer_name || dict.customers.unnamed}
         </p>
         {order.buyer_phone && (
           <a
             href={`tel:${order.buyer_phone}`}
             dir="ltr"
-            className="inline-flex items-center gap-1.5 text-sm text-zinc-600"
+            className="muted inline-flex items-center gap-1.5 text-sm"
           >
             <Phone className="size-3.5" /> {order.buyer_phone}
           </a>
         )}
-        {order.buyer_area && (
-          <p className="text-sm text-zinc-500">{order.buyer_area}</p>
-        )}
+        {order.buyer_area && <p className="muted text-sm">{order.buyer_area}</p>}
         {order.buyer_phone && (
           <a
             href={waMeLink(order.buyer_phone, t.waPrefill.replace("{ref}", `#${ref}`))}
@@ -90,35 +89,32 @@ export default async function OrderDetailPage({
 
       {/* Items */}
       <Card className="space-y-3">
-        <p className="text-sm font-semibold text-zinc-900">{t.items}</p>
+        <p className="text-sm font-semibold">{t.items}</p>
         <ul className="space-y-2">
           {order.order_items.map((it) => (
             <li key={it.id} className="flex items-start justify-between gap-2 text-sm">
               <span className="min-w-0 flex-1">
-                <span className="text-zinc-900">{it.name_snapshot}</span>
-                <span className="text-zinc-400">
-                  {" "}
-                  × {it.qty}
-                </span>
+                <span>{it.name_snapshot}</span>
+                <span className="muted"> × {it.qty}</span>
               </span>
-              <span className="shrink-0 text-zinc-700">
+              <span className="shrink-0">
                 {formatPrice(Number(it.price_snapshot) * it.qty, locale)}
               </span>
             </li>
           ))}
         </ul>
-        <dl className="space-y-1 border-t border-zinc-100 pt-3 text-sm">
-          <div className="flex justify-between text-zinc-500">
+        <dl className="space-y-1 border-t pt-3 text-sm" style={{ borderColor: "var(--line)" }}>
+          <div className="muted flex justify-between">
             <dt>{t.subtotal}</dt>
             <dd>{formatPrice(Number(order.subtotal), locale)}</dd>
           </div>
           {Number(order.delivery_fee) > 0 && (
-            <div className="flex justify-between text-zinc-500">
+            <div className="muted flex justify-between">
               <dt>{t.deliveryFee}</dt>
               <dd>{formatPrice(Number(order.delivery_fee), locale)}</dd>
             </div>
           )}
-          <div className="flex justify-between pt-1 text-base font-semibold text-zinc-900">
+          <div className="flex justify-between pt-1 text-base font-semibold">
             <dt>{t.total}</dt>
             <dd>{formatPrice(Number(order.total), locale)}</dd>
           </div>

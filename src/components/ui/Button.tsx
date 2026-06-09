@@ -4,17 +4,19 @@ import { cn } from "@/lib/utils";
 type Variant = "primary" | "secondary" | "ghost" | "danger";
 type Size = "md" | "lg";
 
+// Maps to the design-system token classes (globals.css) so buttons inherit the
+// active theme (.theme-mahalli on the dashboard) instead of hardcoded greys.
 const variants: Record<Variant, string> = {
-  primary: "bg-zinc-900 text-white hover:bg-zinc-800 active:bg-zinc-950",
-  secondary:
-    "border border-zinc-200 bg-white text-zinc-900 hover:bg-zinc-50 active:bg-zinc-100",
-  ghost: "text-zinc-700 hover:bg-zinc-100",
-  danger: "bg-red-600 text-white hover:bg-red-700",
+  primary: "btn-primary",
+  secondary: "btn-outline",
+  ghost: "btn-ghost",
+  danger: "btn-danger",
 };
 
+// `.btn` is full-width 52px by default; `sm` uses the shorter token size.
 const sizes: Record<Size, string> = {
-  md: "h-11 px-4 text-sm",
-  lg: "h-13 px-6 text-base",
+  md: "",
+  lg: "",
 };
 
 export interface ButtonProps
@@ -28,14 +30,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = "primary", size = "md", ...props }, ref) => (
     <button
       ref={ref}
-      className={cn(
-        "inline-flex w-full items-center justify-center gap-2 rounded-xl font-medium",
-        "transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-900",
-        "disabled:pointer-events-none disabled:opacity-50",
-        variants[variant],
-        sizes[size],
-        className,
-      )}
+      className={cn("btn", variants[variant], sizes[size], className)}
       {...props}
     />
   ),

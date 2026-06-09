@@ -94,17 +94,14 @@ export function OrdersList({
   return (
     <div className="space-y-4 px-4">
       <div className="flex items-center justify-between gap-2">
-        <h1 className="text-xl font-bold text-zinc-900">{t.title}</h1>
-        <Link
-          href="/orders/new"
-          className="inline-flex items-center gap-1.5 rounded-xl bg-zinc-900 px-3.5 py-2 text-sm font-medium text-white"
-        >
+        <h1 className="text-xl font-bold">{t.title}</h1>
+        <Link href="/orders/new" className="btn btn-primary btn-sm">
           <Plus className="size-4" /> {t.newManual}
         </Link>
       </div>
 
       <div className="relative">
-        <Search className="pointer-events-none absolute inset-y-0 start-3 my-auto size-4 text-zinc-400" />
+        <Search className="pointer-events-none absolute inset-y-0 start-3 my-auto size-4" style={{ color: "var(--z400)" }} />
         <Input
           value={q}
           onChange={(e) => {
@@ -125,12 +122,7 @@ export function OrdersList({
               setFilter(s);
               refresh(q, s);
             }}
-            className={cn(
-              "shrink-0 rounded-full px-3.5 py-2 text-sm",
-              filter === s
-                ? "bg-zinc-900 text-white"
-                : "bg-zinc-100 text-zinc-600",
-            )}
+            className={cn("chip", filter === s && "active")}
           >
             {s === "all" ? t.filterAll : t.status[s]}
           </button>
@@ -138,39 +130,29 @@ export function OrdersList({
       </div>
 
       {items.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-zinc-300 p-8 text-center">
-          <ShoppingBag className="mx-auto size-8 text-zinc-300" />
-          <p className="mt-2 font-medium text-zinc-900">
+        <div className="rounded-2xl border border-dashed p-8 text-center" style={{ borderColor: "var(--z300)" }}>
+          <ShoppingBag className="mx-auto size-8" style={{ color: "var(--z300)" }} />
+          <p className="mt-2 font-medium">
             {q || filter !== "all" ? t.noResults : t.empty}
           </p>
-          {!q && filter === "all" && (
-            <p className="mt-1 text-sm text-zinc-500">{t.emptyBody}</p>
-          )}
+          {!q && filter === "all" && <p className="muted mt-1 text-sm">{t.emptyBody}</p>}
         </div>
       ) : (
         <ul className="space-y-2.5">
           {items.map((o) => (
             <li key={o.id}>
-              <Link
-                href={`/orders/${o.id}`}
-                className="block rounded-2xl border border-zinc-200 bg-white p-3.5"
-              >
+              <Link href={`/orders/${o.id}`} className="card block p-3.5">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="truncate font-medium text-zinc-900">
+                  <span className="truncate font-medium">
                     {o.buyer_name || o.buyer_phone || t.buyer}
                   </span>
-                  <span
-                    className={cn(
-                      "shrink-0 rounded-full px-2 py-0.5 text-xs font-medium",
-                      statusBadgeClass(o.status),
-                    )}
-                  >
+                  <span className={cn("shrink-0 rounded-full px-2 py-0.5 text-xs font-medium", statusBadgeClass(o.status))}>
                     {t.status[o.status]}
                   </span>
                 </div>
-                <div className="mt-1 flex items-center justify-between text-sm text-zinc-500">
+                <div className="muted mt-1 flex items-center justify-between text-sm">
                   <span>{timeAgo(o.created_at, locale)}</span>
-                  <span className="font-medium text-zinc-700">
+                  <span className="font-medium" style={{ color: "var(--ink)" }}>
                     {formatPrice(Number(o.total), locale)}
                   </span>
                 </div>
@@ -181,12 +163,7 @@ export function OrdersList({
       )}
 
       {hasMore && items.length > 0 && (
-        <button
-          type="button"
-          onClick={loadMore}
-          disabled={loading}
-          className="w-full rounded-xl border border-zinc-200 py-2.5 text-sm font-medium text-zinc-600 disabled:opacity-50"
-        >
+        <button type="button" onClick={loadMore} disabled={loading} className="btn btn-outline">
           {loading ? dict.common.loading : t.loadMore}
         </button>
       )}
