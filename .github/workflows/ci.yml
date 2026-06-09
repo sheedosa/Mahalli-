@@ -34,8 +34,10 @@ jobs:
       - run: npm ci
       - uses: supabase/setup-cli@v1
         with:
-          version: latest
+          version: 2.105.0
       - run: supabase start
+      # Schema linter — informational; don't gate CI on pre-existing warnings.
+      - run: supabase db lint --level warning || true
       - run: sudo apt-get update && sudo apt-get install -y postgresql-client
       - name: Run DB tests
         env:
@@ -55,7 +57,7 @@ jobs:
       - run: npm ci
       - uses: supabase/setup-cli@v1
         with:
-          version: latest
+          version: 2.105.0
       - run: supabase start
       - name: Wire app env to the local Supabase stack
         run: |

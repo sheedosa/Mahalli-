@@ -216,4 +216,89 @@ begin
 end $$;
 rollback;
 
+-- ===========================================================================
+-- Async backbone (Phase 2 · F1): outbox enqueue/dedupe/dequeue/complete + RLS,
+-- webhook_events idempotency + RLS.
+-- ===========================================================================
+begin;
+do $$
+declare
+  v_u1 uuid := '11111111-1111-1111-1111-111111111111';
+  v_u2 uuid := '22222222-2222-2222-2222-222222222222';
+  v_s1 uuid; v_s2 uuid;
+  v_id1 uuid; v_id2 uuid; v_cnt int; v_status text; v_next timestamptz;
+begin
+  insert into auth.users (instance_id, id, aud, role, email, created_at, updated_at)
+  values ('00000000-0000-0000-0000-000000000000', v_u1,'authenticated','authenticated','o1@t.local',now(),now()),
+         ('00000000-0000-0000-0000-000000000000', v_u2,'authenticated','authenticated','o2@t.local',now(),now());
+
+  set local role authenticated;
+  perform set_config('request.jwt.claims', json_build_object('sub',v_u1::text,'role','authenticated')::text, true);
+  v_s1 := (public.create_shop('Outbox One','outbox-one')).id;
+  reset role;
+  set local role authenticated;
+  perform set_config('request.jwt.claims', json_build_object('sub',v_u2::text,'role','authenticated')::text, true);
+  v_s2 := (public.create_shop('Outbox Two','outbox-two')).id;
+  reset role;
+
+  -- enqueue + dedupe (service-role / superuser context)
+  v_id1 := public.enqueue_message(v_s1,'noop','{"x":1}'::jsonb,'dk-1');
+  if v_id1 is null then raise exception 'FAIL enqueue returned null'; end if;
+  v_id2 := public.enqueue_message(v_s1,'noop','{"x":2}'::jsonb,'dk-1');  -- same dedupe key
+  if v_id2 is not null then raise exception 'FAIL dedupe: second enqueue inserted'; end if;
+  -- null dedupe never collides
+  perform public.enqueue_message(v_s1,'noop','{}'::jsonb,null);
+  perform public.enqueue_message(v_s1,'noop','{}'::jsonb,null);
+  select count(*) into v_cnt from public.message_outbox where seller_id=v_s1;
+  if v_cnt <> 3 then raise exception 'FAIL outbox count=%', v_cnt; end if;
+
+  -- dequeue claims due rows and flips them to processing (batched)
+  perform public.dequeue_messages(2);
+  select count(*) into v_cnt from public.message_outbox where seller_id=v_s1 and status='processing';
+  if v_cnt <> 2 then raise exception 'FAIL dequeue processing=%', v_cnt; end if;
+  perform public.dequeue_messages(10);  -- claims the remaining pending one, not the claimed ones
+  select count(*) into v_cnt from public.message_outbox where seller_id=v_s1 and status='pending';
+  if v_cnt <> 0 then raise exception 'FAIL pending after dequeue=%', v_cnt; end if;
+
+  -- complete: success -> sent
+  perform public.complete_message(v_id1,true,null,null);
+  select status into v_status from public.message_outbox where id=v_id1;
+  if v_status <> 'sent' then raise exception 'FAIL complete sent=%', v_status; end if;
+  -- complete: failure with retry -> pending + advanced next_attempt_at
+  perform public.complete_message(v_id1,false,'boom', now() + interval '5 minutes');
+  select status, next_attempt_at into v_status, v_next from public.message_outbox where id=v_id1;
+  if v_status <> 'pending' then raise exception 'FAIL retry status=%', v_status; end if;
+  if v_next <= now() then raise exception 'FAIL retry next_attempt_at not advanced'; end if;
+  -- complete: failure with no next -> failed
+  perform public.complete_message(v_id1,false,'giving up',null);
+  select status into v_status from public.message_outbox where id=v_id1;
+  if v_status <> 'failed' then raise exception 'FAIL final status=%', v_status; end if;
+
+  -- RLS: seller sees only their own outbox rows; cannot INSERT directly
+  set local role authenticated;
+  perform set_config('request.jwt.claims', json_build_object('sub',v_u1::text,'role','authenticated')::text, true);
+  select count(*) into v_cnt from public.message_outbox;  -- only v_s1's rows
+  if v_cnt <> 3 then raise exception 'FAIL outbox RLS select=%', v_cnt; end if;
+  begin
+    insert into public.message_outbox (seller_id, kind) values (v_s1,'noop');
+    raise exception 'FAIL outbox RLS allowed direct insert';
+  exception when insufficient_privilege then null;  -- RLS denies (no insert policy)
+  end;
+  reset role;
+
+  -- webhook_events: idempotent (source, external_id) + RLS denies authenticated
+  insert into public.webhook_events (source, external_id) values ('whatsapp','evt-1');
+  begin
+    insert into public.webhook_events (source, external_id) values ('whatsapp','evt-1');
+    raise exception 'FAIL webhook_events duplicate inserted';
+  exception when unique_violation then null;
+  end;
+  set local role authenticated;
+  perform set_config('request.jwt.claims', json_build_object('sub',v_u1::text,'role','authenticated')::text, true);
+  select count(*) into v_cnt from public.webhook_events;
+  if v_cnt <> 0 then raise exception 'FAIL webhook_events RLS leak=%', v_cnt; end if;
+  reset role;
+end $$;
+rollback;
+
 \echo 'platform.test.sql: all sections passed'

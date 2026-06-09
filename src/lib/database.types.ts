@@ -191,6 +191,56 @@ export type Database = {
           },
         ]
       }
+      message_outbox: {
+        Row: {
+          attempts: number
+          created_at: string
+          dedupe_key: string | null
+          id: string
+          kind: string
+          last_error: string | null
+          next_attempt_at: string
+          payload: Json
+          seller_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          dedupe_key?: string | null
+          id?: string
+          kind: string
+          last_error?: string | null
+          next_attempt_at?: string
+          payload?: Json
+          seller_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          dedupe_key?: string | null
+          id?: string
+          kind?: string
+          last_error?: string | null
+          next_attempt_at?: string
+          payload?: Json
+          seller_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_outbox_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "sellers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_items: {
         Row: {
           id: string
@@ -477,11 +527,70 @@ export type Database = {
         }
         Relationships: []
       }
+      webhook_events: {
+        Row: {
+          created_at: string
+          external_id: string
+          id: string
+          payload: Json
+          processed_at: string | null
+          signature_ok: boolean
+          source: string
+        }
+        Insert: {
+          created_at?: string
+          external_id: string
+          id?: string
+          payload?: Json
+          processed_at?: string | null
+          signature_ok?: boolean
+          source: string
+        }
+        Update: {
+          created_at?: string
+          external_id?: string
+          id?: string
+          payload?: Json
+          processed_at?: string | null
+          signature_ok?: boolean
+          source?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      complete_message: {
+        Args: { p_error?: string; p_id: string; p_next?: string; p_ok: boolean }
+        Returns: undefined
+      }
+      dequeue_messages: {
+        Args: { p_limit?: number }
+        Returns: {
+          attempts: number
+          created_at: string
+          dedupe_key: string | null
+          id: string
+          kind: string
+          last_error: string | null
+          next_attempt_at: string
+          payload: Json
+          seller_id: string
+          status: string
+          updated_at: string
+        }[]
+      }
+      enqueue_message: {
+        Args: {
+          p_dedupe_key?: string
+          p_kind: string
+          p_payload?: Json
+          p_seller: string
+        }
+        Returns: string
+      }
       create_shop: {
         Args: {
           p_city?: string

@@ -65,6 +65,9 @@ handlers** and Postgres **RPCs**.
   an offline page — nothing blanks or 500s.
 - **PWA:** `src/app/manifest.ts` + `public/sw.js` (precached shell, network-first nav with
   offline fallback, bypasses auth/Supabase) + maskable icons. Installable to home screen.
+- **Async work:** a Postgres `message_outbox` queue + a `CRON_SECRET`-gated worker route
+  (`src/app/api/jobs/worker`) run by Vercel Cron (`vercel.json`); helpers in `src/lib/jobs/`.
+  Inbound webhooks dedupe through `webhook_events` (verify helper in `src/lib/webhooks/`).
 
 ---
 
@@ -88,7 +91,7 @@ handlers** and Postgres **RPCs**.
 
 ## 5. Database
 
-**Migrations (`supabase/migrations/`, 14 total):**
+**Migrations (`supabase/migrations/`, 15 total):**
 
 | # | File | Purpose |
 |---|---|---|
@@ -106,6 +109,7 @@ handlers** and Postgres **RPCs**.
 | 0012 | `seller_theme` | `sellers.theme` + storefront exposure |
 | 0013 | `reserve_link_slug` | reserve `/link` |
 | 0014 | `advisor_perf` | RLS init-plan fix, drop dup index, FK covering indexes |
+| 0015 | `async_backbone` | `message_outbox` + `webhook_events` + enqueue/dequeue/complete RPCs (Phase 2 · F1) |
 
 **Tables:** `sellers`, `profiles`, `products`, `product_variants`, `customers`, `orders`,
 `order_items`, `broadcasts`, `coupons`, `audit_log`.
@@ -229,6 +233,10 @@ Three layers, all in `.github/workflows/ci.yml` (push + PR), three parallel jobs
 
 ## 12. Recent changes (latest first)
 
+- **Phase 2 · F1 — async backbone** — a durable Postgres `message_outbox` job queue
+  (`FOR UPDATE SKIP LOCKED`, exponential backoff, dedupe) + idempotent `webhook_events` ledger +
+  a `CRON_SECRET`-gated worker route (`/api/jobs/worker`) driven by Vercel Cron. No new DB
+  extensions; the seam later workstreams (P1 notifications, P2 broadcasts, P4 payments) plug into.
 - **Mobile FAB fix** — moved the Products "Add" FAB out of the `.anim-in` (transform) wrapper so
   it stops rendering off-screen on iOS (a transformed ancestor was capturing the fixed element).
 - **App-wide mobile polish** — safe-area insets (notch / home indicator), 16px inputs (no iOS
@@ -251,12 +259,15 @@ src/
     onboarding/        create-shop flow
     (dashboard)/       protected shell: overview, products, orders, customers, settings, link
     [slug]/            public storefront + order placement
+    api/jobs/worker/   Vercel-Cron outbox worker (CRON_SECRET-gated)
     manifest.ts        PWA manifest
     page.tsx           public landing
     not-found.tsx      branded 404
   components/          UI primitives, dashboard shell, storefront, forms, brand, locale switcher
   i18n/                locales, AR/EN dictionaries, provider, config
   lib/                 supabase clients, auth resolver, env, themes, slug, utils
+    jobs/              outbox enqueue/worker/handlers/backoff
+    webhooks/          inbound signature verification
   proxy.ts             session refresh + auth gating + security headers
 supabase/
   migrations/          schema + RLS + RPCs + hardening (0001–0014)
