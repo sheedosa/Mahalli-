@@ -77,7 +77,8 @@ export function ProductList({
   }
 
   return (
-    <div className="anim-in">
+    <>
+      <div className="anim-in">
       <div className="topbar" style={{ position: "static", padding: "4px 18px 8px", background: "transparent", backdropFilter: "none", borderBottom: "none" }}>
         <h1 className="topbar-title" style={{ flex: 1 }}>{t.title}</h1>
         <span className="muted" style={{ fontSize: 13, fontWeight: 600 }}>{items.length}</span>
@@ -141,9 +142,11 @@ export function ProductList({
         </div>
       )}
 
+      </div>
+
       <Link href="/products/new" className="fab">
         <Plus className="size-5" /> {t.add}
       </Link>
-    </div>
+    </>
   );
 }
