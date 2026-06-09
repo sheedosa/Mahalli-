@@ -2,10 +2,10 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Mahalli — Seller OS",
+    name: "Mahalli — Run your shop from your phone",
     short_name: "Mahalli",
     description:
-      "Run your Instagram shop: products, orders, customers and a storefront.",
+      "Run your shop from your phone: products, orders, customers and a shop link.",
     start_url: "/dashboard",
     scope: "/",
     display: "standalone",

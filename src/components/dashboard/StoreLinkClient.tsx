@@ -36,13 +36,25 @@ export function StoreLinkClient({ slug, shopName }: { slug: string; shopName: st
     };
   }, [url]);
 
+  // Mark the "share your shop link" getting-started step as done once the seller
+  // copies or shares their link (read back on the dashboard).
+  function markShared() {
+    try {
+      localStorage.setItem("mahalli_shared", "1");
+    } catch {}
+  }
+
   function copy() {
     navigator.clipboard?.writeText(url).catch(() => {});
+    markShared();
     setCopied(true);
     setTimeout(() => setCopied(false), 1800);
   }
 
-  const share = (href: string) => window.open(href, "_blank", "noopener");
+  const share = (href: string) => {
+    markShared();
+    window.open(href, "_blank", "noopener");
+  };
   const waText = encodeURIComponent(`${shopName} — ${url}`);
 
   return (

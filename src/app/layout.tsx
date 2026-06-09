@@ -16,7 +16,7 @@ const cairo = Cairo({
 export const metadata: Metadata = {
   title: { default: "Mahalli", template: "%s · Mahalli" },
   description:
-    "Run your Instagram shop — products, orders, customers and a storefront.",
+    "Run your shop from your phone — products, orders, customers and a shop link.",
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [{ url: "/brand/icon.svg", type: "image/svg+xml" }],
@@ -27,16 +27,16 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: "Mahalli",
-    title: "Mahalli — Seller OS",
+    title: "Mahalli — Run your shop from your phone",
     description:
-      "Run your Instagram shop: products, orders, customers and a storefront.",
+      "Run your shop from your phone: products, orders, customers and a shop link.",
     images: [{ url: "/brand/og.png", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Mahalli — Seller OS",
+    title: "Mahalli — Run your shop from your phone",
     description:
-      "Run your Instagram shop: products, orders, customers and a storefront.",
+      "Run your shop from your phone: products, orders, customers and a shop link.",
     images: ["/brand/og.png"],
   },
 };

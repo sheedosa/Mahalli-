@@ -13,6 +13,7 @@ import { getSellerContext } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { formatPrice } from "@/lib/utils";
 import type { OrderStatus } from "@/components/orders/status";
+import { GettingStarted } from "@/components/dashboard/GettingStarted";
 
 const LOW_STOCK_THRESHOLD = 3;
 
@@ -36,17 +37,21 @@ export default async function OverviewPage() {
   startOfDay.setHours(0, 0, 0, 0);
   const dayIso = startOfDay.toISOString();
 
-  const [todayOrders, deliveredToday, toDeliver, lowStock, recent] =
+  const [todayOrders, deliveredToday, toDeliver, lowStock, recent, productsTotal, ordersTotal] =
     await Promise.all([
       supabase.from("orders").select("id", { count: "exact", head: true }).eq("seller_id", sellerId).gte("created_at", dayIso),
       supabase.from("orders").select("total").eq("seller_id", sellerId).eq("status", "delivered").gte("updated_at", dayIso),
       supabase.from("orders").select("id", { count: "exact", head: true }).eq("seller_id", sellerId).in("status", ["confirmed", "ready", "out"]),
       supabase.from("products").select("id", { count: "exact", head: true }).eq("seller_id", sellerId).eq("active", true).lte("stock", LOW_STOCK_THRESHOLD),
       supabase.from("orders").select("id,status,total,buyer_name,buyer_phone,created_at").eq("seller_id", sellerId).order("created_at", { ascending: false }).limit(5),
+      supabase.from("products").select("id", { count: "exact", head: true }).eq("seller_id", sellerId),
+      supabase.from("orders").select("id", { count: "exact", head: true }).eq("seller_id", sellerId),
     ]);
 
   const revenue = (deliveredToday.data ?? []).reduce((s, o) => s + Number(o.total), 0);
   const orders = recent.data ?? [];
+  const hasProducts = (productsTotal.count ?? 0) > 0;
+  const hasOrders = (ordersTotal.count ?? 0) > 0;
   const td = dict.dashboard;
 
   const tile = (icon: React.ReactNode, label: string, value: string, tone: string) => (
@@ -63,6 +68,8 @@ export default async function OverviewPage() {
 
   return (
     <div className="anim-in" style={{ padding: "12px 18px 0" }}>
+      <GettingStarted hasProducts={hasProducts} hasOrders={hasOrders} />
+
       <div className="sf-grid2" style={{ gap: 12 }}>
         {tile(<Wallet className="size-[19px]" />, td.revenue, formatPrice(revenue, locale), "var(--accent-soft)")}
         {tile(<Box className="size-[19px]" />, td.todayOrders, String(todayOrders.count ?? 0), "var(--success-soft)")}
@@ -93,12 +100,9 @@ export default async function OverviewPage() {
           <div className="empty">
             <div className="empty-art"><Package className="size-9" /></div>
             <div className="sf-stack" style={{ gap: 6 }}>
-              <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>{td.emptyTitle}</h3>
-              <p className="muted" style={{ margin: 0, fontSize: 14, lineHeight: 1.6, maxWidth: 260 }}>{td.emptyBody}</p>
+              <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>{td.ordersEmpty}</h3>
+              <p className="muted" style={{ margin: 0, fontSize: 14, lineHeight: 1.6, maxWidth: 260 }}>{td.ordersEmptyHint}</p>
             </div>
-            <Link href="/products" className="btn btn-primary btn-pill" style={{ width: "auto", paddingInline: 26, marginTop: 4 }}>
-              {td.addProducts}
-            </Link>
           </div>
         ) : (
           <div className="card" style={{ padding: "4px 14px" }}>
