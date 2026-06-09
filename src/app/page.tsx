@@ -34,43 +34,47 @@ export default async function LandingPage() {
 
   return (
     <main className="theme-mahalli sf">
-      <div className="anim-in mx-auto flex min-h-dvh max-w-md flex-col" style={{ padding: "18px 20px 28px", gap: 26 }}>
+      <div className="anim-in mx-auto flex min-h-dvh max-w-md flex-col" style={{ padding: "18px 20px 28px", gap: 28 }}>
         <header className="sf-row sf-between">
           <Wordmark />
           <LocaleSwitcher />
         </header>
 
-        {/* hero */}
-        <div className="sf-stack" style={{ gap: 16 }}>
+        {/* hero unit: hero card + phone peek + explainer + CTA, composed as one block */}
+        <section className="sf-stack" style={{ gap: 0 }}>
           <div
-            style={{ borderRadius: 30, background: "var(--hero-grad)", padding: "30px 24px", position: "relative", overflow: "hidden", boxShadow: "var(--shadow-md)" }}
+            style={{ borderRadius: 30, background: "var(--hero-grad)", padding: "28px 24px 44px", position: "relative", overflow: "hidden", boxShadow: "var(--shadow-md)" }}
           >
             <div style={{ position: "absolute", insetInlineEnd: -30, insetBlockStart: -30, width: 160, height: 160, borderRadius: "50%", background: "rgba(255,255,255,.12)" }} />
             <div style={{ position: "absolute", insetInlineStart: -40, insetBlockEnd: -50, width: 140, height: 140, borderRadius: "50%", background: "rgba(255,255,255,.08)" }} />
             <h1 style={{ position: "relative", margin: 0, color: "var(--hero-ink)", fontSize: 30, fontWeight: 800, lineHeight: 1.18, letterSpacing: "-.02em" }}>
               {t.headline}
             </h1>
-            <p style={{ position: "relative", margin: "14px 0 0", color: "rgba(255,255,255,.85)", fontSize: 15, lineHeight: 1.65 }}>
+            <p style={{ position: "relative", margin: "12px 0 0", color: "rgba(255,255,255,.85)", fontSize: 15, lineHeight: 1.6 }}>
               {t.sub}
             </p>
           </div>
-          <Link href="/signup" className="btn btn-accent btn-pill">{t.getStarted}</Link>
-        </div>
 
-        {/* what is Mahalli */}
-        <p className="muted" style={{ margin: 0, fontSize: 15, lineHeight: 1.7, textAlign: "center" }}>
-          {t.whatIs}
-        </p>
+          <div className="sf-row" style={{ justifyContent: "center", marginTop: -26, position: "relative", zIndex: 1 }}>
+            <PhoneMock shopName={t.sampleShop} />
+          </div>
 
-        {/* phone mock */}
-        <div className="sf-row" style={{ justifyContent: "center", paddingBlock: 4 }}>
-          <PhoneMock shopName={t.sampleShop} />
-        </div>
+          <p className="muted" style={{ margin: "16px 6px 0", fontSize: 14.5, lineHeight: 1.65, textAlign: "center" }}>
+            {t.whatIs}
+          </p>
+
+          <Link href="/signup" className="btn btn-accent btn-pill" style={{ marginTop: 16 }}>
+            {t.getStarted}
+          </Link>
+          <p style={{ textAlign: "center", fontSize: 13.5, marginTop: 10 }}>
+            <Link href="/login" style={{ fontWeight: 700, color: "var(--accent-deep)" }}>{t.signIn}</Link>
+          </p>
+        </section>
 
         {/* how it works */}
         <section className="sf-stack" style={{ gap: 14 }}>
           <h2 style={{ margin: 0, fontSize: 19, fontWeight: 800, letterSpacing: "-.01em" }}>{t.how}</h2>
-          <div className="sf-stack" style={{ gap: 14 }}>
+          <div className="sf-stack" style={{ gap: 13 }}>
             {steps.map((s, i) => (
               <div key={i} className="sf-row" style={{ gap: 13 }}>
                 <span style={{ position: "relative", width: 44, height: 44, flex: "none", borderRadius: 14, background: "var(--accent-soft)", color: "var(--accent-deep)", display: "flex", alignItems: "center", justifyContent: "center" }}>
