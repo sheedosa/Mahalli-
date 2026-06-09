@@ -36,18 +36,15 @@ export function VariantsEditor({ initial }: { initial: VariantRow[] }) {
   return (
     <div className="space-y-2">
       <div>
-        <span className="text-sm font-medium text-zinc-700">{t.variants}</span>
-        <p className="text-xs text-zinc-500">{t.variantsHint}</p>
+        <span className="label">{t.variants}</span>
+        <p className="hint">{t.variantsHint}</p>
       </div>
 
       <input type="hidden" name="variants" value={serialized} />
 
       <div className="space-y-3">
         {rows.map((row, i) => (
-          <div
-            key={i}
-            className="space-y-2 rounded-xl border border-zinc-200 p-3"
-          >
+          <div key={i} className="space-y-2 rounded-xl p-3" style={{ boxShadow: "inset 0 0 0 1.5px var(--line)" }}>
             <div className="flex items-center gap-2">
               <Input
                 aria-label={t.variantLabel}
@@ -60,7 +57,8 @@ export function VariantsEditor({ initial }: { initial: VariantRow[] }) {
                 type="button"
                 onClick={() => setRows((p) => p.filter((_, idx) => idx !== i))}
                 aria-label={t.removeVariant}
-                className="flex size-9 shrink-0 items-center justify-center rounded-lg text-red-500 hover:bg-red-50"
+                className="flex size-10 shrink-0 items-center justify-center rounded-lg"
+                style={{ color: "var(--danger)" }}
               >
                 <Trash2 className="size-4" />
               </button>
@@ -101,7 +99,8 @@ export function VariantsEditor({ initial }: { initial: VariantRow[] }) {
       <button
         type="button"
         onClick={() => setRows((p) => [...p, empty()])}
-        className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-zinc-300 px-3 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-50"
+        className="muted inline-flex items-center gap-1.5 rounded-lg border border-dashed px-3 py-2 text-sm font-medium"
+        style={{ borderColor: "var(--z300)" }}
       >
         <Plus className="size-4" /> {t.addVariant}
       </button>

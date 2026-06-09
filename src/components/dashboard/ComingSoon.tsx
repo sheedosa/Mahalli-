@@ -10,13 +10,11 @@ export function ComingSoon({
   badge: string;
 }) {
   return (
-    <div className="space-y-4">
-      <h1 className="text-xl font-bold text-zinc-900">{title}</h1>
+    <div className="space-y-4 px-4">
+      <h1 className="text-xl font-bold">{title}</h1>
       <Card className="space-y-2">
-        <span className="inline-block rounded-full bg-zinc-100 px-2.5 py-0.5 text-xs font-medium text-zinc-500">
-          {badge}
-        </span>
-        <p className="text-sm text-zinc-500">{body}</p>
+        <span className="pill pill-neutral">{badge}</span>
+        <p className="muted text-sm">{body}</p>
       </Card>
     </div>
   );

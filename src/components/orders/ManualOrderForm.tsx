@@ -6,6 +6,7 @@ import { createManualOrder } from "@/app/(dashboard)/orders/actions";
 import { useI18n } from "@/i18n/provider";
 import { formatPrice } from "@/lib/utils";
 import { Input, Textarea, Field } from "@/components/ui/Input";
+import { Select } from "@/components/ui/Select";
 
 export type FormProduct = {
   id: string;
@@ -116,7 +117,7 @@ export function ManualOrderForm({ products }: { products: FormProduct[] }) {
 
   if (products.length === 0) {
     return (
-      <p className="rounded-2xl border border-dashed border-zinc-300 p-8 text-center text-sm text-zinc-500">
+      <p className="muted rounded-2xl border border-dashed p-8 text-center text-sm" style={{ borderColor: "var(--z300)" }}>
         {t.emptyCatalog}
       </p>
     );
@@ -128,59 +129,45 @@ export function ManualOrderForm({ products }: { products: FormProduct[] }) {
       {lines.length > 0 && (
         <div className="space-y-2">
           {lines.map((l) => (
-            <div
-              key={l.key}
-              className="space-y-2 rounded-2xl border border-zinc-200 bg-white p-3"
-            >
+            <div key={l.key} className="card space-y-2 p-3">
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-zinc-900">
-                    {l.product.name}
-                  </p>
-                  <p className="text-sm text-zinc-500">
+                  <p className="truncate text-sm font-medium">{l.product.name}</p>
+                  <p className="muted text-sm">
                     {formatPrice(unit(l.product, l.variantId), locale)}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setQty(l.key, l.qty - 1)}
-                    aria-label="-"
-                    className="flex size-9 items-center justify-center rounded-full border border-zinc-200"
-                  >
+                  <button type="button" onClick={() => setQty(l.key, l.qty - 1)} aria-label="-" className="step-btn">
                     <Minus className="size-4" />
                   </button>
                   <span className="w-6 text-center text-base font-semibold">{l.qty}</span>
-                  <button
-                    type="button"
-                    onClick={() => setQty(l.key, l.qty + 1)}
-                    aria-label="+"
-                    className="flex size-9 items-center justify-center rounded-full border border-zinc-200"
-                  >
+                  <button type="button" onClick={() => setQty(l.key, l.qty + 1)} aria-label="+" className="step-btn">
                     <Plus className="size-4" />
                   </button>
                   <button
                     type="button"
                     onClick={() => setQty(l.key, 0)}
                     aria-label={dict.common.delete}
-                    className="flex size-7 items-center justify-center rounded-full text-red-500"
+                    className="flex size-9 items-center justify-center rounded-full"
+                    style={{ color: "var(--danger)" }}
                   >
-                    <Trash2 className="size-3.5" />
+                    <Trash2 className="size-4" />
                   </button>
                 </div>
               </div>
               {l.product.variants.length > 0 && (
-                <select
+                <Select
                   value={l.variantId ?? ""}
                   onChange={(e) => changeVariant(l.key, e.target.value)}
-                  className="h-9 w-full rounded-lg border border-zinc-200 bg-white px-2 text-sm"
+                  style={{ height: 44 }}
                 >
                   {l.product.variants.map((v) => (
                     <option key={v.id} value={v.id}>
                       {v.label}
                     </option>
                   ))}
-                </select>
+                </Select>
               )}
             </div>
           ))}
@@ -189,9 +176,9 @@ export function ManualOrderForm({ products }: { products: FormProduct[] }) {
 
       {/* Product picker */}
       <div className="space-y-2">
-        <p className="text-sm font-semibold text-zinc-900">{t.products}</p>
+        <p className="text-sm font-semibold">{t.products}</p>
         <div className="relative">
-          <Search className="pointer-events-none absolute inset-y-0 start-3 my-auto size-4 text-zinc-400" />
+          <Search className="pointer-events-none absolute inset-y-0 start-3 my-auto size-4" style={{ color: "var(--z400)" }} />
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -205,17 +192,15 @@ export function ManualOrderForm({ products }: { products: FormProduct[] }) {
               <button
                 type="button"
                 onClick={() => addProduct(p)}
-                className="flex w-full items-center justify-between gap-2 rounded-xl border border-zinc-200 bg-white p-2.5 text-start"
+                className="card flex w-full items-center justify-between gap-2 p-2.5 text-start"
               >
                 <span className="min-w-0">
-                  <span className="block truncate text-sm font-medium text-zinc-900">
-                    {p.name}
-                  </span>
-                  <span className="text-sm text-zinc-500">
+                  <span className="block truncate text-sm font-medium">{p.name}</span>
+                  <span className="muted text-sm">
                     {formatPrice(Number(p.price), locale)}
                   </span>
                 </span>
-                <span className="inline-flex items-center gap-1 rounded-lg bg-zinc-100 px-2.5 py-1 text-xs font-medium text-zinc-700">
+                <span className="pill pill-neutral">
                   <Plus className="size-3.5" /> {t.add}
                 </span>
               </button>
@@ -226,7 +211,7 @@ export function ManualOrderForm({ products }: { products: FormProduct[] }) {
 
       {/* Buyer */}
       <div className="space-y-3">
-        <p className="text-sm font-semibold text-zinc-900">{t.customer}</p>
+        <p className="text-sm font-semibold">{t.customer}</p>
         <Field label={t.name} htmlFor="name" optional={dict.common.optional}>
           <Input id="name" value={name} onChange={(e) => setName(e.target.value)} maxLength={120} placeholder={t.namePlaceholder} />
         </Field>
@@ -244,18 +229,14 @@ export function ManualOrderForm({ products }: { products: FormProduct[] }) {
         </Field>
       </div>
 
-      <div className="flex items-center justify-between rounded-2xl bg-zinc-50 p-3 text-base font-semibold text-zinc-900">
+      <div className="flex items-center justify-between rounded-2xl p-3 text-base font-semibold" style={{ background: "var(--surface-2)" }}>
         <span>{dict.orders.total}</span>
         <span>{formatPrice(total, locale)}</span>
       </div>
 
-      {error && <p className="text-sm text-red-600">{lines.length === 0 ? t.noItems : t.error}</p>}
+      {error && <p className="errline">{lines.length === 0 ? t.noItems : t.error}</p>}
 
-      <button
-        type="submit"
-        disabled={submitting}
-        className="h-12 w-full rounded-xl bg-zinc-900 text-base font-semibold text-white disabled:opacity-50"
-      >
+      <button type="submit" disabled={submitting} className="btn btn-primary">
         {submitting ? t.creating : t.create}
       </button>
     </form>

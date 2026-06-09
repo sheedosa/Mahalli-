@@ -32,11 +32,11 @@ export default async function EditProductPage({
         <Link
           href="/products"
           aria-label={dict.common.back}
-          className="flex size-10 items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100"
+          className="flex size-10 items-center justify-center rounded-lg text-[var(--z500)] hover:bg-[var(--z100)]"
         >
           <ChevronLeft className="size-5 flip-x" />
         </Link>
-        <h1 className="text-xl font-bold text-zinc-900">
+        <h1 className="text-xl font-bold">
           {dict.products.editTitle}
         </h1>
       </div>

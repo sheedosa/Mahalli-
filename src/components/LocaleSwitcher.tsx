@@ -26,21 +26,22 @@ export function LocaleSwitcher({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "inline-flex items-center gap-1 rounded-full border border-zinc-200 p-0.5 text-sm",
+        "inline-flex items-center gap-1 rounded-full p-0.5 text-sm",
         pending && "opacity-60",
         className,
       )}
+      style={{ boxShadow: "inset 0 0 0 1.5px var(--line)" }}
       role="group"
       aria-label={dict.lang.label}
     >
-      <Languages className="mx-1 size-4 text-zinc-400" aria-hidden />
+      <Languages className="mx-1 size-4" style={{ color: "var(--z400)" }} aria-hidden />
       <button
         type="button"
         onClick={() => setLocale("ar")}
         aria-pressed={locale === "ar"}
         className={cn(
           "rounded-full px-3 py-2 text-sm leading-none transition",
-          locale === "ar" ? "bg-zinc-900 text-white" : "text-zinc-700",
+          locale === "ar" ? "bg-[var(--cta)] text-[var(--cta-ink)]" : "text-[var(--z700)]",
         )}
       >
         {dict.lang.ar}
@@ -51,7 +52,7 @@ export function LocaleSwitcher({ className }: { className?: string }) {
         aria-pressed={locale === "en"}
         className={cn(
           "rounded-full px-3 py-2 text-sm leading-none transition",
-          locale === "en" ? "bg-zinc-900 text-white" : "text-zinc-700",
+          locale === "en" ? "bg-[var(--cta)] text-[var(--cta-ink)]" : "text-[var(--z700)]",
         )}
       >
         {dict.lang.en}

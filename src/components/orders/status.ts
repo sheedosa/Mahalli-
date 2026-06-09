@@ -26,7 +26,7 @@ export function statusBadgeClass(status: OrderStatus): string {
     case "delivered":
       return "bg-emerald-100 text-emerald-700";
     case "cancelled":
-      return "bg-zinc-100 text-zinc-500";
+      return "bg-[var(--z100)] text-[var(--z600)]";
   }
 }
 

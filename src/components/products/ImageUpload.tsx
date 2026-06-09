@@ -77,22 +77,22 @@ export function ImageUpload({
   }
 
   return (
-    <div className="space-y-1.5">
-      <span className="text-sm font-medium text-zinc-700">{t.image}</span>
+    <div className="field">
+      <span className="label">{t.image}</span>
       <input type="hidden" name="image_url" value={url ?? ""} />
 
       <div className="flex items-center gap-3">
-        <div className="relative size-20 shrink-0 overflow-hidden rounded-xl border border-zinc-200 bg-zinc-50">
+        <div className="relative size-20 shrink-0 overflow-hidden rounded-xl" style={{ background: "var(--surface-2)", boxShadow: "inset 0 0 0 1px var(--line)" }}>
           {url ? (
             <Image src={url} alt="" fill sizes="80px" className="object-cover" />
           ) : (
-            <div className="flex size-full items-center justify-center text-zinc-300">
+            <div className="flex size-full items-center justify-center" style={{ color: "var(--z400)" }}>
               <ImagePlus className="size-6" />
             </div>
           )}
           {uploading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-white/70">
-              <Loader2 className="size-5 animate-spin text-zinc-500" />
+            <div className="absolute inset-0 flex items-center justify-center" style={{ background: "rgba(255,255,255,.7)" }}>
+              <Loader2 className="size-5 animate-spin" style={{ color: "var(--z500)" }} />
             </div>
           )}
         </div>
@@ -102,7 +102,8 @@ export function ImageUpload({
             type="button"
             onClick={() => inputRef.current?.click()}
             disabled={uploading}
-            className="rounded-lg border border-zinc-200 px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 disabled:opacity-50"
+            className="btn btn-outline"
+            style={{ width: "auto", height: 44, paddingInline: 16, fontSize: 14 }}
           >
             {uploading ? t.uploading : url ? t.changeImage : t.uploadImage}
           </button>
@@ -110,7 +111,8 @@ export function ImageUpload({
             <button
               type="button"
               onClick={onRemove}
-              className="inline-flex items-center gap-1 text-sm text-red-600"
+              className="inline-flex items-center gap-1 text-sm font-medium"
+              style={{ color: "var(--danger)" }}
             >
               <X className="size-3.5" /> {t.removeImage}
             </button>
@@ -128,7 +130,7 @@ export function ImageUpload({
           if (file) onPick(file);
         }}
       />
-      {error && <p className="text-xs text-red-600">{error}</p>}
+      {error && <p className="errline">{error}</p>}
     </div>
   );
 }

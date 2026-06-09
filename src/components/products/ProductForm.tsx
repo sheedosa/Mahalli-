@@ -113,22 +113,15 @@ export function ProductForm({
         </Field>
 
         <label className="flex items-center justify-between gap-3">
-          <span className="text-sm font-medium text-zinc-700">{t.visible}</span>
+          <span className="text-sm font-medium">{t.visible}</span>
           <button
             type="button"
             role="switch"
             aria-checked={active}
+            aria-label={t.visible}
             onClick={() => setActive((v) => !v)}
-            className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${
-              active ? "bg-zinc-900" : "bg-zinc-300"
-            }`}
-          >
-            <span
-              className={`absolute top-0.5 size-5 rounded-full bg-white transition-all ${
-                active ? "start-[1.375rem]" : "start-0.5"
-              }`}
-            />
-          </button>
+            className={`switch${active ? " on" : ""}`}
+          />
         </label>
       </Card>
 
