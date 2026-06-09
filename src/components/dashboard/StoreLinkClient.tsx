@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import QRCode from "qrcode";
 import {
   Check,
   Copy,
@@ -12,51 +13,28 @@ import {
 } from "lucide-react";
 import { useI18n } from "@/i18n/provider";
 
-/** Deterministic QR-like pattern from the slug (decorative — links via the URL). */
-function qrPattern(seed: string, n = 21): number[][] {
-  let h = 2166136261;
-  for (let i = 0; i < seed.length; i++) {
-    h ^= seed.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
-  const rnd = (r: number, c: number) => {
-    let x = h ^ (r * 73856093) ^ (c * 19349663);
-    x = Math.imul(x ^ (x >>> 15), 2246822519);
-    return ((x >>> 0) % 1000) / 1000;
-  };
-  const finder = (r: number, c: number) => {
-    for (const [r0, c0] of [[0, 0], [0, n - 7], [n - 7, 0]]) {
-      if (r >= r0 && r < r0 + 7 && c >= c0 && c < c0 + 7) {
-        const rr = r - r0, cc = c - c0;
-        const ring = rr === 0 || rr === 6 || cc === 0 || cc === 6;
-        const inner = rr >= 2 && rr <= 4 && cc >= 2 && cc <= 4;
-        return ring || inner ? 1 : 0;
-      }
-    }
-    return -1;
-  };
-  const cells: number[][] = [];
-  for (let r = 0; r < n; r++) {
-    const row: number[] = [];
-    for (let c = 0; c < n; c++) {
-      const f = finder(r, c);
-      row.push(f >= 0 ? f : rnd(r, c) < 0.46 ? 1 : 0);
-    }
-    cells.push(row);
-  }
-  return cells;
-}
-
 export function StoreLinkClient({ slug, shopName }: { slug: string; shopName: string }) {
   const { dict } = useI18n();
   const t = dict.storeLink;
   const [copied, setCopied] = useState(false);
+  const [qr, setQr] = useState<string | null>(null);
 
   // Full URL based on the actual origin the seller is on.
   const url = typeof window !== "undefined" ? `${window.location.origin}/${slug}` : `/${slug}`;
   const display = url.replace(/^https?:\/\//, "");
-  const n = 21;
-  const cells = useMemo(() => qrPattern(slug, n), [slug]);
+
+  // Real, scannable QR encoding the storefront URL. Rendered as a data: URI,
+  // which the CSP img-src already allows. High error-correction so the centered
+  // store badge doesn't break scanning.
+  useEffect(() => {
+    let alive = true;
+    QRCode.toDataURL(url, { errorCorrectionLevel: "H", margin: 1, width: 300 })
+      .then((d) => alive && setQr(d))
+      .catch(() => alive && setQr(null));
+    return () => {
+      alive = false;
+    };
+  }, [url]);
 
   function copy() {
     navigator.clipboard?.writeText(url).catch(() => {});
@@ -93,13 +71,18 @@ export function StoreLinkClient({ slug, shopName }: { slug: string; shopName: st
 
       {/* QR */}
       <div className="card" style={{ padding: 18, display: "flex", gap: 16, alignItems: "center" }}>
-        <div style={{ position: "relative", width: 150, height: 150, background: "var(--card)", borderRadius: 16, padding: 12, boxShadow: "inset 0 0 0 1px var(--line)", flex: "none" }}>
-          <div dir="ltr" style={{ display: "grid", gridTemplateColumns: `repeat(${n},1fr)`, gridTemplateRows: `repeat(${n},1fr)`, width: "100%", height: "100%" }}>
-            {cells.flatMap((row, r) => row.map((v, c) => (
-              <div key={`${r}-${c}`} style={{ background: v ? "var(--ink)" : "transparent" }} />
-            )))}
-          </div>
-          <div style={{ position: "absolute", top: "50%", insetInlineStart: "50%", transform: "translate(-50%,-50%)", width: 38, height: 38, borderRadius: 11, background: "var(--accent)", color: "var(--accent-ink)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 0 0 5px var(--card)" }}>
+        <div style={{ position: "relative", width: 150, height: 150, background: "#fff", borderRadius: 16, padding: 12, boxShadow: "inset 0 0 0 1px var(--line)", flex: "none" }}>
+          {qr && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={qr}
+              alt={t.qrTitle}
+              width={126}
+              height={126}
+              style={{ width: "100%", height: "100%", display: "block" }}
+            />
+          )}
+          <div style={{ position: "absolute", top: "50%", insetInlineStart: "50%", transform: "translate(-50%,-50%)", width: 38, height: 38, borderRadius: 11, background: "var(--accent)", color: "var(--accent-ink)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 0 0 5px #fff" }}>
             <Store className="size-5" />
           </div>
         </div>

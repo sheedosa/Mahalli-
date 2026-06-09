@@ -3,6 +3,11 @@ const en = {
     appName: "Mahalli",
     tagline: "Run your shop from your phone",
   },
+  notFound: {
+    title: "Page not found",
+    body: "The page you're looking for doesn't exist or may have moved.",
+    home: "Back to Mahalli",
+  },
   common: {
     save: "Save",
     saving: "Saving…",

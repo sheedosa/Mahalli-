@@ -6,6 +6,11 @@ const ar: Dictionary = {
     appName: "محلّي",
     tagline: "دير شغل محلك من تليفونك",
   },
+  notFound: {
+    title: "الصفحة مش موجودة",
+    body: "الصفحة اللي تدوّر عليها مش موجودة أو اتنقلت.",
+    home: "ارجع لمحلّي",
+  },
   common: {
     save: "حفظ",
     saving: "نحفظو…",
