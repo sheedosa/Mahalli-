@@ -234,11 +234,16 @@ Three layers, all in `.github/workflows/ci.yml` (push + PR), three parallel jobs
 
 ## 12. Recent changes (latest first)
 
-- **UI · design-system unification (batch 1)** — the shared `ui/` primitives
-  (Button/Input/Textarea/Field/Card) and the orders + customers surface now render the branded
-  `.theme-mahalli` token classes instead of hardcoded Tailwind `zinc-*`, so the dashboard matches
-  the storefront. Added theme-aware focus rings + a soft destructive button. (Batch 2:
-  ManualOrderForm/ImageUpload/VariantsEditor + a toast/skeleton system.)
+- **UI · storefront conversion** — cart + favorites persist across refresh
+  (localStorage, rebuilt against the live catalog); "added to cart" toast; a
+  trust row under the hero (Order-on-WhatsApp link, cash-on-delivery, delivery
+  available); checkout already shows per-area fees.
+- **UI · feedback & polish** — global toast system wired to mutations; list
+  skeletons + error/retry states; ProductSheet focus-trap/Escape; AA muted
+  contrast.
+- **UI · design-system unification (batches 1–2)** — dashboard fully on the
+  branded token classes (no raw Tailwind `zinc`); new Select/Badge/EmptyState/
+  Skeleton primitives.
 - **Phase 2 · P1b — notification UX** — per-event notification toggles in Settings (write
   `sellers.notify_prefs`) and a "Message on WhatsApp" action (`wa.me`, prefilled) on the order
   detail. (Inbound webhook + `seller_connections` + SMS are P1c.)

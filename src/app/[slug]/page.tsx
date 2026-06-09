@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { createPublicClient } from "@/lib/supabase/public";
 import type { StorefrontData } from "@/types/storefront";
 import { StorefrontApp } from "@/components/storefront/StorefrontApp";
+import { ToastProvider } from "@/components/ui/Toast";
 
 // Lightweight ISR-style revalidation. The storefront reads through the
 // get_storefront RPC with a session-less client, so it is not tied to any user.
@@ -35,5 +36,9 @@ export default async function StorefrontPage({
   const sf = data as unknown as StorefrontData | null;
   if (!sf) notFound();
 
-  return <StorefrontApp shop={sf.shop} products={sf.products} slug={slug} />;
+  return (
+    <ToastProvider>
+      <StorefrontApp shop={sf.shop} products={sf.products} slug={slug} />
+    </ToastProvider>
+  );
 }

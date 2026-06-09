@@ -1,15 +1,18 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import {
   CheckCircle2,
   ChevronLeft,
   Heart,
+  MessageCircle,
   Package,
   Search,
   ShoppingBag,
   Store,
+  Truck,
+  Wallet,
 } from "lucide-react";
 import type {
   StorefrontProduct,
@@ -30,6 +33,8 @@ import {
   type CartLine,
 } from "@/components/storefront/cart";
 import { themeClass } from "@/lib/themes";
+import { useToast } from "@/components/ui/Toast";
+import { waMeLink } from "@/lib/messaging/walink";
 
 type View = "catalog" | "checkout" | "done";
 
@@ -50,6 +55,7 @@ export function StorefrontApp({
 }) {
   const { dict, locale } = useI18n();
   const t = dict.storefront;
+  const toast = useToast();
 
   const [lines, setLines] = useState<CartLine[]>([]);
   const [view, setView] = useState<View>("catalog");
@@ -59,6 +65,50 @@ export function StorefrontApp({
   const [cat, setCat] = useState("all");
   const [favs, setFavs] = useState<Set<string>>(new Set());
   const gridRef = useRef<HTMLDivElement>(null);
+
+  const cartKey = `mahalli_cart_${slug}`;
+  const favKey = `mahalli_fav_${slug}`;
+
+  // Restore cart + favorites from the previous session (client-only). The cart is
+  // stored as minimal refs and rebuilt against the current catalog so prices and
+  // stock stay fresh and unavailable items drop out.
+  useEffect(() => {
+    let nextFavs: Set<string> | null = null;
+    let nextLines: CartLine[] | null = null;
+    try {
+      const rawF = localStorage.getItem(favKey);
+      if (rawF) nextFavs = new Set(JSON.parse(rawF) as string[]);
+      const rawC = localStorage.getItem(cartKey);
+      if (rawC) {
+        const refs = JSON.parse(rawC) as { pid: string; vid: string | null; qty: number }[];
+        const restored: CartLine[] = [];
+        for (const r of refs) {
+          const product = products.find((p) => p.id === r.pid);
+          if (!product) continue;
+          const variant = r.vid ? (product.variants.find((v) => v.id === r.vid) ?? null) : null;
+          if (r.vid && !variant) continue;
+          const qty = Math.min(availableStock(product, variant), r.qty);
+          if (qty > 0) restored.push({ key: lineKey(product.id, variant?.id ?? null), product, variant, qty });
+        }
+        if (restored.length) nextLines = restored;
+      }
+    } catch {}
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (nextFavs) setFavs(nextFavs);
+    if (nextLines) setLines(nextLines);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(cartKey, JSON.stringify(lines.map((l) => ({ pid: l.product.id, vid: l.variant?.id ?? null, qty: l.qty }))));
+    } catch {}
+  }, [lines, cartKey]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(favKey, JSON.stringify([...favs]));
+    } catch {}
+  }, [favs, favKey]);
 
   function addLine(
     product: StorefrontProduct,
@@ -77,6 +127,7 @@ export function StorefrontApp({
       return [...prev, { key, product, variant, qty: Math.min(max, qty) }];
     });
     setSheet(null);
+    toast.success(t.addedToCart);
   }
 
   function setQty(key: string, qty: number) {
@@ -263,6 +314,25 @@ export function StorefrontApp({
               </div>
             )}
           </div>
+        </div>
+
+        {/* trust + contact */}
+        <div className="sf-row" style={{ gap: 8, flexWrap: "wrap", padding: "14px 18px 0" }}>
+          {shop.contact_phone && (
+            <a
+              href={waMeLink(shop.contact_phone, t.waOrderPrefill.replace("{shop}", shop.name))}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="sf-row"
+              style={{ gap: 7, height: 36, paddingInline: 13, borderRadius: 999, background: "#25D366", color: "#fff", fontWeight: 700, fontSize: 12.5, textDecoration: "none" }}
+            >
+              <MessageCircle className="size-4" /> {t.orderOnWhatsApp}
+            </a>
+          )}
+          <span className="pill pill-neutral"><Wallet className="size-3.5" /> {t.cod}</span>
+          {shop.delivery_areas.length > 0 && (
+            <span className="pill pill-neutral"><Truck className="size-3.5" /> {t.deliveryAvailable}</span>
+          )}
         </div>
 
         {/* category chips */}
