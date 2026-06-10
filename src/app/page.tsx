@@ -1,11 +1,15 @@
 import Link from "next/link";
 import {
+  BadgeCheck,
+  Banknote,
+  ChevronDown,
   ClipboardList,
   MapPin,
   MessageCircle,
   PackagePlus,
   Share2,
   ShoppingBag,
+  Smartphone,
   Store,
 } from "lucide-react";
 import { getI18n } from "@/i18n";
@@ -25,6 +29,12 @@ export default async function LandingPage() {
     { name: t.mock4, price: formatPrice(60, locale), img: "/brand/mock/scarf.svg" },
   ];
 
+  const values = [
+    { icon: <BadgeCheck className="size-5" />, title: t.val1, sub: t.val1sub },
+    { icon: <Smartphone className="size-5" />, title: t.val2, sub: t.val2sub },
+    { icon: <Banknote className="size-5" />, title: t.val3, sub: t.val3sub },
+  ];
+
   const steps = [
     { icon: <PackagePlus className="size-[17px]" />, title: t.step1, sub: t.step1sub },
     { icon: <Share2 className="size-[17px]" />, title: t.step2, sub: t.step2sub },
@@ -38,53 +48,75 @@ export default async function LandingPage() {
     { icon: <MapPin className="size-5" />, title: t.feat4, sub: t.feat4sub },
   ];
 
-  const trust = [t.trustFree, t.trustNoCard, t.trustLangs, t.trustCod];
+  const faqs = [
+    { q: t.faq1q, a: t.faq1a },
+    { q: t.faq2q, a: t.faq2a },
+    { q: t.faq3q, a: t.faq3a },
+    { q: t.faq4q, a: t.faq4a },
+  ];
+
+  const heroTrust = `${t.trustFree} · ${t.trustNoCard} · ${t.trustLangs}`;
+  const year = new Date().getFullYear();
 
   return (
-    <main className="theme-mahalli sf">
-      <div className="anim-in mx-auto flex min-h-dvh max-w-md flex-col" style={{ padding: "18px 20px 28px", gap: 28 }}>
-        <header className="sf-row sf-between">
-          <Wordmark />
-          <LocaleSwitcher />
-        </header>
-
-        {/* hero unit: hero card + phone peek + explainer + CTA, composed as one block */}
-        <section className="sf-stack" style={{ gap: 0 }}>
-          <div
-            style={{ borderRadius: 30, background: "var(--hero-grad)", padding: "28px 24px 44px", position: "relative", overflow: "hidden", boxShadow: "var(--shadow-md)" }}
-          >
-            <div style={{ position: "absolute", insetInlineEnd: -30, insetBlockStart: -30, width: 160, height: 160, borderRadius: "50%", background: "rgba(255,255,255,.12)" }} />
-            <div style={{ position: "absolute", insetInlineStart: -40, insetBlockEnd: -50, width: 140, height: 140, borderRadius: "50%", background: "rgba(255,255,255,.08)" }} />
-            <span className="hero-eyebrow" style={{ position: "relative" }}>{t.eyebrow}</span>
-            <h1 style={{ position: "relative", margin: 0, color: "var(--hero-ink)", fontSize: 30, fontWeight: 800, lineHeight: 1.18, letterSpacing: "-.02em" }}>
-              {t.headline}
-            </h1>
-            <p style={{ position: "relative", margin: "12px 0 0", color: "rgba(255,255,255,.85)", fontSize: 15, lineHeight: 1.6 }}>
-              {t.sub}
-            </p>
+    <main className="theme-mahalli sf anim-in">
+      {/* sticky nav */}
+      <header className="lp-nav">
+        <div className="lp-inner lp-nav-row">
+          <Wordmark size={20} />
+          <div className="sf-row" style={{ gap: 10 }}>
+            <LocaleSwitcher />
+            <Link href="/signup" className="lp-nav-cta max-[400px]:hidden">{t.getStarted}</Link>
           </div>
+        </div>
+      </header>
 
-          <div className="sf-row" style={{ justifyContent: "center", marginTop: -26, position: "relative", zIndex: 1 }}>
-            <PhoneMock shopName={t.sampleShop} tagline={t.sampleTagline} cta={dict.storefront.shopNow} products={mockProducts} />
+      {/* hero band */}
+      <section className="lp-hero">
+        <div style={{ position: "absolute", insetInlineEnd: -36, insetBlockStart: -36, width: 170, height: 170, borderRadius: "50%", background: "rgba(255,255,255,.12)" }} />
+        <div style={{ position: "absolute", insetInlineStart: -48, insetBlockEnd: -60, width: 150, height: 150, borderRadius: "50%", background: "rgba(255,255,255,.08)" }} />
+        <div className="lp-inner" style={{ position: "relative" }}>
+          <span className="hero-eyebrow">{t.eyebrow}</span>
+          <h1 className="lp-hero-h1">{t.headline}</h1>
+          <p className="lp-hero-sub">{t.sub}</p>
+          <div className="lp-hero-cta">
+            <Link href="/signup" className="btn btn-hero btn-pill">{t.getStarted}</Link>
+            <Link href="/login" className="btn btn-hero-ghost btn-pill">{t.signIn}</Link>
           </div>
+          <p className="lp-hero-trust">{heroTrust}</p>
+        </div>
+      </section>
 
-          <Link href="/signup" className="btn btn-accent btn-pill" style={{ marginTop: 22 }}>
-            {t.getStarted}
-          </Link>
-          <p style={{ textAlign: "center", fontSize: 13.5, marginTop: 10 }}>
-            <Link href="/login" style={{ fontWeight: 700, color: "var(--accent-deep)" }}>{t.signIn}</Link>
-          </p>
-        </section>
+      {/* phone mock — overlaps the hero bottom into the surface below */}
+      <div className="lp-inner sf-row" style={{ justifyContent: "center", marginBlockStart: -44, position: "relative", zIndex: 2 }}>
+        <PhoneMock shopName={t.sampleShop} tagline={t.sampleTagline} cta={dict.storefront.shopNow} products={mockProducts} />
+      </div>
 
-        {/* what is Mahalli — the definition, given a real home */}
-        <section className="card sf-stack" style={{ padding: 18, gap: 6 }}>
-          <span className="eyebrow-accent">{t.whatIsLabel}</span>
-          <p style={{ margin: 0, fontSize: 14.5, lineHeight: 1.6 }}>{t.whatIs}</p>
-        </section>
+      {/* why Mahalli — definition + value strip */}
+      <section className="lp-band">
+        <div className="lp-inner sf-stack" style={{ gap: 20 }}>
+          <div className="sf-stack" style={{ gap: 7 }}>
+            <span className="eyebrow-accent">{t.whatIsLabel}</span>
+            <p style={{ margin: 0, fontSize: 15, lineHeight: 1.6 }}>{t.whatIs}</p>
+          </div>
+          <div className="lp-values">
+            {values.map((v, i) => (
+              <div key={i} className="val">
+                <span className="val-ic">{v.icon}</span>
+                <div className="sf-stack" style={{ gap: 2, minWidth: 0 }}>
+                  <span style={{ fontWeight: 800, fontSize: 15 }}>{v.title}</span>
+                  <span className="muted" style={{ fontSize: 13, lineHeight: 1.5 }}>{v.sub}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-        {/* how it works — connected numbered timeline */}
-        <section className="sf-stack" style={{ gap: 16 }}>
-          <h2 style={{ margin: 0, fontSize: 19, fontWeight: 800, letterSpacing: "-.01em" }}>{t.how}</h2>
+      {/* how it works — tinted band, connected numbered timeline */}
+      <section className="lp-band lp-band-tint">
+        <div className="lp-inner sf-stack" style={{ gap: 16 }}>
+          <h2 className="lp-h2">{t.how}</h2>
           <ol className="steps">
             {steps.map((s, i) => (
               <li key={i} className="step">
@@ -101,11 +133,13 @@ export default async function LandingPage() {
               </li>
             ))}
           </ol>
-        </section>
+        </div>
+      </section>
 
-        {/* features */}
-        <section className="sf-stack" style={{ gap: 16 }}>
-          <h2 style={{ margin: 0, fontSize: 19, fontWeight: 800, letterSpacing: "-.01em" }}>{t.featuresTitle}</h2>
+      {/* features */}
+      <section className="lp-band">
+        <div className="lp-inner sf-stack" style={{ gap: 16 }}>
+          <h2 className="lp-h2">{t.featuresTitle}</h2>
           <div className="sf-grid2" style={{ gap: 12 }}>
             {features.map((f, i) => (
               <div key={i} className="card feat-card">
@@ -117,27 +151,51 @@ export default async function LandingPage() {
               </div>
             ))}
           </div>
-        </section>
-
-        {/* trust */}
-        <div className="sf-row" style={{ gap: 8, flexWrap: "wrap", justifyContent: "center" }}>
-          {trust.map((label) => (
-            <span key={label} className="pill pill-neutral">{label}</span>
-          ))}
         </div>
+      </section>
 
-        {/* closing CTA */}
-        <div className="card sf-stack" style={{ padding: 20, gap: 12, alignItems: "center", textAlign: "center" }}>
-          <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>{t.closingTitle}</h2>
-          <p className="muted" style={{ margin: 0, fontSize: 13.5, lineHeight: 1.5 }}>{t.closingSub}</p>
-          <Link href="/signup" className="btn btn-accent btn-pill">{t.getStarted}</Link>
-          <Link href="/login" className="btn btn-ghost btn-pill" style={{ height: 44 }}>{t.signIn}</Link>
+      {/* FAQ — tinted band, native disclosures */}
+      <section className="lp-band lp-band-tint">
+        <div className="lp-inner sf-stack" style={{ gap: 16 }}>
+          <h2 className="lp-h2">{t.faqTitle}</h2>
+          <div className="faq">
+            {faqs.map((f, i) => (
+              <details key={i} className="faq-item">
+                <summary>
+                  {f.q}
+                  <ChevronDown className="faq-chev size-[18px]" />
+                </summary>
+                <p className="faq-a">{f.a}</p>
+              </details>
+            ))}
+          </div>
         </div>
+      </section>
 
-        <footer className="muted" style={{ textAlign: "center", fontSize: 12 }}>
-          {dict.meta.appName} · {dict.meta.tagline}
-        </footer>
-      </div>
+      {/* closing CTA band */}
+      <section className="lp-band-cta">
+        <div style={{ position: "absolute", insetInlineEnd: -40, insetBlockStart: -40, width: 150, height: 150, borderRadius: "50%", background: "rgba(255,255,255,.10)" }} />
+        <div className="lp-inner sf-stack" style={{ gap: 13, alignItems: "center", textAlign: "center", position: "relative" }}>
+          <h2 style={{ margin: 0, fontSize: 22, fontWeight: 800, letterSpacing: "-.01em", color: "#fff" }}>{t.closingTitle}</h2>
+          <p style={{ margin: 0, fontSize: 14, lineHeight: 1.55, color: "rgba(255,255,255,.85)" }}>{t.closingSub}</p>
+          <Link href="/signup" className="btn btn-hero btn-pill" style={{ marginBlockStart: 6 }}>{t.getStarted}</Link>
+          <Link href="/login" className="btn btn-hero-ghost btn-pill">{t.signIn}</Link>
+        </div>
+      </section>
+
+      {/* footer */}
+      <footer className="lp-footer">
+        <div className="lp-inner sf-stack" style={{ gap: 14, alignItems: "center", textAlign: "center" }}>
+          <Wordmark size={20} />
+          <p className="muted" style={{ margin: 0, fontSize: 13 }}>{dict.meta.tagline}</p>
+          <div className="lp-footer-links">
+            <Link href="/login" style={{ color: "var(--accent-deep)" }}>{t.signIn}</Link>
+            <Link href="/signup" style={{ color: "var(--accent-deep)" }}>{t.getStarted}</Link>
+          </div>
+          <LocaleSwitcher />
+          <p className="muted" style={{ margin: 0, fontSize: 11.5 }}>© {year} {dict.meta.appName}</p>
+        </div>
+      </footer>
     </main>
   );
 }
