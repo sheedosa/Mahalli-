@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 400" fill="none" role="img" aria-label="Pearl scarf">
+  <defs>
+    <linearGradient id="sc-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f7e9f0"/>
+      <stop offset="1" stop-color="#ecd6e3"/>
+    </linearGradient>
+    <linearGradient id="sc-silk" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f6ead8"/>
+      <stop offset="1" stop-color="#e6d2b9"/>
+    </linearGradient>
+    <radialGradient id="sc-pearl" cx="0.35" cy="0.3" r="0.8">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#e9dce6"/>
+    </radialGradient>
+  </defs>
+  <rect width="300" height="400" fill="url(#sc-bg)"/>
+  <ellipse cx="150" cy="332" rx="84" ry="14" fill="#7c5a72" opacity="0.08"/>
+  <!-- folded silk bands -->
+  <g>
+    <rect x="92" y="150" width="116" height="30" rx="15" fill="url(#sc-silk)"/>
+    <rect x="86" y="186" width="128" height="30" rx="15" fill="url(#sc-silk)"/>
+    <rect x="90" y="222" width="120" height="30" rx="15" fill="url(#sc-silk)"/>
+    <rect x="96" y="258" width="108" height="30" rx="15" fill="url(#sc-silk)"/>
+  </g>
+  <!-- fold shadows -->
+  <g stroke="#cdb795" stroke-width="2" opacity="0.5">
+    <path d="M96 180 L204 180"/><path d="M90 216 L210 216"/><path d="M94 252 L206 252"/>
+  </g>
+  <!-- silk sheen -->
+  <path d="M120 150 L130 150 L126 288 L116 288 Z" fill="#ffffff" opacity="0.30"/>
+  <!-- pearl strand -->
+  <g fill="url(#sc-pearl)" stroke="#d8c6d4" stroke-width="0.5">
+    <circle cx="112" cy="300" r="6"/><circle cx="128" cy="304" r="6"/><circle cx="144" cy="306" r="6"/>
+    <circle cx="160" cy="306" r="6"/><circle cx="176" cy="304" r="6"/><circle cx="192" cy="300" r="6"/>
+  </g>
+</svg>

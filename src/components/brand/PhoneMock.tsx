@@ -1,6 +1,6 @@
 import { Store } from "lucide-react";
 
-export type MockProduct = { name: string; price: string; tone: string };
+export type MockProduct = { name: string; price: string; img: string };
 
 /** A stylized mini-storefront in a phone frame — pure markup, no data. Shows
  *  visitors "this is a shop app" at a glance. Themed pink (blush). */
@@ -34,7 +34,7 @@ export function PhoneMock({
         <div style={{ margin: "9px 13px 0", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
           {products.map((p, i) => (
             <div key={i} style={{ borderRadius: 12, background: "var(--card)", boxShadow: "var(--shadow-sm)", overflow: "hidden" }}>
-              <div style={{ aspectRatio: "3 / 4", background: p.tone }} />
+              <div style={{ aspectRatio: "3 / 4", backgroundColor: "var(--accent-soft)", backgroundImage: `url(${p.img})`, backgroundSize: "cover", backgroundPosition: "center" }} />
               <div style={{ padding: "6px 8px 8px", display: "flex", flexDirection: "column", gap: 2 }}>
                 <span style={{ fontWeight: 700, fontSize: 10.5, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</span>
                 <span style={{ fontWeight: 800, fontSize: 11, color: "var(--accent-deep)" }}>{p.price}</span>

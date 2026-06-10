@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 400" fill="none" role="img" aria-label="Summer dress">
+  <defs>
+    <linearGradient id="dr-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fdeef3"/>
+      <stop offset="1" stop-color="#f8dbe6"/>
+    </linearGradient>
+    <linearGradient id="dr-cloth" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f7bdd0"/>
+      <stop offset="1" stop-color="#ec96b5"/>
+    </linearGradient>
+  </defs>
+  <rect width="300" height="400" fill="url(#dr-bg)"/>
+  <ellipse cx="150" cy="338" rx="74" ry="13" fill="#a85275" opacity="0.08"/>
+  <!-- straps -->
+  <path d="M126 80 L138 100 M174 80 L162 100" stroke="#ec96b5" stroke-width="6" stroke-linecap="round"/>
+  <!-- bodice + A-line skirt -->
+  <path d="M138 98 L162 98 L170 168 L210 322 C188 336 112 336 90 322 L130 168 Z" fill="url(#dr-cloth)"/>
+  <!-- waist tie -->
+  <path d="M128 166 L172 166 L171 178 L129 178 Z" fill="#d76e95"/>
+  <!-- sheen -->
+  <path d="M150 100 L150 332 L132 322 L142 168 Z" fill="#ffffff" opacity="0.12"/>
+  <!-- floral dots -->
+  <g fill="#d76e95" opacity="0.85">
+    <circle cx="120" cy="212" r="4"/><circle cx="150" cy="236" r="4"/><circle cx="182" cy="222" r="4"/>
+    <circle cx="134" cy="268" r="4"/><circle cx="170" cy="282" r="4"/><circle cx="110" cy="296" r="4"/>
+    <circle cx="150" cy="306" r="4"/><circle cx="192" cy="296" r="4"/>
+  </g>
+  <g fill="#fff" opacity="0.55">
+    <circle cx="120" cy="212" r="1.4"/><circle cx="150" cy="236" r="1.4"/><circle cx="182" cy="222" r="1.4"/>
+    <circle cx="134" cy="268" r="1.4"/><circle cx="170" cy="282" r="1.4"/><circle cx="150" cy="306" r="1.4"/>
+  </g>
+</svg>

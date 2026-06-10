@@ -19,10 +19,10 @@ export default async function LandingPage() {
   const t = dict.landing;
 
   const mockProducts = [
-    { name: t.mock1, price: formatPrice(250, locale), tone: "linear-gradient(135deg,#f9d6e1,#f1b2cb)" },
-    { name: t.mock2, price: formatPrice(140, locale), tone: "linear-gradient(135deg,#f3c7d7,#e79ab6)" },
-    { name: t.mock3, price: formatPrice(320, locale), tone: "linear-gradient(135deg,#efe3cf,#e2cba9)" },
-    { name: t.mock4, price: formatPrice(60, locale), tone: "linear-gradient(135deg,#e8d3ef,#d2ade1)" },
+    { name: t.mock1, price: formatPrice(250, locale), img: "/brand/mock/abaya.svg" },
+    { name: t.mock2, price: formatPrice(140, locale), img: "/brand/mock/dress.svg" },
+    { name: t.mock3, price: formatPrice(320, locale), img: "/brand/mock/bag.svg" },
+    { name: t.mock4, price: formatPrice(60, locale), img: "/brand/mock/scarf.svg" },
   ];
 
   const steps = [

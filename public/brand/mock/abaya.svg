@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 400" fill="none" role="img" aria-label="Silk abaya">
+  <defs>
+    <linearGradient id="ab-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fce7ef"/>
+      <stop offset="1" stop-color="#f4cfdf"/>
+    </linearGradient>
+    <linearGradient id="ab-robe" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d98fab"/>
+      <stop offset="1" stop-color="#b56b8a"/>
+    </linearGradient>
+  </defs>
+  <rect width="300" height="400" fill="url(#ab-bg)"/>
+  <ellipse cx="150" cy="360" rx="94" ry="15" fill="#7a3a55" opacity="0.08"/>
+  <!-- sleeves -->
+  <path d="M110 92 L70 214 L98 220 L126 122 Z" fill="url(#ab-robe)"/>
+  <path d="M190 92 L230 214 L202 220 L174 122 Z" fill="url(#ab-robe)"/>
+  <!-- robe body -->
+  <path d="M150 70 C169 70 183 77 192 90 L176 124 L188 206 L214 350 L150 362 L86 350 L112 206 L124 124 L108 90 C117 77 131 70 150 70 Z" fill="url(#ab-robe)"/>
+  <!-- silk sheen -->
+  <path d="M138 124 L150 120 L150 358 L132 352 Z" fill="#ffffff" opacity="0.10"/>
+  <!-- center seam + neckline -->
+  <path d="M150 98 L150 358" stroke="#8f4d68" stroke-width="2" opacity="0.45"/>
+  <path d="M132 80 C140 95 160 95 168 80" stroke="#8f4d68" stroke-width="3" fill="none" opacity="0.55"/>
+</svg>
