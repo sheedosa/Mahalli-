@@ -1,12 +1,12 @@
 import Link from "next/link";
 import {
-  Globe,
-  Link2,
+  ClipboardList,
+  MapPin,
   MessageCircle,
-  Package,
+  PackagePlus,
+  Share2,
   ShoppingBag,
   Store,
-  Users,
 } from "lucide-react";
 import { getI18n } from "@/i18n";
 import { formatPrice } from "@/lib/utils";
@@ -26,16 +26,16 @@ export default async function LandingPage() {
   ];
 
   const steps = [
-    { icon: <Package className="size-[18px]" />, title: t.step1, sub: t.step1sub },
-    { icon: <Link2 className="size-[18px]" />, title: t.step2, sub: t.step2sub },
-    { icon: <ShoppingBag className="size-[18px]" />, title: t.step3, sub: t.step3sub },
+    { icon: <PackagePlus className="size-[17px]" />, title: t.step1, sub: t.step1sub },
+    { icon: <Share2 className="size-[17px]" />, title: t.step2, sub: t.step2sub },
+    { icon: <ShoppingBag className="size-[17px]" />, title: t.step3, sub: t.step3sub },
   ];
 
   const features = [
     { icon: <Store className="size-5" />, title: t.feat1, sub: t.feat1sub },
-    { icon: <Users className="size-5" />, title: t.feat2, sub: t.feat2sub },
+    { icon: <ClipboardList className="size-5" />, title: t.feat2, sub: t.feat2sub },
     { icon: <MessageCircle className="size-5" />, title: t.feat3, sub: t.feat3sub },
-    { icon: <Globe className="size-5" />, title: t.feat4, sub: t.feat4sub },
+    { icon: <MapPin className="size-5" />, title: t.feat4, sub: t.feat4sub },
   ];
 
   const trust = [t.trustFree, t.trustNoCard, t.trustLangs, t.trustCod];
@@ -82,32 +82,34 @@ export default async function LandingPage() {
           <p style={{ margin: 0, fontSize: 14.5, lineHeight: 1.6 }}>{t.whatIs}</p>
         </section>
 
-        {/* how it works */}
-        <section className="sf-stack" style={{ gap: 14 }}>
+        {/* how it works — connected numbered timeline */}
+        <section className="sf-stack" style={{ gap: 16 }}>
           <h2 style={{ margin: 0, fontSize: 19, fontWeight: 800, letterSpacing: "-.01em" }}>{t.how}</h2>
-          <div className="sf-stack" style={{ gap: 13 }}>
+          <ol className="steps">
             {steps.map((s, i) => (
-              <div key={i} className="sf-row" style={{ gap: 13 }}>
-                <span style={{ position: "relative", width: 44, height: 44, flex: "none", borderRadius: 14, background: "var(--accent-soft)", color: "var(--accent-deep)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  {s.icon}
-                  <span style={{ position: "absolute", insetInlineStart: -5, insetBlockStart: -5, width: 20, height: 20, borderRadius: "50%", background: "var(--accent)", color: "var(--accent-ink)", fontSize: 11, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center" }}>{i + 1}</span>
-                </span>
-                <div className="sf-stack" style={{ gap: 2, flex: 1, minWidth: 0 }}>
-                  <span style={{ fontWeight: 800, fontSize: 15 }}>{s.title}</span>
+              <li key={i} className="step">
+                <div className="step-rail">
+                  <span className="step-num">{i + 1}</span>
+                </div>
+                <div className="step-body">
+                  <span className="step-head">
+                    <span className="step-ic">{s.icon}</span>
+                    <span style={{ fontWeight: 800, fontSize: 15 }}>{s.title}</span>
+                  </span>
                   <span className="muted" style={{ fontSize: 13, lineHeight: 1.5 }}>{s.sub}</span>
                 </div>
-              </div>
+              </li>
             ))}
-          </div>
+          </ol>
         </section>
 
         {/* features */}
-        <section className="sf-stack" style={{ gap: 14 }}>
+        <section className="sf-stack" style={{ gap: 16 }}>
           <h2 style={{ margin: 0, fontSize: 19, fontWeight: 800, letterSpacing: "-.01em" }}>{t.featuresTitle}</h2>
           <div className="sf-grid2" style={{ gap: 12 }}>
             {features.map((f, i) => (
-              <div key={i} className="card" style={{ padding: 15, display: "flex", flexDirection: "column", gap: 9 }}>
-                <span style={{ width: 38, height: 38, borderRadius: 11, background: "var(--accent-soft)", color: "var(--accent-deep)", display: "flex", alignItems: "center", justifyContent: "center" }}>{f.icon}</span>
+              <div key={i} className="card feat-card">
+                <span className="feat-ic">{f.icon}</span>
                 <div className="sf-stack" style={{ gap: 3 }}>
                   <span style={{ fontWeight: 800, fontSize: 14.5 }}>{f.title}</span>
                   <span className="muted" style={{ fontSize: 12.5, lineHeight: 1.5 }}>{f.sub}</span>
