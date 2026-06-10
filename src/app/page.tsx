@@ -55,6 +55,7 @@ export default async function LandingPage() {
           >
             <div style={{ position: "absolute", insetInlineEnd: -30, insetBlockStart: -30, width: 160, height: 160, borderRadius: "50%", background: "rgba(255,255,255,.12)" }} />
             <div style={{ position: "absolute", insetInlineStart: -40, insetBlockEnd: -50, width: 140, height: 140, borderRadius: "50%", background: "rgba(255,255,255,.08)" }} />
+            <span className="hero-eyebrow" style={{ position: "relative" }}>{t.eyebrow}</span>
             <h1 style={{ position: "relative", margin: 0, color: "var(--hero-ink)", fontSize: 30, fontWeight: 800, lineHeight: 1.18, letterSpacing: "-.02em" }}>
               {t.headline}
             </h1>
@@ -67,16 +68,18 @@ export default async function LandingPage() {
             <PhoneMock shopName={t.sampleShop} tagline={t.sampleTagline} cta={dict.storefront.shopNow} products={mockProducts} />
           </div>
 
-          <p className="muted" style={{ margin: "16px 6px 0", fontSize: 14.5, lineHeight: 1.65, textAlign: "center" }}>
-            {t.whatIs}
-          </p>
-
-          <Link href="/signup" className="btn btn-accent btn-pill" style={{ marginTop: 16 }}>
+          <Link href="/signup" className="btn btn-accent btn-pill" style={{ marginTop: 22 }}>
             {t.getStarted}
           </Link>
           <p style={{ textAlign: "center", fontSize: 13.5, marginTop: 10 }}>
             <Link href="/login" style={{ fontWeight: 700, color: "var(--accent-deep)" }}>{t.signIn}</Link>
           </p>
+        </section>
+
+        {/* what is Mahalli — the definition, given a real home */}
+        <section className="card sf-stack" style={{ padding: 18, gap: 6 }}>
+          <span className="eyebrow-accent">{t.whatIsLabel}</span>
+          <p style={{ margin: 0, fontSize: 14.5, lineHeight: 1.6 }}>{t.whatIs}</p>
         </section>
 
         {/* how it works */}
@@ -124,6 +127,7 @@ export default async function LandingPage() {
         {/* closing CTA */}
         <div className="card sf-stack" style={{ padding: 20, gap: 12, alignItems: "center", textAlign: "center" }}>
           <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>{t.closingTitle}</h2>
+          <p className="muted" style={{ margin: 0, fontSize: 13.5, lineHeight: 1.5 }}>{t.closingSub}</p>
           <Link href="/signup" className="btn btn-accent btn-pill">{t.getStarted}</Link>
           <Link href="/login" className="btn btn-ghost btn-pill" style={{ height: 44 }}>{t.signIn}</Link>
         </div>

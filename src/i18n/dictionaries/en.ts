@@ -140,12 +140,14 @@ const en = {
     broadcastsBody: "Reach repeat customers with a message. (Growth plan)",
   },
   landing: {
+    eyebrow: "For shops on Instagram, WhatsApp and Facebook",
     headline: "Your shop, in your pocket",
-    sub: "Add products, share one link, and take orders wherever your customers find you.",
+    sub: "One link for your whole shop, so no more scattered DMs, screenshots or lost orders.",
     getStarted: "Get started",
     signIn: "Sign in",
+    whatIsLabel: "What is Mahalli?",
     whatIs:
-      "Mahalli turns your phone into a complete shop — list your products, share one link, and manage every order in one place.",
+      "A complete shop on your phone. Add your products, share one link, and handle every order in one place.",
     sampleShop: "Layla Boutique",
     sampleTagline: "New season arrivals",
     mock1: "Silk abaya",
@@ -154,7 +156,7 @@ const en = {
     mock4: "Pearl scarf",
     how: "How it works",
     step1: "Add your products",
-    step1sub: "Photos, prices and stock — in minutes.",
+    step1sub: "Photos, prices and stock, ready in minutes.",
     step2: "Share your shop link",
     step2sub: "On WhatsApp, your bio, anywhere your customers are.",
     step3: "Take orders",
@@ -173,6 +175,7 @@ const en = {
     trustLangs: "العربية & English",
     trustCod: "Cash on delivery",
     closingTitle: "Ready to open your shop?",
+    closingSub: "Free to start, no card needed. You can be live today.",
   },
   products: {
     title: "Products",
