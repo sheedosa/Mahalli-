@@ -8,14 +8,14 @@ export function PhoneMock({ shopName }: { shopName: string }) {
     <div className="phone" aria-hidden>
       <div className="phone-screen theme-cream sf">
         <div className="phone-notch" />
-        <div style={{ padding: "12px 14px 5px", display: "flex", alignItems: "center", gap: 6 }}>
+        <div style={{ padding: "13px 13px 6px", display: "flex", alignItems: "center", gap: 6 }}>
           <Store className="size-4" style={{ color: "var(--accent-deep)" }} />
-          <span style={{ fontWeight: 800, fontSize: 13.5 }}>{shopName}</span>
+          <span style={{ fontWeight: 800, fontSize: 13 }}>{shopName}</span>
         </div>
-        <div style={{ margin: "0 14px", height: 46, borderRadius: 14, background: "var(--hero-grad)", position: "relative", overflow: "hidden" }}>
+        <div style={{ margin: "0 13px", height: 52, borderRadius: 13, background: "var(--hero-grad)", position: "relative", overflow: "hidden" }}>
           <div style={{ position: "absolute", insetInlineEnd: -12, insetBlockStart: -12, width: 46, height: 46, borderRadius: "50%", background: "rgba(255,255,255,.14)" }} />
         </div>
-        <div style={{ margin: "9px 14px 0", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 9 }}>
+        <div style={{ margin: "9px 13px 0", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} style={{ borderRadius: 12, background: "var(--card)", boxShadow: "var(--shadow-sm)", overflow: "hidden" }}>
               <div style={{ aspectRatio: "3 / 4", background: "var(--surface-2)" }} />
