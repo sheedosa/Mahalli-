@@ -308,7 +308,7 @@ textarea.input { height: auto; min-height: 96px; padding-block: 13px; resize: no
 
 /* landing phone mock — a cropped "screen peek" (fades out at the bottom) */
 .phone { width: 196px; border-radius: 34px; background: linear-gradient(160deg,#1c1f24,#0d0f12); padding: 8px; box-shadow: 0 24px 50px rgba(20,24,20,.28), 0 6px 16px rgba(0,0,0,.18); }
-.phone-screen { position: relative; height: 330px; border-radius: 27px; overflow: hidden; }
+.phone-screen { position: relative; height: 330px; min-height: 0; border-radius: 27px; overflow: hidden; }
 .phone-notch { position: absolute; inset-block-start: 8px; inset-inline-start: 50%; transform: translateX(-50%); width: 56px; height: 5px; border-radius: 99px; background: rgba(255,255,255,.5); z-index: 2; }
 .phone-fade { position: absolute; inset-inline: 0; inset-block-end: 0; height: 34px; background: linear-gradient(to bottom, transparent, var(--surface)); pointer-events: none; z-index: 1; }
 .divider { height: 1px; background: var(--line); }
