@@ -9,13 +9,21 @@ import {
   Users,
 } from "lucide-react";
 import { getI18n } from "@/i18n";
+import { formatPrice } from "@/lib/utils";
 import { LocaleSwitcher } from "@/components/LocaleSwitcher";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { PhoneMock } from "@/components/brand/PhoneMock";
 
 export default async function LandingPage() {
-  const { dict } = await getI18n();
+  const { dict, locale } = await getI18n();
   const t = dict.landing;
+
+  const mockProducts = [
+    { name: t.mock1, price: formatPrice(250, locale), tone: "linear-gradient(135deg,#f9d6e1,#f1b2cb)" },
+    { name: t.mock2, price: formatPrice(140, locale), tone: "linear-gradient(135deg,#f3c7d7,#e79ab6)" },
+    { name: t.mock3, price: formatPrice(320, locale), tone: "linear-gradient(135deg,#efe3cf,#e2cba9)" },
+    { name: t.mock4, price: formatPrice(60, locale), tone: "linear-gradient(135deg,#e8d3ef,#d2ade1)" },
+  ];
 
   const steps = [
     { icon: <Package className="size-[18px]" />, title: t.step1, sub: t.step1sub },
@@ -56,7 +64,7 @@ export default async function LandingPage() {
           </div>
 
           <div className="sf-row" style={{ justifyContent: "center", marginTop: -26, position: "relative", zIndex: 1 }}>
-            <PhoneMock shopName={t.sampleShop} />
+            <PhoneMock shopName={t.sampleShop} products={mockProducts} />
           </div>
 
           <p className="muted" style={{ margin: "16px 6px 0", fontSize: 14.5, lineHeight: 1.65, textAlign: "center" }}>

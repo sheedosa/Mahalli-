@@ -147,6 +147,10 @@ const en = {
     whatIs:
       "Mahalli turns your phone into a complete shop — list your products, share one link, and manage every order in one place.",
     sampleShop: "Layla Boutique",
+    mock1: "Silk abaya",
+    mock2: "Summer dress",
+    mock3: "Leather bag",
+    mock4: "Pearl scarf",
     how: "How it works",
     step1: "Add your products",
     step1sub: "Photos, prices and stock — in minutes.",
