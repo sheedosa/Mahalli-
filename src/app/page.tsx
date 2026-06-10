@@ -64,7 +64,7 @@ export default async function LandingPage() {
           </div>
 
           <div className="sf-row" style={{ justifyContent: "center", marginTop: -26, position: "relative", zIndex: 1 }}>
-            <PhoneMock shopName={t.sampleShop} products={mockProducts} />
+            <PhoneMock shopName={t.sampleShop} tagline={t.sampleTagline} cta={dict.storefront.shopNow} products={mockProducts} />
           </div>
 
           <p className="muted" style={{ margin: "16px 6px 0", fontSize: 14.5, lineHeight: 1.65, textAlign: "center" }}>

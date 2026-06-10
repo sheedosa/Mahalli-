@@ -6,9 +6,13 @@ export type MockProduct = { name: string; price: string; tone: string };
  *  visitors "this is a shop app" at a glance. Themed pink (blush). */
 export function PhoneMock({
   shopName,
+  tagline,
+  cta,
   products,
 }: {
   shopName: string;
+  tagline: string;
+  cta: string;
   products: MockProduct[];
 }) {
   return (
@@ -19,8 +23,13 @@ export function PhoneMock({
           <Store className="size-4" style={{ color: "var(--accent-deep)" }} />
           <span style={{ fontWeight: 800, fontSize: 13 }}>{shopName}</span>
         </div>
-        <div style={{ margin: "0 13px", height: 52, borderRadius: 13, background: "var(--hero-grad)", position: "relative", overflow: "hidden" }}>
-          <div style={{ position: "absolute", insetInlineEnd: -12, insetBlockStart: -12, width: 46, height: 46, borderRadius: "50%", background: "rgba(255,255,255,.16)" }} />
+        {/* hero with shop headline + CTA */}
+        <div style={{ margin: "0 13px", height: 66, borderRadius: 13, background: "var(--hero-grad)", position: "relative", overflow: "hidden", boxShadow: "var(--shadow-sm)" }}>
+          <div style={{ position: "absolute", insetInlineEnd: -12, insetBlockStart: -12, width: 48, height: 48, borderRadius: "50%", background: "rgba(255,255,255,.16)" }} />
+          <div style={{ position: "relative", height: "100%", padding: "0 13px", display: "flex", flexDirection: "column", justifyContent: "center", gap: 5 }}>
+            <span style={{ color: "#fff", fontWeight: 800, fontSize: 13, lineHeight: 1.12, letterSpacing: "-.01em" }}>{tagline}</span>
+            <span style={{ alignSelf: "flex-start", background: "rgba(255,255,255,.92)", color: "var(--accent-deep)", fontSize: 9, fontWeight: 800, padding: "3px 9px", borderRadius: 99 }}>{cta}</span>
+          </div>
         </div>
         <div style={{ margin: "9px 13px 0", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
           {products.map((p, i) => (
