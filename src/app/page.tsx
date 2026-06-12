@@ -18,6 +18,15 @@ import { LocaleSwitcher } from "@/components/LocaleSwitcher";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { PhoneMock } from "@/components/brand/PhoneMock";
 
+export async function generateMetadata() {
+  const { dict } = await getI18n();
+  return {
+    // absolute: skip the "%s · Mahalli" template (would duplicate the brand)
+    title: { absolute: `${dict.meta.appName} — ${dict.meta.tagline}` },
+    description: dict.landing.whatIs,
+  };
+}
+
 export default async function LandingPage() {
   const { dict, locale } = await getI18n();
   const t = dict.landing;

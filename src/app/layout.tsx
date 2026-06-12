@@ -24,20 +24,20 @@ export const metadata: Metadata = {
   },
   appleWebApp: { capable: true, statusBarStyle: "default", title: "Mahalli" },
   formatDetection: { telephone: false },
+  // og:image comes from the opengraph-image.tsx file conventions (generated
+  // at the edge via next/og) — no static binary asset to keep in sync.
   openGraph: {
     type: "website",
     siteName: "Mahalli",
     title: "Mahalli — Run your shop from your phone",
     description:
       "Run your shop from your phone: products, orders, customers and a shop link.",
-    images: [{ url: "/brand/og.png", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Mahalli — Run your shop from your phone",
     description:
       "Run your shop from your phone: products, orders, customers and a shop link.",
-    images: ["/brand/og.png"],
   },
 };
 

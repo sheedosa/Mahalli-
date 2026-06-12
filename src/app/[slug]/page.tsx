@@ -36,8 +36,31 @@ export default async function StorefrontPage({
   const sf = data as unknown as StorefrontData | null;
   if (!sf) notFound();
 
+  // Structured data: local store + its product list (search engines, rich cards).
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Store",
+    name: sf.shop.name,
+    ...(sf.shop.city ? { address: { "@type": "PostalAddress", addressLocality: sf.shop.city } } : {}),
+    ...(sf.shop.contact_phone ? { telephone: sf.shop.contact_phone } : {}),
+    makesOffer: sf.products.slice(0, 20).map((p) => ({
+      "@type": "Offer",
+      itemOffered: { "@type": "Product", name: p.name },
+      price: p.price,
+      priceCurrency: "LYD",
+      availability:
+        p.stock > 0 || p.variants.some((v) => v.stock > 0)
+          ? "https://schema.org/InStock"
+          : "https://schema.org/OutOfStock",
+    })),
+  };
+
   return (
     <ToastProvider>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <StorefrontApp shop={sf.shop} products={sf.products} slug={slug} />
     </ToastProvider>
   );
