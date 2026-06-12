@@ -30,13 +30,13 @@ const TEMPLATES: Record<NotifyLocale, Record<NotifyType, (d: NotifyData) => stri
   },
   ar: {
     order_placed: (d) =>
-      `أهلين ${d.buyerName || ""}، شكراً على طلبك من ${d.shopName}! استلمنا طلبك ${d.orderRef} بقيمة ${d.total} وحنأكّدوه قريب.`,
+      `مرحباً ${d.buyerName || ""}، شكراً لطلبك من ${d.shopName}. استلمنا طلبك ${d.orderRef} بقيمة ${d.total}، وسنؤكّده قريباً.`,
     order_confirmed: (d) =>
-      `خبر حلو${d.buyerName ? ` يا ${d.buyerName}` : ""}! ${d.shopName} أكّد طلبك ${d.orderRef} وقاعدين نجهّزوه.`,
+      `أخبار سعيدة${d.buyerName ? ` يا ${d.buyerName}` : ""}! أكّد ${d.shopName} طلبك ${d.orderRef}، ونجهّزه الآن.`,
     order_out: (d) =>
-      `طلبك ${d.orderRef} من ${d.shopName} في الطريق إليك. نشوفك قريب!`,
+      `طلبك ${d.orderRef} من ${d.shopName} في الطريق إليك. نراك قريباً!`,
     order_delivered: (d) =>
-      `طلبك ${d.orderRef} من ${d.shopName} توصّل. شكراً على ثقتك فينا! 🤍`,
+      `طلبك ${d.orderRef} من ${d.shopName} وصل. شكراً لثقتك بنا! 🤍`,
   },
 };
 
