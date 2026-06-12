@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { getSellerContext } from "@/lib/auth";
+import { drainOutboxSoon } from "@/lib/jobs/drain";
 
 const statusEnum = z.enum([
   "new",
@@ -37,6 +38,7 @@ export async function updateOrderStatus(
   revalidatePath(`/orders/${orderId}`);
   revalidatePath("/dashboard");
   revalidatePath(`/${ctx.seller.slug}`); // stock changed → refresh storefront
+  drainOutboxSoon(); // send the status notification without waiting for cron
   return { ok: true };
 }
 
@@ -116,5 +118,6 @@ export async function createManualOrder(payload: {
   revalidatePath("/orders");
   revalidatePath("/customers");
   revalidatePath("/dashboard");
+  drainOutboxSoon(); // send the order-placed notification without waiting for cron
   redirect(`/orders/${data}`);
 }

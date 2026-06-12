@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { createPublicClient } from "@/lib/supabase/public";
+import { drainOutboxSoon } from "@/lib/jobs/drain";
 import type { CartLineInput } from "@/types/storefront";
 
 export type OrderResult =
@@ -69,6 +70,7 @@ export async function submitOrder(payload: {
     return { ok: false, errorKey: "generic" };
   }
 
+  drainOutboxSoon(); // send the order-placed notification without waiting for cron
   return { ok: true, ref: String(data).slice(0, 8).toUpperCase() };
 }
 

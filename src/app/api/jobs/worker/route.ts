@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { runWorker } from "@/lib/jobs/worker";
-import { log } from "@/lib/log";
+import { log, newRequestId } from "@/lib/log";
 
 // Service-role work; never statically optimized.
 export const dynamic = "force-dynamic";
@@ -20,12 +20,15 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
+  const rid = newRequestId();
+  const rlog = log.child({ rid });
   try {
     const result = await runWorker(10);
-    return NextResponse.json(result);
+    rlog.info("worker.run", result);
+    return NextResponse.json({ ...result, rid });
   } catch (err) {
     const message = err instanceof Error ? err.message : "worker failed";
-    log.error("worker.route_error", { error: message });
-    return NextResponse.json({ error: message }, { status: 500 });
+    rlog.error("worker.route_error", { error: message });
+    return NextResponse.json({ error: message, rid }, { status: 500 });
   }
 }
