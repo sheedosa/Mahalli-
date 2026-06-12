@@ -1,6 +1,7 @@
 import { getI18n } from "@/i18n";
 import { getSellerContext } from "@/lib/auth";
 import { SettingsForm } from "@/components/settings/SettingsForm";
+import { AccountCard } from "@/components/settings/AccountCard";
 
 export default async function SettingsPage() {
   const ctx = await getSellerContext();
@@ -31,6 +32,9 @@ export default async function SettingsPage() {
         }}
         notifyPrefs={notifyPrefs}
       />
+      <div style={{ padding: "16px 18px 0" }}>
+        <AccountCard email={ctx.user.email ?? ""} />
+      </div>
     </div>
   );
 }

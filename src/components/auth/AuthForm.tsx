@@ -13,6 +13,12 @@ export function AuthForm({ mode }: { mode: "signin" | "signup" }) {
   const t = dict.auth;
   const searchParams = useSearchParams();
   const next = searchParams.get("next") ?? "";
+  const notice =
+    searchParams.get("reason") === "expired"
+      ? t.sessionExpired
+      : searchParams.get("error") === "auth"
+        ? t.linkInvalid
+        : undefined;
 
   const action = mode === "signin" ? signIn : signUp;
   const [state, formAction] = useActionState<AuthState, FormData>(action, {});
@@ -41,6 +47,15 @@ export function AuthForm({ mode }: { mode: "signin" | "signup" }) {
         </p>
       </div>
 
+      {notice && (
+        <div
+          role="status"
+          style={{ background: "var(--warning-soft)", color: "#b45309", padding: "12px 16px", borderRadius: 14, fontSize: 13.5, fontWeight: 600 }}
+        >
+          {notice}
+        </div>
+      )}
+
       {state.infoKey === "checkEmail" ? (
         <div
           className="sf-row"
@@ -68,9 +83,19 @@ export function AuthForm({ mode }: { mode: "signin" | "signup" }) {
               required
               minLength={8}
               dir="ltr"
+              aria-invalid={errorMsg ? true : undefined}
+              aria-describedby={errorMsg ? "auth-err" : undefined}
             />
-            {errorMsg && <span className="errline">{errorMsg}</span>}
+            {errorMsg && <span className="errline" id="auth-err">{errorMsg}</span>}
           </div>
+
+          {mode === "signin" && (
+            <p style={{ margin: "-6px 0 0", textAlign: "end", fontSize: 13 }}>
+              <Link href="/forgot-password" style={{ fontWeight: 700, color: "var(--accent-deep)" }}>
+                {t.forgotPassword}
+              </Link>
+            </p>
+          )}
 
           <SubmitBtn label={mode === "signin" ? t.signInCta : t.signUpCta} />
         </form>

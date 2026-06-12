@@ -14,6 +14,7 @@ const PROTECTED_PREFIXES = [
   "/settings",
   "/onboarding",
   "/link",
+  "/reset-password", // recovery flow: /auth/callback sets the session first
 ];
 // Auth-only routes a signed-in user should be bounced away from.
 const AUTH_PATHS = ["/login", "/signup"];
@@ -107,6 +108,12 @@ export async function proxy(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("next", pathname);
+    // An auth cookie that no longer resolves to a user means the session
+    // expired (vs. someone who was never signed in) — tell them why.
+    const hadSession = request.cookies
+      .getAll()
+      .some((c) => c.name.includes("-auth-token"));
+    if (hadSession) url.searchParams.set("reason", "expired");
     const redirect = NextResponse.redirect(url);
     applySecurityHeaders(redirect, csp);
     return redirect;

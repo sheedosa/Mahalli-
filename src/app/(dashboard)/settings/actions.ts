@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { getSellerContext } from "@/lib/auth";
+import { publicEnv } from "@/lib/env";
 import { THEME_IDS } from "@/lib/themes";
 
 export type SettingsState = { saved?: boolean; error?: boolean };
@@ -72,4 +73,83 @@ export async function updateShop(
   revalidatePath("/dashboard");
   revalidatePath(`/${ctx.seller.slug}`); // refresh the public storefront
   return { saved: true };
+}
+
+export type AccountState = {
+  errorKey?: "emailInvalid" | "emailTaken" | "wrongPassword" | "passwordTooShort" | "generic";
+  infoKey?: "emailChangeSent" | "passwordChanged";
+};
+
+export async function changeEmail(
+  _prev: AccountState,
+  formData: FormData,
+): Promise<AccountState> {
+  const ctx = await getSellerContext();
+  if (!ctx) return { errorKey: "generic" };
+
+  const parsed = z.object({ email: z.string().email() }).safeParse({
+    email: formData.get("email"),
+  });
+  if (!parsed.success) return { errorKey: "emailInvalid" };
+
+  try {
+    const supabase = await createClient();
+    // Supabase sends confirmation links; the change applies once confirmed.
+    const { error } = await supabase.auth.updateUser(
+      { email: parsed.data.email },
+      { emailRedirectTo: `${publicEnv.siteUrl}/auth/callback?next=/settings` },
+    );
+    if (error) {
+      if (error.code === "email_exists" || error.message.includes("already")) {
+        return { errorKey: "emailTaken" };
+      }
+      return { errorKey: "generic" };
+    }
+  } catch (e) {
+    console.error("changeEmail failed", e);
+    return { errorKey: "generic" };
+  }
+
+  return { infoKey: "emailChangeSent" };
+}
+
+export async function changePassword(
+  _prev: AccountState,
+  formData: FormData,
+): Promise<AccountState> {
+  const ctx = await getSellerContext();
+  if (!ctx?.user.email) return { errorKey: "generic" };
+
+  const parsed = z
+    .object({ current: z.string().min(1), password: z.string().min(8) })
+    .safeParse({
+      current: formData.get("current"),
+      password: formData.get("password"),
+    });
+  if (!parsed.success) {
+    const issue = parsed.error.issues[0];
+    return {
+      errorKey: issue.path[0] === "current" ? "wrongPassword" : "passwordTooShort",
+    };
+  }
+
+  try {
+    const supabase = await createClient();
+    // Re-authenticate with the current password before allowing a change.
+    const { error: reauthError } = await supabase.auth.signInWithPassword({
+      email: ctx.user.email,
+      password: parsed.data.current,
+    });
+    if (reauthError) return { errorKey: "wrongPassword" };
+
+    const { error } = await supabase.auth.updateUser({
+      password: parsed.data.password,
+    });
+    if (error) return { errorKey: "generic" };
+  } catch (e) {
+    console.error("changePassword failed", e);
+    return { errorKey: "generic" };
+  }
+
+  return { infoKey: "passwordChanged" };
 }

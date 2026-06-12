@@ -111,3 +111,61 @@ export async function signOut(): Promise<void> {
   await supabase.auth.signOut();
   redirect("/login");
 }
+
+export type ResetRequestState = {
+  errorKey?: "emailInvalid" | "generic";
+  infoKey?: "resetSent";
+};
+
+export async function requestPasswordReset(
+  _prev: ResetRequestState,
+  formData: FormData,
+): Promise<ResetRequestState> {
+  const parsed = z.object({ email: z.string().email() }).safeParse({
+    email: formData.get("email"),
+  });
+  if (!parsed.success) return { errorKey: "emailInvalid" };
+
+  try {
+    const supabase = await createClient();
+    // After the email link is exchanged by /auth/callback the user lands on
+    // /reset-password with a recovery session.
+    await supabase.auth.resetPasswordForEmail(parsed.data.email, {
+      redirectTo: `${publicEnv.siteUrl}/auth/callback?next=/reset-password`,
+    });
+  } catch (e) {
+    console.error("requestPasswordReset failed", e);
+    return { errorKey: "generic" };
+  }
+
+  // Always claim success so account existence can't be probed.
+  return { infoKey: "resetSent" };
+}
+
+export type ResetPasswordState = {
+  errorKey?: "passwordTooShort" | "generic";
+  infoKey?: "resetDone";
+};
+
+export async function updatePassword(
+  _prev: ResetPasswordState,
+  formData: FormData,
+): Promise<ResetPasswordState> {
+  const parsed = z.object({ password: z.string().min(8) }).safeParse({
+    password: formData.get("password"),
+  });
+  if (!parsed.success) return { errorKey: "passwordTooShort" };
+
+  try {
+    const supabase = await createClient();
+    const { error } = await supabase.auth.updateUser({
+      password: parsed.data.password,
+    });
+    if (error) return { errorKey: "generic" };
+  } catch (e) {
+    console.error("updatePassword failed", e);
+    return { errorKey: "generic" };
+  }
+
+  return { infoKey: "resetDone" };
+}
