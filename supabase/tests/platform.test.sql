@@ -361,4 +361,70 @@ begin
 end $$;
 rollback;
 
+-- ===========================================================================
+-- Buyer trust (migration 0018): stock re-check at order time (P0016),
+-- idempotent checkout replay via client_key, public tracking lookup.
+-- ===========================================================================
+begin;
+do $$
+declare
+  v_u uuid := '77777777-7777-7777-7777-777777777777';
+  v_s uuid; v_p uuid; v_o uuid; v_o2 uuid;
+  v_key uuid := gen_random_uuid();
+  v_blocked boolean; v_json jsonb;
+begin
+  insert into auth.users (instance_id, id, aud, role, email, created_at, updated_at)
+  values ('00000000-0000-0000-0000-000000000000', v_u,'authenticated','authenticated','u7@t.local',now(),now());
+
+  set local role authenticated;
+  perform set_config('request.jwt.claims', json_build_object('sub',v_u::text,'role','authenticated')::text, true);
+  v_s := (public.create_shop('Track Shop','trackshop')).id;
+  insert into public.products (seller_id,name,price,stock) values (v_s,'Tee',100,2) returning id into v_p;
+  reset role;
+
+  -- stock re-check: qty 3 > stock 2 -> P0016
+  v_blocked := false;
+  begin
+    perform public.place_order('trackshop','Amal','0911223344','',
+      jsonb_build_array(jsonb_build_object('product_id',v_p,'qty',3)), '');
+  exception when sqlstate 'P0016' then v_blocked := true; end;
+  if not v_blocked then raise exception 'FAIL stock re-check at order time'; end if;
+
+  -- manual orders are stock-checked too
+  set local role authenticated;
+  perform set_config('request.jwt.claims', json_build_object('sub',v_u::text,'role','authenticated')::text, true);
+  v_blocked := false;
+  begin
+    perform public.create_manual_order(v_s,'Amal','0911223344','','',0,
+      jsonb_build_array(jsonb_build_object('product_id',v_p,'qty',3)));
+  exception when sqlstate 'P0016' then v_blocked := true; end;
+  if not v_blocked then raise exception 'FAIL manual stock re-check'; end if;
+  reset role;
+
+  -- valid order with an idempotency key
+  v_o := public.place_order('trackshop','Amal','0911223344','',
+    jsonb_build_array(jsonb_build_object('product_id',v_p,'qty',1)), '', v_key);
+
+  -- replay with the same key returns the same order (not rate-limited)
+  v_o2 := public.place_order('trackshop','Amal','0911223344','',
+    jsonb_build_array(jsonb_build_object('product_id',v_p,'qty',1)), '', v_key);
+  if v_o2 <> v_o then raise exception 'FAIL idempotent replay % -> %', v_o, v_o2; end if;
+
+  -- tracking: correct ref + phone resolves; wrong phone returns null
+  v_json := public.get_order_status('trackshop', left(v_o::text,8), '0911223344');
+  if v_json is null or (v_json->>'status') <> 'new' then
+    raise exception 'FAIL track lookup %', v_json;
+  end if;
+  if (v_json->'items'->0->>'qty')::int <> 1 then
+    raise exception 'FAIL track items %', v_json->'items';
+  end if;
+  v_json := public.get_order_status('trackshop', left(v_o::text,8), '0999999999');
+  if v_json is not null then raise exception 'FAIL track wrong phone leaked data'; end if;
+
+  -- garbage ref shapes return null (no enumeration help)
+  v_json := public.get_order_status('trackshop', 'zzzzzzzz', '0911223344');
+  if v_json is not null then raise exception 'FAIL track bad ref'; end if;
+end $$;
+rollback;
+
 \echo 'platform.test.sql: all sections passed'

@@ -187,9 +187,27 @@ export function StorefrontApp({
             {t.orderPlacedBody}
           </p>
           {ref && (
-            <p dir="ltr" className="price" style={{ background: "var(--z100)", padding: "8px 16px", borderRadius: 999, fontSize: 18 }}>
-              #{ref}
-            </p>
+            <div className="sf-row" style={{ gap: 8 }}>
+              <p dir="ltr" className="price" style={{ margin: 0, background: "var(--z100)", padding: "8px 16px", borderRadius: 999, fontSize: 18 }}>
+                #{ref}
+              </p>
+              <button
+                className="chip"
+                onClick={() => {
+                  navigator.clipboard?.writeText(ref).then(() => toast.success(t.refCopied));
+                }}
+              >
+                {t.copyRef}
+              </button>
+            </div>
+          )}
+          {ref && (
+            <a
+              href={`/${slug}/track?ref=${ref}`}
+              style={{ fontWeight: 700, fontSize: 14, color: "var(--accent-deep)" }}
+            >
+              {t.trackOrder}
+            </a>
           )}
           <button
             className="btn btn-primary btn-pill"
@@ -415,7 +433,12 @@ export function StorefrontApp({
           )}
         </div>
 
-        <p className="muted" style={{ textAlign: "center", marginTop: 26, fontSize: 11.5 }}>
+        <p style={{ textAlign: "center", marginTop: 26, marginBottom: 0, fontSize: 12.5 }}>
+          <a href={`/${slug}/track`} style={{ fontWeight: 700, color: "var(--accent-deep)" }}>
+            {t.trackOrder}
+          </a>
+        </p>
+        <p className="muted" style={{ textAlign: "center", marginTop: 10, fontSize: 11.5 }}>
           {t.poweredBy}
         </p>
       </div>

@@ -10,6 +10,8 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
@@ -350,12 +352,31 @@ export type Database = {
           },
         ]
       }
+      order_lookups: {
+        Row: {
+          created_at: string
+          id: number
+          phone: string
+        }
+        Insert: {
+          created_at?: string
+          id?: never
+          phone: string
+        }
+        Update: {
+          created_at?: string
+          id?: never
+          phone?: string
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           buyer_area: string | null
           buyer_name: string | null
           buyer_phone: string | null
           channel: Database["public"]["Enums"]["order_channel"]
+          client_key: string | null
           courier: string | null
           created_at: string
           customer_id: string | null
@@ -376,6 +397,7 @@ export type Database = {
           buyer_name?: string | null
           buyer_phone?: string | null
           channel?: Database["public"]["Enums"]["order_channel"]
+          client_key?: string | null
           courier?: string | null
           created_at?: string
           customer_id?: string | null
@@ -396,6 +418,7 @@ export type Database = {
           buyer_name?: string | null
           buyer_phone?: string | null
           channel?: Database["public"]["Enums"]["order_channel"]
+          client_key?: string | null
           courier?: string | null
           created_at?: string
           customer_id?: string | null
@@ -549,11 +572,11 @@ export type Database = {
           lang: string
           logo_url: string | null
           name: string
+          notify_prefs: Json
           owner_user_id: string
           plan: Database["public"]["Enums"]["seller_plan"]
           slug: string
           theme: string
-          notify_prefs: Json
         }
         Insert: {
           city?: string | null
@@ -564,11 +587,11 @@ export type Database = {
           lang?: string
           logo_url?: string | null
           name: string
+          notify_prefs?: Json
           owner_user_id: string
           plan?: Database["public"]["Enums"]["seller_plan"]
           slug: string
           theme?: string
-          notify_prefs?: Json
         }
         Update: {
           city?: string | null
@@ -579,11 +602,11 @@ export type Database = {
           lang?: string
           logo_url?: string | null
           name?: string
+          notify_prefs?: Json
           owner_user_id?: string
           plan?: Database["public"]["Enums"]["seller_plan"]
           slug?: string
           theme?: string
-          notify_prefs?: Json
         }
         Relationships: []
       }
@@ -626,27 +649,14 @@ export type Database = {
         Args: { p_error?: string; p_id: string; p_next?: string; p_ok: boolean }
         Returns: undefined
       }
-      dequeue_messages: {
-        Args: { p_limit?: number }
-        Returns: {
-          attempts: number
-          created_at: string
-          dedupe_key: string | null
-          id: string
-          kind: string
-          last_error: string | null
-          next_attempt_at: string
-          payload: Json
-          seller_id: string
-          status: string
-          updated_at: string
-        }[]
-      }
-      enqueue_message: {
+      create_manual_order: {
         Args: {
-          p_dedupe_key?: string
-          p_kind: string
-          p_payload?: Json
+          p_buyer_area: string
+          p_buyer_name: string
+          p_buyer_phone: string
+          p_delivery_fee: number
+          p_items: Json
+          p_notes: string
           p_seller: string
         }
         Returns: string
@@ -669,25 +679,89 @@ export type Database = {
           lang: string
           logo_url: string | null
           name: string
+          notify_prefs: Json
           owner_user_id: string
           plan: Database["public"]["Enums"]["seller_plan"]
           slug: string
+          theme: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "sellers"
+          isOneToOne: true
+          isSetofReturn: false
         }
       }
-      is_slug_available: { Args: { p_slug: string }; Returns: boolean }
-      get_storefront: { Args: { p_slug: string }; Returns: Json }
-      place_order: {
+      dequeue_messages: {
+        Args: { p_limit?: number }
+        Returns: {
+          attempts: number
+          created_at: string
+          dedupe_key: string | null
+          id: string
+          kind: string
+          last_error: string | null
+          next_attempt_at: string
+          payload: Json
+          seller_id: string
+          status: string
+          updated_at: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "message_outbox"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      enqueue_message: {
         Args: {
-          p_slug: string
-          p_buyer_name: string
-          p_buyer_phone: string
-          p_buyer_area: string | null
-          p_items: Json
-          p_hp?: string
+          p_dedupe_key?: string
+          p_kind: string
+          p_payload?: Json
+          p_seller: string
         }
         Returns: string
       }
-      slug_is_reserved: { Args: { p_slug: string }; Returns: boolean }
+      get_order_status: {
+        Args: { p_phone: string; p_ref: string; p_slug: string }
+        Returns: Json
+      }
+      get_storefront: { Args: { p_slug: string }; Returns: Json }
+      is_slug_available: { Args: { p_slug: string }; Returns: boolean }
+      place_order: {
+        Args: {
+          // hand-tweak: nullable in SQL, the generator can't see it
+          p_buyer_area: string | null
+          p_buyer_name: string
+          p_buyer_phone: string
+          p_client_key?: string
+          p_hp?: string
+          p_items: Json
+          p_slug: string
+        }
+        Returns: string
+      }
+      recompute_customer: {
+        Args: { p_phone: string; p_seller: string }
+        Returns: undefined
+      }
+      save_product: {
+        Args: {
+          // hand-tweak: nullable in SQL, the generator can't see it
+          p_active: boolean
+          p_category: string | null
+          p_description: string | null
+          p_id: string | null
+          p_image_url: string | null
+          p_name: string
+          p_price: number
+          p_seller: string
+          p_stock: number
+          p_variants: Json
+        }
+        Returns: string
+      }
       set_order_status: {
         Args: {
           p_order: string
@@ -695,35 +769,9 @@ export type Database = {
         }
         Returns: undefined
       }
-      create_manual_order: {
-        Args: {
-          p_seller: string
-          p_buyer_name: string
-          p_buyer_phone: string
-          p_buyer_area: string
-          p_notes: string
-          p_delivery_fee: number
-          p_items: Json
-        }
-        Returns: string
-      }
-      save_product: {
-        Args: {
-          p_id: string | null
-          p_seller: string
-          p_name: string
-          p_description: string | null
-          p_price: number
-          p_category: string | null
-          p_image_url: string | null
-          p_stock: number
-          p_active: boolean
-          p_variants: Json
-        }
-        Returns: string
-      }
+      slug_is_reserved: { Args: { p_slug: string }; Returns: boolean }
       user_is_owner: { Args: { target_seller: string }; Returns: boolean }
-      user_seller_ids: { Args: Record<PropertyKey, never>; Returns: string[] }
+      user_seller_ids: { Args: never; Returns: string[] }
     }
     Enums: {
       broadcast_channel: "wa_link" | "wa_cloud" | "sms"
@@ -731,7 +779,13 @@ export type Database = {
       broadcast_status: "draft" | "queued" | "sending" | "sent" | "failed"
       coupon_type: "pct" | "fixed"
       order_channel: "storefront" | "manual"
-      order_status: "new" | "confirmed" | "ready" | "out" | "delivered" | "cancelled"
+      order_status:
+        | "new"
+        | "confirmed"
+        | "ready"
+        | "out"
+        | "delivered"
+        | "cancelled"
       payment_method: "cod" | "prepaid"
       payment_status: "unpaid" | "paid" | "refunded"
       profile_role: "owner" | "staff"
@@ -743,13 +797,143 @@ export type Database = {
   }
 }
 
-type PublicSchema = Database["public"]
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
 
-export type Tables<T extends keyof PublicSchema["Tables"]> =
-  PublicSchema["Tables"][T]["Row"]
-export type TablesInsert<T extends keyof PublicSchema["Tables"]> =
-  PublicSchema["Tables"][T]["Insert"]
-export type TablesUpdate<T extends keyof PublicSchema["Tables"]> =
-  PublicSchema["Tables"][T]["Update"]
-export type Enums<T extends keyof PublicSchema["Enums"]> =
-  PublicSchema["Enums"][T]
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+
+export type Tables<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
+
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
+
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
+
+export const Constants = {
+  public: {
+    Enums: {
+      broadcast_channel: ["wa_link", "wa_cloud", "sms"],
+      broadcast_segment: ["all", "repeat", "recent"],
+      broadcast_status: ["draft", "queued", "sending", "sent", "failed"],
+      coupon_type: ["pct", "fixed"],
+      order_channel: ["storefront", "manual"],
+      order_status: [
+        "new",
+        "confirmed",
+        "ready",
+        "out",
+        "delivered",
+        "cancelled",
+      ],
+      payment_method: ["cod", "prepaid"],
+      payment_status: ["unpaid", "paid", "refunded"],
+      profile_role: ["owner", "staff"],
+      seller_plan: ["free", "growth", "pro"],
+    },
+  },
+} as const

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
 import { ChevronLeft, MapPin, Minus, Package, Plus, Trash2 } from "lucide-react";
 import { submitOrder } from "@/app/[slug]/actions";
@@ -35,6 +35,9 @@ export function CheckoutView({
   const [hp, setHp] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [errorKey, setErrorKey] = useState<string | null>(null);
+  // Idempotency key, stable for this checkout session: if the response is lost
+  // and the buyer retries, the server returns the order it already created.
+  const clientKey = useRef<string>(crypto.randomUUID());
 
   const subtotal = cartSubtotal(lines);
   const fee = area
@@ -52,6 +55,7 @@ export function CheckoutView({
       phone,
       area: area || null,
       hp,
+      clientKey: clientKey.current,
       items: lines.map((l) => ({
         product_id: l.product.id,
         variant_id: l.variant?.id ?? null,
@@ -70,9 +74,11 @@ export function CheckoutView({
         ? t.errorPhone
         : errorKey === "empty"
           ? t.errorEmpty
-          : errorKey
-            ? t.errorGeneric
-            : null;
+          : errorKey === "stock"
+            ? t.errorStock
+            : errorKey
+              ? t.errorGeneric
+              : null;
 
   return (
     <div className="anim-in" style={{ paddingBottom: "calc(40px + env(safe-area-inset-bottom))" }}>
