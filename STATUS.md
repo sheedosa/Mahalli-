@@ -223,12 +223,30 @@ Three layers, all in `.github/workflows/ci.yml` (push + PR), three parallel jobs
 
 ## 11. Known gaps / before launch
 
-- [ ] Enable Supabase **leaked-password protection** (Auth setting; only remaining security WARN).
-- [ ] Set `NEXT_PUBLIC_SITE_URL` to the production domain on Vercel.
-- [ ] Re-enable **email confirmation** before real users (off for demo).
-- [ ] Commit the **final brand PNGs** to `public/brand/` (vector stand-ins are in place).
-- [ ] **Pin `supabase/setup-cli`** to a fixed version in CI to remove the rate-limit flake.
-- [ ] Choose a Libya-capable **SMS provider** (phone-OTP) and a **payments gateway**.
+The production-readiness program (batches 1–6, June 2026) shipped: password
+reset + email/password change, public order tracking (`/[slug]/track`), stock
+re-check + idempotent checkout (migration 0018), generated OG images +
+robots/sitemap/JSON-LD, delivery-area settings, order-ref search, a
+notification-failure banner, opportunistic outbox drain after order events,
+boot-time env validation (`src/instrumentation.ts`), `/api/health`, per-route
+error boundaries, detail-page skeletons, and upload retry. CI setup-cli is
+pinned; OG images are generated (no brand PNG needed).
+
+Remaining items are dashboard/console settings only the owner can do:
+
+- [ ] Supabase Auth: **re-enable email confirmation** (off for demo) and
+      **leaked-password protection**; set the Site URL + redirect URLs
+      (`https://<domain>/auth/callback`) to the production domain.
+- [ ] Vercel env: `NEXT_PUBLIC_SITE_URL`, `SUPABASE_SERVICE_ROLE_KEY`,
+      `CRON_SECRET` (worker + sitemap + instant notifications depend on these;
+      `/api/health` reports which are set).
+- [ ] Point an uptime monitor at **`/api/health`**; add a log drain / Sentry
+      DSN when ready (logger emits structured JSON with request ids).
+- [ ] WhatsApp Cloud credentials (`WHATSAPP_CLOUD_TOKEN`, `WHATSAPP_PHONE_ID`)
+      when notifications go live; until then sends are logged as `skipped`.
+- [ ] Choose a Libya-capable **SMS provider** (phone-OTP) and a **payments
+      gateway**; consider Vercel Pro for a sub-daily cron sweeper at volume.
+- [ ] Add **privacy/terms** pages before launch (explicitly deferred).
 - [ ] Refresh the older **`README.md`** (predates the rebrand / voice / mobile pass).
 
 ---

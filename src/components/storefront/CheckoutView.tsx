@@ -31,7 +31,24 @@ export function CheckoutView({
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [area, setArea] = useState("");
+  // Remember the buyer's delivery area per shop. CheckoutView only mounts
+  // after a client-side tap, so reading localStorage in the initializer is
+  // hydration-safe.
+  const areaKey = `mahalli.area.${slug}`;
+  const [area, setAreaState] = useState(() => {
+    if (typeof window === "undefined") return "";
+    const saved = window.localStorage.getItem(areaKey) ?? "";
+    return shop.delivery_areas.some((a) => a.area === saved) ? saved : "";
+  });
+  const setArea = (v: string) => {
+    setAreaState(v);
+    try {
+      if (v) window.localStorage.setItem(areaKey, v);
+      else window.localStorage.removeItem(areaKey);
+    } catch {
+      // storage unavailable (private mode) — selection still works in-memory
+    }
+  };
   const [hp, setHp] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [errorKey, setErrorKey] = useState<string | null>(null);
@@ -108,7 +125,7 @@ export function CheckoutView({
                 style={{ width: 70, height: 86, borderRadius: 16, background: "var(--surface-2)", flex: "none" }}
               >
                 {l.product.image_url ? (
-                  <Image src={l.product.image_url} alt="" fill sizes="70px" className="object-cover" />
+                  <Image src={l.product.image_url} alt={l.product.name} fill sizes="70px" className="object-cover" />
                 ) : (
                   <span className="flex size-full items-center justify-center" style={{ color: "var(--z400)" }}>
                     <Package className="size-5" />

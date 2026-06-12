@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import Image from "next/image";
-import { ImagePlus, Loader2, X } from "lucide-react";
+import { ImagePlus, Loader2, RotateCcw, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useI18n } from "@/i18n/provider";
 
@@ -32,15 +32,21 @@ export function ImageUpload({
   const { dict } = useI18n();
   const t = dict.products;
   const inputRef = useRef<HTMLInputElement>(null);
+  // Kept on failure so a flaky connection only needs a tap on "retry",
+  // not re-picking the file.
+  const lastFileRef = useRef<File | null>(null);
   const [url, setUrl] = useState<string | null>(initialUrl ?? null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [canRetry, setCanRetry] = useState(false);
 
   async function onPick(file: File) {
     setError(null);
+    setCanRetry(false);
     if (!ALLOWED.includes(file.type)) return setError(t.imageType);
     if (file.size > MAX_BYTES) return setError(t.imageTooLarge);
 
+    lastFileRef.current = file;
     setUploading(true);
     const supabase = createClient();
     const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
@@ -52,6 +58,7 @@ export function ImageUpload({
 
     if (upErr) {
       setUploading(false);
+      setCanRetry(true);
       return setError(t.imageFailed);
     }
 
@@ -130,7 +137,21 @@ export function ImageUpload({
           if (file) onPick(file);
         }}
       />
-      {error && <p className="errline">{error}</p>}
+      {error && (
+        <p className="errline">
+          {error}
+          {canRetry && (
+            <button
+              type="button"
+              onClick={() => lastFileRef.current && onPick(lastFileRef.current)}
+              className="inline-flex items-center gap-1 font-bold"
+              style={{ color: "var(--accent-deep)", background: "none", border: "none", cursor: "pointer", padding: 0 }}
+            >
+              <RotateCcw className="size-3.5" /> {dict.common.retry}
+            </button>
+          )}
+        </p>
+      )}
     </div>
   );
 }
