@@ -81,7 +81,7 @@ const manualSchema = z.object({
     .max(100),
 });
 
-export type ManualOrderResult = { ok: false; error: true };
+export type ManualOrderResult = { ok: false; error: true; errorKey?: "stock" };
 
 export async function createManualOrder(payload: {
   name?: string;
@@ -108,7 +108,10 @@ export async function createManualOrder(payload: {
     p_delivery_fee: p.deliveryFee,
     p_items: p.items,
   });
-  if (error || !data) return { ok: false, error: true };
+  if (error || !data) {
+    if (error?.code === "P0016") return { ok: false, error: true, errorKey: "stock" };
+    return { ok: false, error: true };
+  }
 
   revalidatePath("/orders");
   revalidatePath("/customers");

@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
-import { Check } from "lucide-react";
+import { Check, Plus, Trash2 } from "lucide-react";
 import { updateShop, type SettingsState } from "@/app/(dashboard)/settings/actions";
 import { useI18n } from "@/i18n/provider";
 import { useToast } from "@/components/ui/Toast";
@@ -16,6 +16,8 @@ type NotifyPrefs = {
   order_delivered: boolean;
 };
 
+type DeliveryArea = { area: string; fee: number };
+
 type Props = {
   initial: {
     name: string;
@@ -26,6 +28,7 @@ type Props = {
     theme: string;
   };
   notifyPrefs: NotifyPrefs;
+  deliveryAreas: DeliveryArea[];
 };
 
 /** A tiny live storefront preview rendered in the chosen theme. */
@@ -45,13 +48,14 @@ function MiniPreview({ id }: { id: ThemeId }) {
   );
 }
 
-export function SettingsForm({ initial, notifyPrefs }: Props) {
+export function SettingsForm({ initial, notifyPrefs, deliveryAreas }: Props) {
   const { dict, locale } = useI18n();
   const t = dict.settings;
   const [theme, setTheme] = useState<ThemeId>(
     (THEMES.find((x) => x.id === initial.theme)?.id ?? "cream") as ThemeId,
   );
   const [notify, setNotify] = useState<NotifyPrefs>(notifyPrefs);
+  const [areas, setAreas] = useState<DeliveryArea[]>(deliveryAreas);
   const [state, formAction] = useActionState<SettingsState, FormData>(updateShop, {});
   const toast = useToast();
 
@@ -72,6 +76,11 @@ export function SettingsForm({ initial, notifyPrefs }: Props) {
   return (
     <form action={formAction} className="anim-in" style={{ padding: "8px 18px 0", display: "flex", flexDirection: "column", gap: 16 }}>
       <input type="hidden" name="theme" value={theme} />
+      <input
+        type="hidden"
+        name="delivery_areas"
+        value={JSON.stringify(areas.filter((a) => a.area.trim() !== ""))}
+      />
       {(Object.keys(notify) as (keyof NotifyPrefs)[]).map((k) => (
         <input key={k} type="hidden" name={`notify_${k}`} value={String(notify[k])} />
       ))}
@@ -132,6 +141,64 @@ export function SettingsForm({ initial, notifyPrefs }: Props) {
             />
           </div>
         ))}
+      </div>
+
+      {/* delivery areas */}
+      <div className="card" style={{ padding: 16, display: "flex", flexDirection: "column", gap: 12 }}>
+        <div className="sf-stack" style={{ gap: 2 }}>
+          <h2 style={{ margin: 0, fontSize: 14, fontWeight: 800 }}>{t.deliveryAreas}</h2>
+          <p className="muted" style={{ margin: 0, fontSize: 12.5, lineHeight: 1.5 }}>{t.deliveryAreasHint}</p>
+        </div>
+        {areas.map((a, i) => (
+          <div key={i} className="sf-row" style={{ gap: 8, alignItems: "flex-end" }}>
+            <div className="field" style={{ flex: 1, minWidth: 0 }}>
+              {i === 0 && <label className="label">{t.areaName}</label>}
+              <input
+                className="input"
+                value={a.area}
+                maxLength={80}
+                onChange={(e) =>
+                  setAreas((p) => p.map((x, j) => (j === i ? { ...x, area: e.target.value } : x)))
+                }
+              />
+            </div>
+            <div className="field" style={{ width: 110, flex: "none" }}>
+              {i === 0 && <label className="label">{t.areaFee}</label>}
+              <input
+                className="input"
+                type="number"
+                inputMode="decimal"
+                min={0}
+                step="0.5"
+                dir="ltr"
+                value={a.fee}
+                onChange={(e) =>
+                  setAreas((p) =>
+                    p.map((x, j) => (j === i ? { ...x, fee: Math.max(0, Number(e.target.value) || 0) } : x)),
+                  )
+                }
+              />
+            </div>
+            <button
+              type="button"
+              className="iconbtn"
+              aria-label={dict.common.delete}
+              onClick={() => setAreas((p) => p.filter((_, j) => j !== i))}
+            >
+              <Trash2 className="size-4" style={{ color: "var(--danger)" }} />
+            </button>
+          </div>
+        ))}
+        {areas.length < 50 && (
+          <button
+            type="button"
+            className="btn btn-outline btn-pill"
+            style={{ height: 44 }}
+            onClick={() => setAreas((p) => [...p, { area: "", fee: 0 }])}
+          >
+            <Plus className="size-4" /> {t.addArea}
+          </button>
+        )}
       </div>
 
       {/* theme picker */}

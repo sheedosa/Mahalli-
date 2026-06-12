@@ -1,5 +1,6 @@
 import Link from "next/link";
 import {
+  AlertTriangle,
   Box,
   Eye,
   Package,
@@ -37,7 +38,11 @@ export default async function OverviewPage() {
   startOfDay.setHours(0, 0, 0, 0);
   const dayIso = startOfDay.toISOString();
 
-  const [todayOrders, deliveredToday, toDeliver, lowStock, recent, productsTotal, ordersTotal] =
+  const weekAgo = new Date();
+  weekAgo.setDate(weekAgo.getDate() - 7);
+  const weekAgoIso = weekAgo.toISOString();
+
+  const [todayOrders, deliveredToday, toDeliver, lowStock, recent, productsTotal, ordersTotal, failedNotifs] =
     await Promise.all([
       supabase.from("orders").select("id", { count: "exact", head: true }).eq("seller_id", sellerId).gte("created_at", dayIso),
       supabase.from("orders").select("total").eq("seller_id", sellerId).eq("status", "delivered").gte("updated_at", dayIso),
@@ -46,6 +51,8 @@ export default async function OverviewPage() {
       supabase.from("orders").select("id,status,total,buyer_name,buyer_phone,created_at").eq("seller_id", sellerId).order("created_at", { ascending: false }).limit(5),
       supabase.from("products").select("id", { count: "exact", head: true }).eq("seller_id", sellerId),
       supabase.from("orders").select("id", { count: "exact", head: true }).eq("seller_id", sellerId),
+      // surfacing silent notification failures (RLS scopes to this seller)
+      supabase.from("message_outbox").select("id", { count: "exact", head: true }).eq("seller_id", sellerId).eq("status", "failed").gte("updated_at", weekAgoIso),
     ]);
 
   const revenue = (deliveredToday.data ?? []).reduce((s, o) => s + Number(o.total), 0);
@@ -68,6 +75,18 @@ export default async function OverviewPage() {
 
   return (
     <div className="anim-in" style={{ padding: "12px 18px 0" }}>
+      {(failedNotifs.count ?? 0) > 0 && (
+        <Link href="/settings" style={{ textDecoration: "none" }}>
+          <div
+            className="sf-row"
+            style={{ gap: 10, background: "var(--warning-soft)", color: "#b45309", padding: "12px 14px", borderRadius: 14, fontSize: 13, fontWeight: 600, marginBottom: 14 }}
+          >
+            <AlertTriangle className="size-4" style={{ flex: "none" }} />
+            {dict.settings.notifyIssue}
+          </div>
+        </Link>
+      )}
+
       <GettingStarted hasProducts={hasProducts} hasOrders={hasOrders} />
 
       <div className="sf-grid2" style={{ gap: 12 }}>

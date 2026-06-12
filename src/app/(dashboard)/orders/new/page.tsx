@@ -13,17 +13,19 @@ export default async function NewOrderPage() {
   const supabase = await createClient();
   const { data } = await supabase
     .from("products")
-    .select("id,name,price,product_variants(id,label,price_override)")
+    .select("id,name,price,stock,product_variants(id,label,price_override,stock)")
     .order("created_at", { ascending: false });
 
   const products: FormProduct[] = (data ?? []).map((p) => ({
     id: p.id,
     name: p.name,
     price: Number(p.price),
+    stock: p.stock,
     variants: (p.product_variants ?? []).map((v) => ({
       id: v.id,
       label: v.label,
       price_override: v.price_override,
+      stock: v.stock,
     })),
   }));
 

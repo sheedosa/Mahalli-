@@ -13,7 +13,8 @@ export type FormProduct = {
   id: string;
   name: string;
   price: number;
-  variants: { id: string; label: string; price_override: number | null }[];
+  stock: number;
+  variants: { id: string; label: string; price_override: number | null; stock: number }[];
 };
 
 type Line = {
@@ -26,6 +27,11 @@ type Line = {
 function unit(product: FormProduct, variantId: string | null): number {
   const v = product.variants.find((x) => x.id === variantId);
   return Number(v?.price_override ?? product.price);
+}
+
+function available(product: FormProduct, variantId: string | null): number {
+  const v = product.variants.find((x) => x.id === variantId);
+  return v ? v.stock : product.stock;
 }
 
 export function ManualOrderForm({ products }: { products: FormProduct[] }) {
@@ -114,7 +120,7 @@ export function ManualOrderForm({ products }: { products: FormProduct[] }) {
     if (res && res.ok === false) {
       setError(true);
       setSubmitting(false);
-      toast.error(t.error);
+      toast.error(res.errorKey === "stock" ? t.errorStock : t.error);
     }
   }
 
@@ -171,6 +177,11 @@ export function ManualOrderForm({ products }: { products: FormProduct[] }) {
                     </option>
                   ))}
                 </Select>
+              )}
+              {l.qty > available(l.product, l.variantId) && (
+                <p className="errline" style={{ fontSize: 12.5 }}>
+                  {t.stockWarning.replace("{n}", String(available(l.product, l.variantId)))}
+                </p>
               )}
             </div>
           ))}

@@ -26,6 +26,26 @@ const schema = z.object({
   notify_order_delivered: boolStr,
 });
 
+// Delivery areas arrive as a JSON string from a hidden input.
+const areasSchema = z
+  .array(
+    z.object({
+      area: z.string().trim().min(1).max(80),
+      fee: z.number().min(0).max(100000),
+    }),
+  )
+  .max(50);
+
+function parseAreas(raw: FormDataEntryValue | null): z.infer<typeof areasSchema> | null {
+  if (typeof raw !== "string" || raw === "") return null;
+  try {
+    const parsed = areasSchema.safeParse(JSON.parse(raw));
+    return parsed.success ? parsed.data : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function updateShop(
   _prev: SettingsState,
   formData: FormData,
@@ -54,6 +74,8 @@ export async function updateShop(
     order_delivered: parsed.data.notify_order_delivered ?? true,
   };
 
+  const areas = parseAreas(formData.get("delivery_areas"));
+
   const supabase = await createClient();
   const { error } = await supabase
     .from("sellers")
@@ -64,6 +86,7 @@ export async function updateShop(
       lang: parsed.data.lang,
       theme: parsed.data.theme,
       notify_prefs: notifyPrefs,
+      ...(areas !== null ? { delivery_areas: areas } : {}),
     })
     .eq("id", ctx.seller.id); // RLS also enforces this scope
 

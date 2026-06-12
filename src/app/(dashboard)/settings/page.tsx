@@ -16,6 +16,13 @@ export default async function SettingsPage() {
     order_delivered: np.order_delivered !== false,
   };
 
+  const rawAreas = (ctx.seller.delivery_areas ?? []) as { area?: unknown; fee?: unknown }[];
+  const deliveryAreas = Array.isArray(rawAreas)
+    ? rawAreas
+        .filter((a) => typeof a?.area === "string")
+        .map((a) => ({ area: String(a.area), fee: Number(a.fee) || 0 }))
+    : [];
+
   return (
     <div className="anim-in">
       <div className="topbar" style={{ position: "static", padding: "4px 18px 8px", background: "transparent", backdropFilter: "none", borderBottom: "none" }}>
@@ -31,6 +38,7 @@ export default async function SettingsPage() {
           theme: ctx.seller.theme,
         }}
         notifyPrefs={notifyPrefs}
+        deliveryAreas={deliveryAreas}
       />
       <div style={{ padding: "16px 18px 0" }}>
         <AccountCard email={ctx.user.email ?? ""} />

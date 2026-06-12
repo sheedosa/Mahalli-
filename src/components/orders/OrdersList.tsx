@@ -61,7 +61,19 @@ export function OrdersList({
     if (status !== "all") query = query.eq("status", status);
     if (search.trim()) {
       const s = search.trim().replace(/[%,]/g, "");
-      query = query.or(`buyer_name.ilike.%${s}%,buyer_phone.ilike.%${s}%`);
+      // An order-ref search (the #XXXXXXXX shown on orders): hex, led by # or
+      // containing a-f, so pure-digit searches still hit phone numbers. Refs
+      // match as a uuid prefix range, which uses the primary key index.
+      const hex = s.replace(/^#/, "").toLowerCase();
+      const looksLikeRef =
+        /^[0-9a-f]{4,8}$/.test(hex) && (s.startsWith("#") || /[a-f]/.test(hex));
+      if (looksLikeRef) {
+        query = query
+          .gte("id", `${hex.padEnd(8, "0")}-0000-0000-0000-000000000000`)
+          .lte("id", `${hex.padEnd(8, "f")}-ffff-ffff-ffff-ffffffffffff`);
+      } else {
+        query = query.or(`buyer_name.ilike.%${s}%,buyer_phone.ilike.%${s}%`);
+      }
     }
     if (cursor) query = query.lt("created_at", cursor);
     const { data, error: qErr } = await query;
