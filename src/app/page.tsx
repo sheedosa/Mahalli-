@@ -18,18 +18,6 @@ import { LocaleSwitcher } from "@/components/LocaleSwitcher";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { PhoneMock } from "@/components/brand/PhoneMock";
 
-/** Fine film grain over the dark bands (inline SVG = same-origin, no CSP risk). */
-function Grain() {
-  return (
-    <svg className="lp-grain" aria-hidden xmlns="http://www.w3.org/2000/svg">
-      <filter id="lpNoise">
-        <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves={2} stitchTiles="stitch" />
-      </filter>
-      <rect width="100%" height="100%" filter="url(#lpNoise)" />
-    </svg>
-  );
-}
-
 export default async function LandingPage() {
   const { dict, locale } = await getI18n();
   const t = dict.landing;
@@ -54,10 +42,10 @@ export default async function LandingPage() {
   ];
 
   const features = [
-    { icon: <Store className="size-5" />, title: t.feat1, sub: t.feat1sub, wide: true },
-    { icon: <ClipboardList className="size-5" />, title: t.feat2, sub: t.feat2sub, wide: false },
-    { icon: <MessageCircle className="size-5" />, title: t.feat3, sub: t.feat3sub, wide: false },
-    { icon: <MapPin className="size-5" />, title: t.feat4, sub: t.feat4sub, wide: true },
+    { icon: <Store className="size-5" />, title: t.feat1, sub: t.feat1sub },
+    { icon: <ClipboardList className="size-5" />, title: t.feat2, sub: t.feat2sub },
+    { icon: <MessageCircle className="size-5" />, title: t.feat3, sub: t.feat3sub },
+    { icon: <MapPin className="size-5" />, title: t.feat4, sub: t.feat4sub },
   ];
 
   const faqs = [
@@ -68,77 +56,63 @@ export default async function LandingPage() {
   ];
 
   const heroTrust = `${t.trustFree} · ${t.trustNoCard} · ${t.trustLangs}`;
-  const marqueeItems = [t.trustFree, t.trustNoCard, t.trustLangs, t.trustCod, t.val2, t.feat4];
   const year = new Date().getFullYear();
-
   const revealAt = (i: number) => `reveal${i === 1 ? " reveal-d2" : i >= 2 ? " reveal-d3" : ""}`;
 
   return (
-    <main className="theme-mahalli sf anim-in">
-      {/* floating frosted pill nav */}
-      <header className="lp-navwrap">
-        <div className="lp-nav">
+    <main className="theme-mahalli sf">
+      {/* sticky nav (normal flow — never overlaps the hero) */}
+      <header className="lp-nav">
+        <div className="lp-wrap lp-nav-row">
           <Wordmark size={20} />
-          <div className="sf-row" style={{ gap: 8 }}>
+          <nav className="lp-nav-links">
+            <a href="#why" className="lp-nav-link">{t.whatIsLabel}</a>
+            <a href="#how" className="lp-nav-link">{t.how}</a>
+            <a href="#faq" className="lp-nav-link">{t.faqTitle}</a>
+          </nav>
+          <div className="lp-nav-right">
             <LocaleSwitcher />
-            <Link href="/signup" className="lp-nav-cta max-[400px]:hidden">{t.getStarted}</Link>
+            <Link href="/login" className="lp-nav-signin">{t.signIn}</Link>
+            <Link href="/signup" className="lp-nav-cta">{t.getStarted}</Link>
           </div>
         </div>
       </header>
 
-      {/* hero — dark aurora band */}
-      <section className="lp-dark lp-hero">
-        <Grain />
-        <span className="lp-blob" aria-hidden style={{ width: 200, height: 200, insetBlockStart: -40, insetInlineEnd: -30, background: "rgba(95,213,146,.40)" }} />
-        <span className="lp-blob" aria-hidden style={{ width: 170, height: 170, insetBlockEnd: -60, insetInlineStart: -50, background: "rgba(232,113,74,.22)" }} />
-        <div className="lp-inner" style={{ position: "relative" }}>
-          <span className="lp-live">
-            <span className="lp-live-dot" />
-            <span className="hero-eyebrow">{t.eyebrow}</span>
-          </span>
-          <h1 className="lp-hero-h1">{t.headline}</h1>
-          <p className="lp-hero-sub">{t.sub}</p>
-          <div className="lp-hero-cta">
-            <Link href="/signup" className="btn btn-hero btn-pill btn-sheen">{t.getStarted}</Link>
-            <Link href="/login" className="btn btn-hero-ghost btn-pill">{t.signIn}</Link>
+      {/* hero — light, two columns on desktop */}
+      <section className="lp-section lp-hero anim-in">
+        <div className="lp-wrap lp-hero-grid">
+          <div className="reveal">
+            <span className="lp-eyebrow">{t.eyebrow}</span>
+            <h1 className="lp-h1">{t.headline}</h1>
+            <p className="lp-lead lp-measure" style={{ marginBlockStart: 18 }}>{t.sub}</p>
+            <div className="lp-hero-cta">
+              <Link href="/signup" className="btn btn-accent btn-pill">{t.getStarted}</Link>
+              <Link href="/login" className="btn btn-outline btn-pill">{t.signIn}</Link>
+            </div>
+            <p className="lp-hero-trust">{heroTrust}</p>
           </div>
-          <p className="lp-hero-trust">{heroTrust}</p>
-        </div>
-      </section>
-
-      {/* phone mock — spotlit, floating, overlapping the hero edge */}
-      <div className="lp-phone">
-        <div className="lp-phone-float">
-          <PhoneMock shopName={t.sampleShop} tagline={t.sampleTagline} cta={dict.storefront.shopNow} products={mockProducts} />
-        </div>
-      </div>
-
-      {/* marquee strip */}
-      <section className="lp-band-tint" style={{ paddingBlock: 14 }}>
-        <div className="marquee" aria-hidden>
-          <div className="marquee-track">
-            {[...marqueeItems, ...marqueeItems].map((m, i) => (
-              <span key={i} className="marquee-chip"><span className="marquee-dot" />{m}</span>
-            ))}
+          <div className="lp-hero-art reveal reveal-d2">
+            <div className="lp-hero-panel">
+              <PhoneMock shopName={t.sampleShop} tagline={t.sampleTagline} cta={dict.storefront.shopNow} products={mockProducts} />
+            </div>
           </div>
         </div>
       </section>
 
-      {/* why Mahalli — definition + value bento */}
-      <section className="lp-band">
-        <div className="lp-inner lp-sect">
-          <span className="lp-ghost" aria-hidden>01</span>
-          <div className="sf-stack reveal" style={{ gap: 7, marginBlockEnd: 18 }}>
-            <span className="eyebrow-accent">{t.whatIsLabel}</span>
-            <p style={{ margin: 0, fontSize: 15.5, lineHeight: 1.6 }}>{t.whatIs}</p>
+      {/* why Mahalli */}
+      <section id="why" className="lp-section lp-tint">
+        <div className="lp-wrap">
+          <div className="reveal" style={{ textAlign: "center", maxWidth: 680, marginInline: "auto", marginBlockEnd: "clamp(32px, 5vw, 52px)" }}>
+            <h2 className="lp-h2">{t.whatIsLabel}</h2>
+            <p className="lp-lead" style={{ marginBlockStart: 16 }}>{t.whatIs}</p>
           </div>
-          <div className="lp-bento">
+          <div className="lp-cards lp-cards-3">
             {values.map((v, i) => (
-              <div key={i} className={`bento-card ${i === 0 ? "bento-wide" : ""} ${revealAt(i)}`}>
-                <span className="val-ic">{v.icon}</span>
-                <div className="sf-stack" style={{ gap: 3 }}>
-                  <span style={{ fontWeight: 800, fontSize: 15 }}>{v.title}</span>
-                  <span className="muted" style={{ fontSize: 13, lineHeight: 1.5 }}>{v.sub}</span>
+              <div key={i} className={`lp-card ${revealAt(i)}`}>
+                <span className="lp-card-ic">{v.icon}</span>
+                <div className="sf-stack" style={{ gap: 5 }}>
+                  <span className="lp-card-title">{v.title}</span>
+                  <span className="lp-card-sub">{v.sub}</span>
                 </div>
               </div>
             ))}
@@ -146,44 +120,22 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      {/* how it works — dark band, glowing timeline */}
-      <section className="lp-dark lp-band lp-band-dark">
-        <Grain />
-        <span className="lp-blob" aria-hidden style={{ width: 180, height: 180, insetBlockStart: -50, insetInlineEnd: -40, background: "rgba(47,158,94,.35)" }} />
-        <div className="lp-inner lp-sect">
-          <span className="lp-ghost" aria-hidden>02</span>
-          <h2 className="lp-h2 reveal" style={{ marginBlockEnd: 18 }}>{t.how}</h2>
-          <ol className="steps">
+      {/* how it works */}
+      <section id="how" className="lp-section">
+        <div className="lp-wrap">
+          <div className="reveal" style={{ textAlign: "center", maxWidth: 680, marginInline: "auto", marginBlockEnd: "clamp(32px, 5vw, 52px)" }}>
+            <h2 className="lp-h2">{t.how}</h2>
+          </div>
+          <div className="lp-steps">
             {steps.map((s, i) => (
-              <li key={i} className={`step ${revealAt(i)}`}>
-                <div className="step-rail">
-                  <span className="step-num">{i + 1}</span>
-                </div>
-                <div className="step-body">
-                  <span className="step-head">
-                    <span className="step-ic">{s.icon}</span>
-                    <span style={{ fontWeight: 800, fontSize: 15 }}>{s.title}</span>
-                  </span>
-                  <span className="muted" style={{ fontSize: 13, lineHeight: 1.5 }}>{s.sub}</span>
-                </div>
-              </li>
-            ))}
-          </ol>
-        </div>
-      </section>
-
-      {/* features — light band, bento grid */}
-      <section className="lp-band">
-        <div className="lp-inner lp-sect">
-          <span className="lp-ghost" aria-hidden>03</span>
-          <h2 className="lp-h2 reveal" style={{ marginBlockEnd: 18 }}>{t.featuresTitle}</h2>
-          <div className="lp-bento">
-            {features.map((f, i) => (
-              <div key={i} className={`bento-card ${f.wide ? "bento-wide" : ""} ${revealAt(i % 2)}`}>
-                <span className="feat-ic">{f.icon}</span>
-                <div className="sf-stack" style={{ gap: 3 }}>
-                  <span style={{ fontWeight: 800, fontSize: 14.5 }}>{f.title}</span>
-                  <span className="muted" style={{ fontSize: 12.5, lineHeight: 1.5 }}>{f.sub}</span>
+              <div key={i} className={`lp-step ${revealAt(i)}`}>
+                <span className="lp-step-num">{i + 1}</span>
+                <div>
+                  <div className="lp-step-title">
+                    <span style={{ color: "var(--accent-deep)", display: "inline-flex" }}>{s.icon}</span>
+                    {s.title}
+                  </div>
+                  <div className="lp-step-sub">{s.sub}</div>
                 </div>
               </div>
             ))}
@@ -191,48 +143,75 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      {/* FAQ — tinted band, native disclosures */}
-      <section className="lp-band lp-band-tint">
-        <div className="lp-inner lp-sect">
-          <span className="lp-ghost" aria-hidden>04</span>
-          <h2 className="lp-h2 reveal" style={{ marginBlockEnd: 16 }}>{t.faqTitle}</h2>
-          <div className="faq">
+      {/* features */}
+      <section id="features" className="lp-section lp-tint">
+        <div className="lp-wrap">
+          <div className="reveal" style={{ textAlign: "center", maxWidth: 680, marginInline: "auto", marginBlockEnd: "clamp(32px, 5vw, 52px)" }}>
+            <h2 className="lp-h2">{t.featuresTitle}</h2>
+          </div>
+          <div className="lp-cards lp-cards-4">
+            {features.map((f, i) => (
+              <div key={i} className={`lp-card ${revealAt(i % 2)}`}>
+                <span className="lp-card-ic">{f.icon}</span>
+                <div className="sf-stack" style={{ gap: 5 }}>
+                  <span className="lp-card-title">{f.title}</span>
+                  <span className="lp-card-sub">{f.sub}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section id="faq" className="lp-section">
+        <div className="lp-wrap">
+          <div className="reveal" style={{ textAlign: "center", maxWidth: 680, marginInline: "auto", marginBlockEnd: "clamp(28px, 4vw, 40px)" }}>
+            <h2 className="lp-h2">{t.faqTitle}</h2>
+          </div>
+          <div className="lp-faq">
             {faqs.map((f, i) => (
-              <details key={i} className={`faq-item ${revealAt(i % 3)}`}>
+              <details key={i} className={`lp-faq-item ${revealAt(i % 3)}`}>
                 <summary>
                   {f.q}
-                  <ChevronDown className="faq-chev size-[18px]" />
+                  <ChevronDown className="lp-faq-chev size-[18px]" />
                 </summary>
-                <p className="faq-a">{f.a}</p>
+                <p className="lp-faq-a">{f.a}</p>
               </details>
             ))}
           </div>
         </div>
       </section>
 
-      {/* closing CTA — dark aurora band */}
-      <section className="lp-dark lp-band-cta">
-        <Grain />
-        <span className="lp-blob" aria-hidden style={{ width: 200, height: 200, insetBlockStart: -50, insetInlineStart: -40, background: "rgba(95,213,146,.34)" }} />
-        <div className="lp-inner sf-stack reveal" style={{ gap: 13, alignItems: "center", textAlign: "center", position: "relative" }}>
-          <h2 style={{ margin: 0, fontSize: "clamp(22px, 7vw, 28px)", fontWeight: 900, letterSpacing: "-.02em", color: "#fff" }}>{t.closingTitle}</h2>
-          <p style={{ margin: 0, fontSize: 14, lineHeight: 1.55, color: "rgba(255,255,255,.82)", maxWidth: "32ch" }}>{t.closingSub}</p>
-          <Link href="/signup" className="btn btn-hero btn-pill btn-sheen" style={{ marginBlockStart: 6 }}>{t.getStarted}</Link>
-          <Link href="/login" className="btn btn-hero-ghost btn-pill">{t.signIn}</Link>
+      {/* closing CTA — contained gradient panel */}
+      <section className="lp-section-sm">
+        <div className="lp-wrap">
+          <div className="lp-cta reveal">
+            <h2 className="lp-cta-h2">{t.closingTitle}</h2>
+            <p className="lp-cta-sub">{t.closingSub}</p>
+            <div className="lp-cta-row">
+              <Link href="/signup" className="btn btn-onbrand btn-pill">{t.getStarted}</Link>
+              <Link href="/login" className="btn btn-onbrand-ghost btn-pill">{t.signIn}</Link>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* footer — dark */}
+      {/* footer — light */}
       <footer className="lp-footer">
-        <div className="lp-inner sf-stack" style={{ gap: 14, alignItems: "center", textAlign: "center" }}>
-          <Wordmark size={20} />
-          <p style={{ margin: 0, fontSize: 13, color: "rgba(255,255,255,.6)" }}>{dict.meta.tagline}</p>
-          <div className="lp-footer-links">
-            <Link href="/login" style={{ color: "var(--accent-deep)" }}>{t.signIn}</Link>
-            <Link href="/signup" style={{ color: "var(--accent-deep)" }}>{t.getStarted}</Link>
+        <div className="lp-wrap lp-footer-grid">
+          <div className="sf-stack" style={{ gap: 8 }}>
+            <Wordmark size={20} />
+            <p style={{ margin: 0, fontSize: 13, color: "var(--z500)" }}>{dict.meta.tagline}</p>
           </div>
-          <LocaleSwitcher />
-          <p style={{ margin: 0, fontSize: 11.5, color: "rgba(255,255,255,.45)" }}>© {year} {dict.meta.appName}</p>
+          <div className="lp-footer-links">
+            <Link href="/login" className="lp-footer-link">{t.signIn}</Link>
+            <Link href="/signup" className="lp-footer-link">{t.getStarted}</Link>
+          </div>
+          <div className="sf-stack" style={{ gap: 10, alignItems: "center" }}>
+            <LocaleSwitcher />
+            <p style={{ margin: 0, fontSize: 12, color: "var(--z500)" }}>© {year} {dict.meta.appName}</p>
+          </div>
         </div>
       </footer>
     </main>
