@@ -39,7 +39,7 @@ export default async function NewOrderPage() {
         >
           <ChevronLeft className="size-5 flip-x" />
         </Link>
-        <h1 className="text-xl font-bold">
+        <h1 className="display text-xl font-bold">
           {dict.manualOrder.title}
         </h1>
       </div>

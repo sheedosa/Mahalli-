@@ -46,7 +46,7 @@ export default async function OrderDetailPage({
         >
           <ChevronLeft className="size-5 flip-x" />
         </Link>
-        <h1 className="flex-1 text-lg font-bold">
+        <h1 className="display flex-1 text-lg font-bold">
           {t.order} #{ref}
         </h1>
         <span

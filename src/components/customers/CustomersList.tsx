@@ -74,7 +74,7 @@ export function CustomersList({
 
   return (
     <div className="space-y-4 px-4">
-      <h1 className="text-xl font-bold">{t.title}</h1>
+      <h1 className="display text-xl font-bold">{t.title}</h1>
 
       <div className="relative">
         <Search className="pointer-events-none absolute inset-y-0 start-3 my-auto size-4" style={{ color: "var(--z400)" }} />

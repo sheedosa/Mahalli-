@@ -110,9 +110,9 @@ export function GettingStarted({
   }
 
   return (
-    <div className="card anim-in" style={{ padding: 16, marginBottom: 14 }}>
-      <div className="sf-row sf-between" style={{ marginBottom: 12 }}>
-        <span style={{ fontWeight: 800, fontSize: 15.5 }}>{t.title}</span>
+    <div className="card anim-in" style={{ padding: 18, marginBottom: 14 }}>
+      <div className="sf-row sf-between" style={{ marginBottom: 14 }}>
+        <span className="display" style={{ fontWeight: 800, fontSize: 16, letterSpacing: "-.02em" }}>{t.title}</span>
         <span className="sf-row" style={{ gap: 8 }}>
           <span className="pill pill-accent">
             {t.progress.replace("{done}", String(doneCount)).replace("{total}", String(steps.length))}

@@ -116,7 +116,7 @@ export function ProductList({
         <div className="empty">
           <div className="empty-art"><Package className="size-9" /></div>
           <div className="sf-stack" style={{ gap: 6 }}>
-            <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>
+            <h3 className="display" style={{ margin: 0, fontSize: 19, fontWeight: 800, letterSpacing: "-.02em" }}>
               {q ? t.noResults : t.emptyTitle}
             </h3>
             {!q && <p className="muted" style={{ margin: 0, fontSize: 14, maxWidth: 260, lineHeight: 1.6 }}>{t.emptyBody}</p>}

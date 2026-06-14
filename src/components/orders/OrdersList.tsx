@@ -109,7 +109,7 @@ export function OrdersList({
   return (
     <div className="space-y-4 px-4">
       <div className="flex items-center justify-between gap-2">
-        <h1 className="text-xl font-bold">{t.title}</h1>
+        <h1 className="display text-xl font-bold">{t.title}</h1>
         <Link href="/orders/new" className="btn btn-primary btn-sm">
           <Plus className="size-4" /> {t.newManual}
         </Link>

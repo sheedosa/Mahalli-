@@ -62,12 +62,12 @@ export default async function OverviewPage() {
   const td = dict.dashboard;
 
   const tile = (icon: React.ReactNode, label: string, value: string, tone: string) => (
-    <div className="tile" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-      <span style={{ width: 36, height: 36, borderRadius: 11, background: tone, color: "var(--accent-deep)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+    <div className="tile" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      <span style={{ width: 40, height: 40, borderRadius: 13, background: tone, color: "var(--accent-deep)", display: "flex", alignItems: "center", justifyContent: "center" }}>
         {icon}
       </span>
       <div className="sf-stack" style={{ gap: 2 }}>
-        <span style={{ fontSize: 21, fontWeight: 800, letterSpacing: "-.01em" }}>{value}</span>
+        <span className="display" style={{ fontSize: 24, fontWeight: 800, letterSpacing: "-.03em" }}>{value}</span>
         <span className="muted" style={{ fontSize: 12.5, fontWeight: 600 }}>{label}</span>
       </div>
     </div>
@@ -109,7 +109,7 @@ export default async function OverviewPage() {
       {/* recent orders */}
       <div style={{ marginTop: 24 }}>
         <div className="sf-row sf-between" style={{ padding: "0 4px", marginBottom: 12 }}>
-          <h2 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>{dict.orders.title}</h2>
+          <h2 className="display" style={{ margin: 0, fontSize: 19, fontWeight: 800, letterSpacing: "-.02em" }}>{dict.orders.title}</h2>
           <Link href="/orders" style={{ color: "var(--accent-deep)", fontWeight: 700, fontSize: 13.5, textDecoration: "none" }}>
             {dict.products.loadMore}
           </Link>
@@ -119,7 +119,7 @@ export default async function OverviewPage() {
           <div className="empty">
             <div className="empty-art"><Package className="size-9" /></div>
             <div className="sf-stack" style={{ gap: 6 }}>
-              <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>{td.ordersEmpty}</h3>
+              <h3 className="display" style={{ margin: 0, fontSize: 19, fontWeight: 800, letterSpacing: "-.02em" }}>{td.ordersEmpty}</h3>
               <p className="muted" style={{ margin: 0, fontSize: 14, lineHeight: 1.6, maxWidth: 260 }}>{td.ordersEmptyHint}</p>
             </div>
           </div>
