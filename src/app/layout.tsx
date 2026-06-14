@@ -1,15 +1,26 @@
 import type { Metadata, Viewport } from "next";
-import { Cairo } from "next/font/google";
+import { Cairo, Hanken_Grotesk } from "next/font/google";
 import "./globals.css";
 import { getI18n } from "@/i18n";
 import { dir } from "@/i18n/config";
 import { I18nProvider } from "@/i18n/provider";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 
-// Cairo covers Arabic and Latin well and reads cleanly on small screens.
+// Cairo covers Arabic and Latin well and reads cleanly on small screens — it is
+// the body/UI font and the Arabic display font.
 const cairo = Cairo({
   subsets: ["arabic", "latin"],
   variable: "--font-app",
+  display: "swap",
+});
+
+// Hanken Grotesk is the Latin display face for headings and big numbers (the
+// "big-company" feel). It has no Arabic glyphs, so the --font-display stack
+// falls back to Cairo for Arabic automatically (per-glyph).
+const display = Hanken_Grotesk({
+  subsets: ["latin"],
+  weight: ["600", "700", "800"],
+  variable: "--font-grotesk",
   display: "swap",
 });
 
@@ -57,7 +68,7 @@ export default async function RootLayout({
     <html
       lang={locale}
       dir={dir(locale)}
-      className={`${cairo.variable} h-full antialiased`}
+      className={`${cairo.variable} ${display.variable} h-full antialiased`}
     >
       <body className="min-h-full">
         <I18nProvider locale={locale} dict={dict}>
