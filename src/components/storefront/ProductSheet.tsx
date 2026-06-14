@@ -100,7 +100,12 @@ export function ProductSheet({
 
         <div
           className="relative w-full overflow-hidden"
-          style={{ aspectRatio: "1 / 1", borderRadius: 22, background: "var(--surface-2)", marginBottom: 16 }}
+          style={{
+            aspectRatio: "1 / 1",
+            borderRadius: "var(--r-lg)",
+            background: "radial-gradient(120% 70% at 50% 116%, color-mix(in srgb, var(--ink) 8%, transparent), transparent 70%), var(--surface-2)",
+            marginBottom: 16,
+          }}
         >
           {product.image_url && (
             <Image
@@ -113,7 +118,7 @@ export function ProductSheet({
           )}
         </div>
 
-        <h2 style={{ margin: 0, fontSize: 21, fontWeight: 800, lineHeight: 1.25 }}>
+        <h2 className="display" style={{ margin: 0, fontSize: 22, fontWeight: 800, lineHeight: 1.2, letterSpacing: "-.02em" }}>
           {product.name}
         </h2>
         <p className="price" style={{ marginTop: 6, fontSize: 20 }}>

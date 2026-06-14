@@ -182,7 +182,7 @@ export function StorefrontApp({
           >
             <CheckCircle2 className="size-14" strokeWidth={2.4} />
           </div>
-          <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800 }}>{t.orderPlacedTitle}</h1>
+          <h1 className="display" style={{ margin: 0, fontSize: 26, fontWeight: 800, letterSpacing: "-.025em" }}>{t.orderPlacedTitle}</h1>
           <p className="muted" style={{ margin: 0, fontSize: 15, lineHeight: 1.7, maxWidth: 280 }}>
             {t.orderPlacedBody}
           </p>
@@ -297,7 +297,7 @@ export function StorefrontApp({
           >
             <div style={{ position: "absolute", insetInlineEnd: -30, insetBlockStart: -30, width: 150, height: 150, borderRadius: "50%", background: "rgba(255,255,255,.12)" }} />
             <div style={{ position: "relative", maxWidth: shop.logo_url ? "62%" : "100%" }}>
-              <h1 style={{ margin: 0, color: "var(--hero-ink)", fontSize: 26, fontWeight: 800, lineHeight: 1.18, letterSpacing: "-.01em" }}>
+              <h1 className="display" style={{ margin: 0, color: "var(--hero-ink)", fontSize: 28, fontWeight: 800, lineHeight: 1.12, letterSpacing: "-.025em" }}>
                 {shop.name}
               </h1>
             </div>
@@ -373,7 +373,7 @@ export function StorefrontApp({
             <div className="empty">
               <div className="empty-art"><Package className="size-9" /></div>
               <div className="sf-stack" style={{ gap: 6 }}>
-                <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>
+                <h3 className="display" style={{ margin: 0, fontSize: 19, fontWeight: 800, letterSpacing: "-.02em" }}>
                   {q ? t.noResults : dict.products.emptyTitle}
                 </h3>
               </div>
@@ -404,19 +404,19 @@ export function StorefrontApp({
                       )}
                       <div className="pcard-fav">
                         <button
-                          className="iconbtn"
+                          className={`iconbtn${fav ? " iconbtn-ink" : ""}`}
                           aria-label="favorite"
                           onClick={(e) => { e.stopPropagation(); toggleFav(p.id); }}
-                          style={fav ? { background: "#fff", color: "var(--danger)" } : undefined}
+                          style={{ width: 34, height: 34 }}
                         >
-                          <Heart className="size-[17px]" fill={fav ? "currentColor" : "none"} />
+                          <Heart className="size-[16px]" fill={fav ? "currentColor" : "none"} style={fav ? { color: "#fff" } : undefined} />
                         </button>
                       </div>
                       <div className="pcard-badge">
                         {stock <= 0 ? (
-                          <span className="pill pill-dark">{t.outOfStock}</span>
+                          <span className="badge-soft">{t.outOfStock}</span>
                         ) : stock <= 3 ? (
-                          <span className="pill pill-warning">{dict.products.lowStock}</span>
+                          <span className="badge-soft" style={{ color: "var(--warning)" }}>{dict.products.lowStock}</span>
                         ) : null}
                       </div>
                     </div>
