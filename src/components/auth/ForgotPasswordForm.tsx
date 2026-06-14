@@ -25,7 +25,7 @@ export function ForgotPasswordForm() {
   return (
     <div className="sf-stack" style={{ gap: 22 }}>
       <div className="sf-stack" style={{ gap: 6 }}>
-        <h1 style={{ margin: 0, fontSize: 25, fontWeight: 800, letterSpacing: "-.01em" }}>
+        <h1 className="display" style={{ margin: 0, fontSize: 27, fontWeight: 800, letterSpacing: "-.025em" }}>
           {t.forgotTitle}
         </h1>
         <p className="muted" style={{ margin: 0, fontSize: 14, lineHeight: 1.5 }}>

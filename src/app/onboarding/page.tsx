@@ -23,7 +23,7 @@ export default async function OnboardingPage() {
         </header>
         <main className="flex flex-1 flex-col justify-center" style={{ padding: "24px 0" }}>
           <div className="sf-stack" style={{ gap: 6, marginBottom: 22 }}>
-            <h1 style={{ margin: 0, fontSize: 25, fontWeight: 800, letterSpacing: "-.01em" }}>
+            <h1 className="display" style={{ margin: 0, fontSize: 27, fontWeight: 800, letterSpacing: "-.025em" }}>
               {dict.onboarding.title}
             </h1>
             <p className="muted" style={{ margin: 0, fontSize: 14, lineHeight: 1.6 }}>
